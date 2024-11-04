@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './SurveyLink.module.css';
 
 interface FormData {
@@ -17,6 +18,8 @@ interface FormErrors {
 }
 
 const SurveyLink = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
@@ -94,53 +97,25 @@ const SurveyLink = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handlePreview = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) {
       return;
     }
 
-    setIsLoading(true);
-    try {
-      const response = await fetch('/api/surveys', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          ...formData,
-          createdAt: new Date()
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save survey');
-      }
-
-      setFormData({
-        title: '',
-        description: '',
-        surveyUrl: '',
-        reward: '',
-        respondents: '',
-        timeToComplete: '',
-        expiresIn: '',
-        workerQualifications: 'basic'
-      });
-      alert('Survey link added successfully!');
-    } catch (error) {
-      alert('Failed to add survey link. Please try again.');
-      console.error('Error:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    // Navigate to preview page with form data
+    navigate('/survey-preview', { 
+      state: { 
+        formData,
+      } 
+    });
   };
 
   return (
     <div className={styles.surveyLink}>
       <h2>Add External Survey Link</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handlePreview}>
         <div className={styles.formGroup}>
           <label className={styles.label} htmlFor="surveyUrl">Survey URL:</label>
           <input
@@ -269,7 +244,7 @@ const SurveyLink = () => {
           type="submit" 
           disabled={isLoading}
         >
-          {isLoading ? 'Adding Survey Link...' : 'Add Survey Link'}
+          Preview Survey
         </button>
       </form>
     </div>

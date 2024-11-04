@@ -25,6 +25,7 @@ import InviteRegisterPage from './Authentication/InviteRegisterPage.tsx';
 import CreateProject from './Projects/CreateProject.tsx';
 import SurveyLink from './Projects/SurveyLink.tsx';
 import SurveyBuilder from './Projects/SurveyBuilder.tsx';
+import SurveyPreview from './Projects/SurveyPreview';
 
 function App() {
   return (
@@ -78,6 +79,8 @@ function App() {
 
                   {/* Route which is accessed if no other route is matched */}
                   <Route path="*" element={<NotFoundPage />} />
+
+                  <Route path="/survey-preview" element={<SurveyPreview />} />
                 </Routes>
               </CssBaseline>
             </ThemeProvider>

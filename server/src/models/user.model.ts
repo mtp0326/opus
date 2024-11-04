@@ -48,6 +48,23 @@ const UserSchema = new mongoose.Schema({
     required: true,
     default: false,
   },
+  league: {
+    type: String,
+    enum: ['Bronze', 'Silver', 'Gold', 'Platinum'],
+    default: 'Bronze',
+  },
+  streak: {
+    type: Number,
+    default: 0,
+  },
+  tickets: {
+    type: Number,
+    default: 0,
+  },
+  lastSurveyDate: {
+    type: Date,
+    default: null,
+  },
 });
 
 interface IUser extends mongoose.Document {
@@ -61,6 +78,10 @@ interface IUser extends mongoose.Document {
   resetPasswordToken: string | null | undefined;
   resetPasswordTokenExpiryDate: Date | null | undefined;
   admin: boolean;
+  league: string;
+  streak: number;
+  tickets: number;
+  lastSurveyDate: Date | null | undefined;
 }
 
 const User = mongoose.model<IUser>('User', UserSchema);

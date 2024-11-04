@@ -22,6 +22,9 @@ import EmailResetPasswordPage from './Authentication/EmailResetPasswordPage.tsx'
 import ResetPasswordPage from './Authentication/ResetPasswordPage.tsx';
 import AlertPopup from './components/AlertPopup.tsx';
 import InviteRegisterPage from './Authentication/InviteRegisterPage.tsx';
+import CreateProject from './Projects/CreateProject.tsx';
+import SurveyLink from './Projects/SurveyLink.tsx';
+import SurveyBuilder from './Projects/SurveyBuilder.tsx';
 
 function App() {
   return (
@@ -57,6 +60,9 @@ function App() {
                   {/* Routes accessed only if user is authenticated */}
                   <Route element={<ProtectedRoutesWrapper />}>
                     <Route path="/home" element={<HomePage />} />
+                    <Route path="/create-project" element={<CreateProject />} />
+                    <Route path="/survey-link" element={<SurveyLink />} />
+                    <Route path="/survey-builder" element={<SurveyBuilder />} />
                   </Route>
                   <Route element={<AdminRoutesWrapper />}>
                     <Route path="/users" element={<AdminDashboardPage />} />

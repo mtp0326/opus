@@ -11,6 +11,7 @@ import {
 import { logout as logoutApi, selfUpgrade } from './api.tsx';
 import ScreenGrid from '../components/ScreenGrid.tsx';
 import PrimaryButton from '../components/buttons/PrimaryButton.tsx';
+import Navigation from '../components/Navigation';
 
 interface PromoteButtonProps {
   admin: boolean | null;
@@ -71,19 +72,22 @@ function HomePage() {
 
   const message = `Welcome to the Boilerplate, ${user.firstName} ${user.lastName}!`;
   return (
-    <ScreenGrid>
-      <Typography variant="h2">{message}</Typography>
-      <Grid item container justifyContent="center">
-        <PromoteButton
-          admin={admin}
-          handleSelfPromote={handleSelfPromote}
-          navigator={navigator}
-        />
-      </Grid>
-      <Grid item container justifyContent="center">
-        <Button onClick={handleLogout}>Logout</Button>
-      </Grid>
-    </ScreenGrid>
+    <>
+      <Navigation />
+      <ScreenGrid>
+        <Typography variant="h2">{message}</Typography>
+        <Grid item container justifyContent="center">
+          <PromoteButton
+            admin={admin}
+            handleSelfPromote={handleSelfPromote}
+            navigator={navigator}
+          />
+        </Grid>
+        <Grid item container justifyContent="center">
+          <Button onClick={handleLogout}>Logout</Button>
+        </Grid>
+      </ScreenGrid>
+    </>
   );
 }
 

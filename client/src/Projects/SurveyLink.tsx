@@ -103,9 +103,21 @@ const SurveyLink = () => {
 
     setIsLoading(true);
     try {
-      // Replace with your actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Survey link submitted:', formData);
+      const response = await fetch('/api/surveys', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...formData,
+          createdAt: new Date()
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save survey');
+      }
+
       setFormData({
         title: '',
         description: '',
@@ -119,6 +131,7 @@ const SurveyLink = () => {
       alert('Survey link added successfully!');
     } catch (error) {
       alert('Failed to add survey link. Please try again.');
+      console.error('Error:', error);
     } finally {
       setIsLoading(false);
     }

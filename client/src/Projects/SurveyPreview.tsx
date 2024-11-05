@@ -9,7 +9,7 @@ const SurveyPreview = () => {
   const [completionCode, setCompletionCode] = useState('');
 
   const handleNext = () => {
-    navigate('/survey-test', { 
+    navigate('/create-publish-test', { 
       state: { 
         formData,
       } 

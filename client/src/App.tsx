@@ -26,6 +26,7 @@ import CreateProject from './Projects/CreateProject.tsx';
 import SurveyLink from './Projects/SurveyLink.tsx';
 import SurveyBuilder from './Projects/SurveyBuilder.tsx';
 import SurveyPreview from './Projects/SurveyPreview';
+import CreatePublishTest from './Projects/CreatePublishTest.tsx';
 
 function App() {
   return (
@@ -81,6 +82,7 @@ function App() {
                   <Route path="*" element={<NotFoundPage />} />
 
                   <Route path="/survey-preview" element={<SurveyPreview />} />
+                  <Route path="/create-publish-test" element={<CreatePublishTest />} />
                 </Routes>
               </CssBaseline>
             </ThemeProvider>

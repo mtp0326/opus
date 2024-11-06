@@ -17,7 +17,7 @@ interface FormErrors {
   [key: string]: string;
 }
 
-const SurveyLink = () => {
+function SurveyLink() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<FormData>({
@@ -28,7 +28,7 @@ const SurveyLink = () => {
     respondents: '',
     timeToComplete: '',
     expiresIn: '',
-    workerQualifications: 'basic'
+    workerQualifications: 'basic',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -81,34 +81,36 @@ const SurveyLink = () => {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
   ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: '',
       }));
     }
   };
 
   const handlePreview = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
     // Navigate to preview page with form data
-    navigate('/survey-preview', { 
-      state: { 
+    navigate('/survey-preview', {
+      state: {
         formData,
-      } 
+      },
     });
   };
 
@@ -117,7 +119,9 @@ const SurveyLink = () => {
       <h2>Add External Survey Link</h2>
       <form onSubmit={handlePreview}>
         <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="surveyUrl">Survey URL:</label>
+          <label className={styles.label} htmlFor="surveyUrl">
+            Survey URL:
+          </label>
           <input
             className={styles.input}
             type="url"
@@ -128,11 +132,15 @@ const SurveyLink = () => {
             placeholder="https://your-survey-url.com"
             disabled={isLoading}
           />
-          {errors.surveyUrl && <div className={styles.error}>{errors.surveyUrl}</div>}
+          {errors.surveyUrl && (
+            <div className={styles.error}>{errors.surveyUrl}</div>
+          )}
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="title">Survey Title:</label>
+          <label className={styles.label} htmlFor="title">
+            Survey Title:
+          </label>
           <input
             className={styles.input}
             type="text"
@@ -146,7 +154,9 @@ const SurveyLink = () => {
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="description">Description:</label>
+          <label className={styles.label} htmlFor="description">
+            Description:
+          </label>
           <textarea
             className={styles.textarea}
             id="description"
@@ -155,11 +165,15 @@ const SurveyLink = () => {
             onChange={handleChange}
             disabled={isLoading}
           />
-          {errors.description && <div className={styles.error}>{errors.description}</div>}
+          {errors.description && (
+            <div className={styles.error}>{errors.description}</div>
+          )}
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="reward">Reward ($):</label>
+          <label className={styles.label} htmlFor="reward">
+            Reward ($):
+          </label>
           <input
             className={styles.input}
             type="number"
@@ -175,7 +189,9 @@ const SurveyLink = () => {
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="respondents">Number of Respondents:</label>
+          <label className={styles.label} htmlFor="respondents">
+            Number of Respondents:
+          </label>
           <input
             className={styles.input}
             type="number"
@@ -186,7 +202,9 @@ const SurveyLink = () => {
             onChange={handleChange}
             disabled={isLoading}
           />
-          {errors.respondents && <div className={styles.error}>{errors.respondents}</div>}
+          {errors.respondents && (
+            <div className={styles.error}>{errors.respondents}</div>
+          )}
         </div>
 
         <div className={styles.formGroup}>
@@ -203,11 +221,15 @@ const SurveyLink = () => {
             onChange={handleChange}
             disabled={isLoading}
           />
-          {errors.timeToComplete && <div className={styles.error}>{errors.timeToComplete}</div>}
+          {errors.timeToComplete && (
+            <div className={styles.error}>{errors.timeToComplete}</div>
+          )}
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label} htmlFor="expiresIn">Survey Expires In (days):</label>
+          <label className={styles.label} htmlFor="expiresIn">
+            Survey Expires In (days):
+          </label>
           <input
             className={styles.input}
             type="number"
@@ -218,7 +240,9 @@ const SurveyLink = () => {
             onChange={handleChange}
             disabled={isLoading}
           />
-          {errors.expiresIn && <div className={styles.error}>{errors.expiresIn}</div>}
+          {errors.expiresIn && (
+            <div className={styles.error}>{errors.expiresIn}</div>
+          )}
         </div>
 
         <div className={styles.formGroup}>
@@ -239,9 +263,9 @@ const SurveyLink = () => {
           </select>
         </div>
 
-        <button 
+        <button
           className={`${styles.button} ${isLoading ? styles.loading : ''}`}
-          type="submit" 
+          type="submit"
           disabled={isLoading}
         >
           Preview Survey
@@ -249,6 +273,6 @@ const SurveyLink = () => {
       </form>
     </div>
   );
-};
+}
 
-export default SurveyLink; 
+export default SurveyLink;

@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './CreatePublishTest.module.css';
 
-const FEE_PERCENTAGE = 0.20; // 20% fee
+const FEE_PERCENTAGE = 0.2; // 20% fee
 
-const CreatePublishTest = () => {
+function CreatePublishTest() {
   const location = useLocation();
   const navigate = useNavigate();
   const { formData } = location.state;
@@ -37,13 +37,13 @@ const CreatePublishTest = () => {
           // createdBy will be set by the backend using the authenticated user
         }),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to create survey');
       }
 
-      navigate('/dashboard', { 
-        state: { message: 'Survey published successfully!' }
+      navigate('/dashboard', {
+        state: { message: 'Survey published successfully!' },
       });
     } catch (error) {
       console.error('Error publishing survey:', error);
@@ -56,16 +56,31 @@ const CreatePublishTest = () => {
   return (
     <div className={styles.container}>
       <h2>Review and Publish Survey</h2>
-      
+
       <div className={styles.surveyInfo}>
         <h3>Survey Details</h3>
-        <p><strong>Title:</strong> {formData.title}</p>
-        <p><strong>Description:</strong> {formData.description}</p>
-        <p><strong>Survey URL:</strong> {formData.surveyUrl}</p>
-        <p><strong>Time to Complete:</strong> {formData.timeToComplete} minutes</p>
-        <p><strong>Number of Respondents:</strong> {formData.respondents}</p>
-        <p><strong>Expires In:</strong> {formData.expiresIn} days</p>
-        <p><strong>Worker Qualifications:</strong> {formData.workerQualifications || 'Basic'}</p>
+        <p>
+          <strong>Title:</strong> {formData.title}
+        </p>
+        <p>
+          <strong>Description:</strong> {formData.description}
+        </p>
+        <p>
+          <strong>Survey URL:</strong> {formData.surveyUrl}
+        </p>
+        <p>
+          <strong>Time to Complete:</strong> {formData.timeToComplete} minutes
+        </p>
+        <p>
+          <strong>Number of Respondents:</strong> {formData.respondents}
+        </p>
+        <p>
+          <strong>Expires In:</strong> {formData.expiresIn} days
+        </p>
+        <p>
+          <strong>Worker Qualifications:</strong>{' '}
+          {formData.workerQualifications || 'Basic'}
+        </p>
       </div>
 
       <div className={styles.costBreakdown}>
@@ -89,7 +104,8 @@ const CreatePublishTest = () => {
           <h4>Total Project Cost:</h4>
           <p className={styles.totalAmount}>${totalCost.toFixed(2)}</p>
           <p className={styles.costNote}>
-            This amount covers {formData.respondents} worker{formData.respondents > 1 ? 's' : ''} 
+            This amount covers {formData.respondents} worker
+            {formData.respondents > 1 ? 's' : ''}
             at ${totalCostPerWorker.toFixed(2)} each
           </p>
         </div>
@@ -106,6 +122,6 @@ const CreatePublishTest = () => {
       </div>
     </div>
   );
-};
+}
 
-export default CreatePublishTest; 
+export default CreatePublishTest;

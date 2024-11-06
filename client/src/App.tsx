@@ -82,7 +82,10 @@ function App() {
                   <Route path="*" element={<NotFoundPage />} />
 
                   <Route path="/survey-preview" element={<SurveyPreview />} />
-                  <Route path="/create-publish-test" element={<CreatePublishTest />} />
+                  <Route
+                    path="/create-publish-test"
+                    element={<CreatePublishTest />}
+                  />
                 </Routes>
               </CssBaseline>
             </ThemeProvider>

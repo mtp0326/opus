@@ -8,17 +8,19 @@ function CreateProject() {
 
   return (
     <ScreenGrid>
-      <Typography variant="h2" sx={{ mb: 4 }}>Create New Project</Typography>
+      <Typography variant="h2" sx={{ mb: 4 }}>
+        Create New Project
+      </Typography>
       <Stack spacing={3} direction="row" justifyContent="center">
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           size="large"
           onClick={() => navigate('/survey-link')}
         >
           Survey Link
         </Button>
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           size="large"
           onClick={() => navigate('/survey-builder')}
         >
@@ -29,4 +31,4 @@ function CreateProject() {
   );
 }
 
-export default CreateProject; 
+export default CreateProject;

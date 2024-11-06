@@ -20,7 +20,7 @@ interface SurveyData {
   questions: Question[];
 }
 
-const SurveyBuilder = () => {
+function SurveyBuilder() {
   const [surveyData, setSurveyData] = useState<SurveyData>({
     title: '',
     description: '',
@@ -29,7 +29,7 @@ const SurveyBuilder = () => {
     timeToComplete: '',
     expiresIn: '',
     workerQualifications: 'basic',
-    questions: []
+    questions: [],
   });
 
   const [currentQuestion, setCurrentQuestion] = useState<Question>({
@@ -37,42 +37,46 @@ const SurveyBuilder = () => {
     type: 'multiple_choice',
     question: '',
     options: [''],
-    required: false
+    required: false,
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(false);
 
   const handleBasicInfoChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
   ) => {
     const { name, value } = e.target;
-    setSurveyData(prev => ({
+    setSurveyData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
-  const handleQuestionChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleQuestionChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
-    const checked = (e.target as HTMLInputElement).checked;
-    const type = e.target.type;
-    setCurrentQuestion(prev => ({
+    const { checked } = e.target as HTMLInputElement;
+    const { type } = e.target;
+    setCurrentQuestion((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
   const handleOptionChange = (index: number, value: string) => {
-    setCurrentQuestion(prev => ({
+    setCurrentQuestion((prev) => ({
       ...prev,
-      options: prev.options?.map((opt, i) => (i === index ? value : opt)) || []
+      options: prev.options?.map((opt, i) => (i === index ? value : opt)) || [],
     }));
   };
 
   const addOption = () => {
-    setCurrentQuestion(prev => ({
+    setCurrentQuestion((prev) => ({
       ...prev,
-      options: [...(prev.options || []), '']
+      options: [...(prev.options || []), ''],
     }));
   };
 
@@ -81,6 +85,6 @@ const SurveyBuilder = () => {
       {/* Render your survey components here */}
     </div>
   );
-};
+}
 
-export default SurveyBuilder; 
+export default SurveyBuilder;

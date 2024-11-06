@@ -51,7 +51,7 @@ const surveySchema = new mongoose.Schema({
     type: String,
     enum: ['active', 'completed', 'expired'],
     default: 'active',
-  }
+  },
 });
 
-export const Survey = mongoose.model('Survey', surveySchema); 
+export const Survey = mongoose.model('Survey', surveySchema);

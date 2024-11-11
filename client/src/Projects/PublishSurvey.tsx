@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './PublishSurvey.module.css';
+import { publishSurvey } from './api';
 
 const FEE_PERCENTAGE = 0.20; // 20% fee
 
@@ -17,37 +18,27 @@ const PublishSurvey = () => {
   const totalCost = totalCostPerWorker * formData.respondents;
 
   const handlePublish = async () => {
+
     setIsLoading(true);
     try {
-      const response = await fetch('/api/surveys', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: formData.title,
-          description: formData.description,
-          surveyUrl: formData.surveyUrl,
-          reward: baseReward,
-          respondents: formData.respondents,
-          timeToComplete: formData.timeToComplete,
-          expiresIn: formData.expiresIn,
-          workerQualifications: formData.workerQualifications || 'basic',
-          status: 'active',
-          // createdBy will be set by the backend using the authenticated user
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to create survey');
-      }
 
+      await publishSurvey({
+        title: formData.title,
+        description: formData.description,
+        surveyUrl: formData.surveyUrl,
+        reward: baseReward,
+        respondents: formData.respondents,
+        timeToComplete: formData.timeToComplete,
+        expiresIn: formData.expiresIn,
+        workerQualifications: formData.workerQualifications,
+        status: 'active'
+      });
+     
       navigate('/', { 
         state: { message: 'Survey published successfully!' }
       });
     } catch (error) {
-      console.error('Error publishing survey:', error);
-      // Handle error (show error message)
+      alert('Error publishing survey: ' + error);
     } finally {
       setIsLoading(false);
     }
@@ -98,7 +89,10 @@ const PublishSurvey = () => {
       <div className={styles.actions}>
         <button
           className={styles.publishButton}
-          onClick={handlePublish}
+          onClick={() => {
+            console.log('Button clicked via inline handler');
+            handlePublish();
+          }}
           disabled={isLoading}
         >
           {isLoading ? 'Publishing...' : 'Publish Survey'}

@@ -10,6 +10,7 @@ import { Router } from 'express';
 import adminRouter from './admin.route.ts';
 import authRouter from './auth.route.ts';
 import incentiveRouter from './incentive.route.ts';
+import surveyRouter from './survey.route.ts';
 
 const prefixToRouterMap: { prefix: string; router: Router }[] = [
   {
@@ -23,6 +24,10 @@ const prefixToRouterMap: { prefix: string; router: Router }[] = [
   {
     prefix: '/api/incentives',
     router: incentiveRouter,
+  },
+  {
+    prefix: '/api/surveys',
+    router: surveyRouter,
   },
 ];
 

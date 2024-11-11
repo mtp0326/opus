@@ -1,6 +1,20 @@
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
-const surveySchema = new mongoose.Schema({
+interface ISurvey {
+  title: string;
+  description: string;
+  surveyUrl: string;
+  reward: number;
+  respondents: number;
+  timeToComplete: number;
+  expiresIn: number;
+  workerQualifications: 'basic' | 'intermediate' | 'expert';
+  status: 'active' | 'completed' | 'expired';
+  createdBy: string;
+  createdAt: Date;
+}
+
+const surveySchema = new mongoose.Schema<ISurvey>({
   title: {
     type: String,
     required: true,
@@ -39,7 +53,7 @@ const surveySchema = new mongoose.Schema({
     default: 'basic',
   },
   createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: 'User',
     required: true,
   },

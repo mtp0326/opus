@@ -26,7 +26,8 @@ import CreateProject from './Projects/CreateProject.tsx';
 import SurveyLink from './Projects/SurveyLink.tsx';
 import SurveyBuilder from './Projects/SurveyBuilder.tsx';
 import SurveyPreview from './Projects/SurveyPreview';
-import CreatePublishTest from './Projects/CreatePublishTest.tsx';
+import CreatePublishTest from './Projects/PublishSurvey.tsx';
+//import LabelData from './Projects/LabelData';
 
 function App() {
   return (

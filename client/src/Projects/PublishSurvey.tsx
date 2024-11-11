@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import styles from './CreatePublishTest.module.css';
+import styles from './PublishSurvey.module.css';
 
 const FEE_PERCENTAGE = 0.20; // 20% fee
 
-const CreatePublishTest = () => {
+const PublishSurvey = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { formData } = location.state;
@@ -13,7 +13,7 @@ const CreatePublishTest = () => {
   // Calculate costs
   const baseReward = parseFloat(formData.reward);
   const feeAmount = baseReward * FEE_PERCENTAGE;
-  const totalCostPerWorker = baseReward + feeAmount;
+  const totalCostPerWorker = (baseReward + feeAmount) / formData.respondents;
   const totalCost = totalCostPerWorker * formData.respondents;
 
   const handlePublish = async () => {
@@ -42,7 +42,7 @@ const CreatePublishTest = () => {
         throw new Error('Failed to create survey');
       }
 
-      navigate('/dashboard', { 
+      navigate('/', { 
         state: { message: 'Survey published successfully!' }
       });
     } catch (error) {
@@ -72,7 +72,7 @@ const CreatePublishTest = () => {
         <h3>Cost Breakdown</h3>
         <div className={styles.costGrid}>
           <div className={styles.costItem}>
-            <span>Base Reward per Worker:</span>
+            <span>Total Reward:</span>
             <span>${baseReward.toFixed(2)}</span>
           </div>
           <div className={styles.costItem}>
@@ -89,7 +89,7 @@ const CreatePublishTest = () => {
           <h4>Total Project Cost:</h4>
           <p className={styles.totalAmount}>${totalCost.toFixed(2)}</p>
           <p className={styles.costNote}>
-            This amount covers {formData.respondents} worker{formData.respondents > 1 ? 's' : ''} 
+            This amount covers {formData.respondents} worker{formData.respondents > 1 ? 's ' : ' '} 
             at ${totalCostPerWorker.toFixed(2)} each
           </p>
         </div>
@@ -108,4 +108,4 @@ const CreatePublishTest = () => {
   );
 };
 
-export default CreatePublishTest; 
+export default PublishSurvey; 

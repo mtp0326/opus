@@ -25,4 +25,22 @@ export const createSurvey = async (req: Request & { user?: IUser }, res: Respons
     console.error('❌ Error creating survey:', error.message);
     res.status(400).json({ error: { message: error.message } });
   }
+};
+
+export const getPublishedSurveys = async (req: Request & { user?: IUser }, res: Response) => {
+  try {
+    console.log('📧 Fetching surveys for user:', req.user?.email);
+    
+    const surveys = await Survey.find({ 
+      createdBy: req.user?.email
+    }).sort({ createdAt: -1 });
+    
+    console.log('🔍 Found surveys:', surveys.length);
+    console.log('📊 Query results:', JSON.stringify(surveys, null, 2));
+    
+    res.json(surveys);
+  } catch (error) {
+    console.error('❌ Error fetching surveys:', error);
+    res.status(500).json({ message: 'Error fetching surveys' });
+  }
 }; 

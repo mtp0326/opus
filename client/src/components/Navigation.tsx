@@ -15,6 +15,9 @@ function Navigation() {
           <Button color="inherit" onClick={() => navigate('/create-project')}>
             Create Project
           </Button>
+          <Button color="inherit" onClick={() => navigate('/manage-tasks')}>
+            Manage Tasks
+          </Button>
         </Box>
       </Toolbar>
     </AppBar>

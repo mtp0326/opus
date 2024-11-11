@@ -1,6 +1,6 @@
-import express, { Request } from 'express';
+import express, { Request, Response } from 'express';
 import { isAuthenticated } from '../controllers/auth.middleware.ts';
-import { createSurvey } from '../controllers/survey.controller.ts';
+import { createSurvey, getPublishedSurveys } from '../controllers/survey.controller.ts';
 import { IUser } from '../models/user.model'; // Adjust import path as needed
 
 interface CustomRequest extends Request {
@@ -14,5 +14,11 @@ const router = express.Router();
  * Expects a JSON body with the survey details
  */
 router.post('/publish', isAuthenticated, createSurvey as express.RequestHandler);
+
+/**
+ * A GET route to fetch published surveys
+ * Expects a query parameter to filter surveys by publisher
+ */
+router.get('/published', isAuthenticated, getPublishedSurveys as express.RequestHandler);
 
 export default router; 

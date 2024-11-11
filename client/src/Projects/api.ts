@@ -2,7 +2,7 @@
  * A file for defining functions used to interact with the backend server
  * for project and survey-related operations.
  */
-import { postData } from '../util/api.tsx';
+import { postData, getData } from '../util/api.tsx';
 
 interface SurveyData {
   title: string;
@@ -43,7 +43,25 @@ async function publishSurvey(formData: SurveyData) {
   return res.data;
 }
 
+/**
+ * Fetches all published surveys from the server
+ * @returns A promise that resolves to an array of published surveys
+ * @throws An {@link Error} with a `message` field describing any issues in fetching
+ */
+async function getPublishedSurveys(): Promise<SurveyData[]> {
+  const res = await getData('surveys/published');
+  
+  if (res.error) {
+    console.error('❌ Failed to fetch surveys:', res.error);
+    throw Error(res.error.message);
+  }
+
+  console.log('✅ Surveys fetched successfully:', res.data);
+  return res.data;
+}
+
 export {
   publishSurvey,
+  getPublishedSurveys,
   type SurveyData
 }; 

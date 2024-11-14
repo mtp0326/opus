@@ -13,7 +13,8 @@ interface SurveyData {
   timeToComplete: number;
   expiresIn: number;
   workerQualifications: 'basic' | 'intermediate' | 'expert';
-  status?: 'active' | 'completed' | 'expired';
+  status?: 'active' | 'completed' | 'expired' | 'draft';
+  instructions: string;
 }
 
 /**
@@ -60,8 +61,31 @@ async function getPublishedSurveys(): Promise<SurveyData[]> {
   return res.data;
 }
 
+async function saveSurvey(formData: SurveyData) {
+  console.log('📝 Saving survey:', {
+    title: formData.title,
+    reward: formData.reward,
+    respondents: formData.respondents,
+  });
+
+  const res = await postData('surveys/save', {
+    ...formData,
+    workerQualifications: formData.workerQualifications || 'basic',
+    status: 'draft'
+  });
+  
+  if (res.error) {
+    console.error('❌ Failed to save survey:', res.error);
+    throw Error(res.error.message);
+  }
+
+  console.log('✅ Survey saved successfully:', res.data);
+  return res.data;
+}
+
 export {
   publishSurvey,
   getPublishedSurveys,
+  saveSurvey,
   type SurveyData
 }; 

@@ -1,3 +1,15 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
 .surveyLink {
   max-width: 600px;
   margin: 2rem auto;
@@ -61,4 +73,20 @@
 .loading {
   opacity: 0.7;
   pointer-events: none;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.input[type="number"] {
+  /* Removes spinner buttons and mousewheel functionality */
+  -moz-appearance: textfield;
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 } 

@@ -9,9 +9,10 @@ interface ISurvey {
   timeToComplete: number;
   expiresIn: number;
   workerQualifications: 'basic' | 'intermediate' | 'expert';
-  status: 'active' | 'completed' | 'expired';
+  status: 'active' | 'completed' | 'expired' | 'draft';
   createdBy: string;
   createdAt: Date;
+  instructions: string;
 }
 
 const surveySchema = new mongoose.Schema<ISurvey>({
@@ -63,8 +64,12 @@ const surveySchema = new mongoose.Schema<ISurvey>({
   },
   status: {
     type: String,
-    enum: ['active', 'completed', 'expired'],
+    enum: ['active', 'completed', 'expired', 'draft'],
     default: 'active',
+  },
+  instructions: {
+    type: String,
+    required: true,
   }
 });
 

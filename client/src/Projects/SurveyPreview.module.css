@@ -1,15 +1,21 @@
-.previewContainer {
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.container {
   max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+  margin: 2rem auto;
+  padding: 0 1rem;
 }
 
 .previewBox {
-  border: 2px solid #ddd;
+  background: white;
   border-radius: 8px;
-  padding: 20px;
-  margin: 20px 0;
-  background-color: #f9f9f9;
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
 }
 
 .surveyInfo {

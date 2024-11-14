@@ -7,10 +7,19 @@ const SurveyPreview = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { formData } = location.state;
-  const [completionCode, setCompletionCode] = useState('');
 
   useEffect(() => {
+    // When preview mounts, save the form data and set a flag
     sessionStorage.setItem('surveyFormData', JSON.stringify(formData));
+    sessionStorage.setItem('comingFromPreview', 'true');
+
+    return () => {
+      // When preview unmounts, only keep the flag if it's a back navigation
+      const navType = window.performance.getEntriesByType('navigation')[0].type;
+      if (navType !== 'reload') {
+        sessionStorage.removeItem('comingFromPreview');
+      }
+    };
   }, [formData]);
 
   const handleNext = () => {
@@ -52,8 +61,6 @@ const SurveyPreview = () => {
               <input
                 type="text"
                 id="completionCode"
-                value={completionCode}
-                onChange={(e) => setCompletionCode(e.target.value)}
                 placeholder="Enter the code shown at the end of the survey"
                 className={styles.input}
               />

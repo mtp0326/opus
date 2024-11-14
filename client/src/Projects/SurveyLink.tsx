@@ -26,20 +26,22 @@ const SurveyLink = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Clear sessionStorage if not coming from preview/publish pages
-  useEffect(() => {
-    if (!location.state?.formData) {
-      sessionStorage.removeItem('surveyFormData');
-    }
-  }, []);
-
   const [formData, setFormData] = useState<FormData>(() => {
-    // Use sessionStorage data if it exists and we're coming from preview/publish
     const storedData = sessionStorage.getItem('surveyFormData');
-    if (storedData && (location.state?.formData || location.key !== 'default')) {
+    const comingFromPreview = sessionStorage.getItem('comingFromPreview');
+    
+    console.log('Coming from preview:', !!comingFromPreview);
+    console.log('Stored Data exists:', !!storedData);
+    
+    // Only use stored data if coming from preview
+    if (storedData && comingFromPreview) {
+      sessionStorage.removeItem('comingFromPreview'); // Clear the flag
       return JSON.parse(storedData);
     }
     
+    // Otherwise use default values
+    sessionStorage.removeItem('surveyFormData');
+    sessionStorage.removeItem('comingFromPreview');
     return {
       title: '',
       description: '',
@@ -53,10 +55,15 @@ const SurveyLink = () => {
     };
   });
 
-  // Save to sessionStorage whenever form data changes
+  // Cleanup when leaving SurveyLink
   useEffect(() => {
-    sessionStorage.setItem('surveyFormData', JSON.stringify(formData));
-  }, [formData]);
+    return () => {
+      if (!window.location.pathname.includes('preview')) {
+        sessionStorage.removeItem('surveyFormData');
+        sessionStorage.removeItem('comingFromPreview');
+      }
+    };
+  }, []);
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);

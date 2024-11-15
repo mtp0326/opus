@@ -2,7 +2,7 @@
  * A file for defining functions used to interact with the backend server
  * for project and survey-related operations.
  */
-import { postData, getData } from '../util/api.tsx';
+import { postData, getData, putData } from '../util/api.tsx';
 
 interface SurveyData {
   title: string;
@@ -19,29 +19,22 @@ interface SurveyData {
 
 /**
  * Sends a request to the server to publish a survey
+ * @param surveyId The ID of the survey to publish
  * @param formData The survey data to publish
  * @throws An {@link Error} with a `message` field describing any issues in publishing
  */
-async function publishSurvey(formData: SurveyData) {
-  console.log('📝 Publishing survey:', {
-    title: formData.title,
-    reward: formData.reward,
-    respondents: formData.respondents,
-  });
+async function publishSurvey(surveyId: string) {
+  console.log('📝 Publishing survey:', surveyId);
 
-  const res = await postData('surveys/publish', {
-    ...formData,
-    workerQualifications: formData.workerQualifications || 'basic',
-    status: 'active'
-  });
+  const response = await putData(`surveys/${surveyId}/publish`);
   
-  if (res.error) {
-    console.error('❌ Failed to publish survey:', res.error);
-    throw Error(res.error.message);
+  if (response.error) {
+    console.error('❌ Failed to publish survey:', response.error);
+    throw Error(response.error.message);
   }
 
-  console.log('✅ Survey published successfully:', res.data);
-  return res.data;
+  console.log('✅ Survey published successfully:', response);
+  return response.data;
 }
 
 /**
@@ -92,23 +85,18 @@ async function saveSurvey(formData: SurveyData) {
 async function editSurvey(surveyId: string, formData: SurveyData) {
   console.log('📝 Editing survey:', {
     id: surveyId,
-    title: formData.title,
-    reward: formData.reward,
-    respondents: formData.respondents,
+    formData,
   });
 
-  const res = await postData(`surveys/${surveyId}/edit`, {
-    ...formData,
-    workerQualifications: formData.workerQualifications || 'basic'
-  });
+  const response = await putData(`surveys/${surveyId}/edit`, formData);
   
-  if (res.error) {
-    console.error('❌ Failed to edit survey:', res.error);
-    throw Error(res.error.message);
+  if (response.error) {
+    console.error('❌ Failed to edit survey:', response.error);
+    throw Error(response.error.message);
   }
 
-  console.log('✅ Survey edited successfully:', res.data);
-  return res.data.data;
+  console.log('✅ Survey edited successfully:', response);
+  return response.data;
 }
 
 export {

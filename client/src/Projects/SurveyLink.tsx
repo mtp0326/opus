@@ -161,23 +161,19 @@ const SurveyLink = () => {
       let savedSurvey;
       if (formData._id) {
         savedSurvey = await editSurvey(formData._id, surveyData);
-        console.log('Edited existing survey data:', savedSurvey);
+        console.log('📡 Edited survey response:', savedSurvey);
       } else {
         savedSurvey = await saveSurvey(surveyData);
-        console.log('Created new survey data:', savedSurvey);
       }
-      
-      // Store the complete survey data
-      sessionStorage.setItem('surveyFormData', JSON.stringify(savedSurvey));
-      
-      // Navigate with the complete survey data
+
       navigate('/survey-preview', { 
         state: { 
-          formData: savedSurvey
+          formData: savedSurvey.data,
+          surveyId: savedSurvey.data._id
         } 
       });
     } catch (error) {
-      console.error('Error saving survey:', error);
+      console.error('❌ Error saving survey:', error);
       alert('Failed to save survey');
     } finally {
       setIsLoading(false);

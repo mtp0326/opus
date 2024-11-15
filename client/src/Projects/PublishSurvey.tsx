@@ -9,8 +9,12 @@ const FEE_PERCENTAGE = 0.20; // 20% fee
 const PublishSurvey = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { formData } = location.state;
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Get surveyId from location state
+  const { formData, surveyId } = location.state || {};
+  
+  console.log('📝 Survey data:', { formData, surveyId }); // Debug log
 
   // Calculate costs
   const baseReward = parseFloat(formData.reward);
@@ -19,28 +23,21 @@ const PublishSurvey = () => {
   const totalCost = totalCostPerWorker * formData.respondents;
 
   const handlePublish = async () => {
-
     setIsLoading(true);
     try {
+      if (!surveyId) {
+        throw new Error('Survey ID is required');
+      }
 
-      await publishSurvey({
-        title: formData.title,
-        description: formData.description,
-        surveyUrl: formData.surveyUrl,
-        reward: baseReward,
-        respondents: formData.respondents,
-        timeToComplete: formData.timeToComplete,
-        expiresIn: formData.expiresIn,
-        workerQualifications: formData.workerQualifications,
-        instructions: formData.instructions,
-        status: 'active'
-      });
-     
+      const publishedSurvey = await publishSurvey(surveyId);
+      console.log('✅ Published survey:', publishedSurvey);
+      
       navigate('/', { 
         state: { message: 'Survey published successfully!' }
       });
     } catch (error) {
-      alert('Error publishing survey: ' + error);
+      console.error('❌ Error publishing survey:', error);
+      // Add error handling UI feedback here
     } finally {
       setIsLoading(false);
     }

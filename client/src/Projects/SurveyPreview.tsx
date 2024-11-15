@@ -6,7 +6,14 @@ import Navigation from '../components/Navigation';
 const SurveyPreview = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { formData } = location.state;
+  const formData = location.state?.formData || {};
+
+  // Add debug log
+  console.log('🔍 Preview received:', location.state);
+
+  if (!location.state?.formData) {
+    return <div>No survey data available</div>;
+  }
 
   useEffect(() => {
     // When preview mounts, save the form data and set a flag
@@ -28,9 +35,11 @@ const SurveyPreview = () => {
   }, [formData]);
 
   const handleNext = () => {
+    // Make sure we pass both formData and surveyId to the next page
     navigate('/create-publish-test', { 
       state: { 
-        formData,
+        formData: formData,
+        surveyId: formData._id  // Make sure we're passing the ID
       } 
     });
   };

@@ -11,12 +11,17 @@ import {
 } from '@mui/material';
 import { getPublishedSurveys, type SurveyData } from './api';
 import Navigation from '../components/Navigation';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
 
 interface Survey extends SurveyData {
   createdAt: string;
+  _id: string;
 }
 
 function ManageTasks() {
+  const navigate = useNavigate();
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,6 +41,10 @@ function ManageTasks() {
 
     fetchSurveys();
   }, []);
+
+  const handleEdit = (survey: Survey) => {
+    navigate('/survey-link', { state: { survey } });
+  };
 
   if (loading) {
     return (
@@ -78,6 +87,16 @@ function ManageTasks() {
                           <Typography variant="body2" color="textSecondary">
                             Status: {survey.status}
                           </Typography>
+                          {survey.status === 'draft' && (
+                            <Button
+                              startIcon={<EditIcon />}
+                              onClick={() => handleEdit(survey)}
+                              size="small"
+                              sx={{ mt: 1 }}
+                            >
+                              Edit
+                            </Button>
+                          )}
                         </Box>
                       </Grid>
                     </Grid>

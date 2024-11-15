@@ -5,9 +5,9 @@
 }
 
 .container {
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  width: 800px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 .previewBox {

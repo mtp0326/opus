@@ -97,7 +97,21 @@ async function editSurvey(surveyId: string, formData: SurveyData) {
 
   console.log('✅ Survey edited successfully:', response);
   return response.data;
-}
+} 
+
+export const deleteSurvey = async (surveyId: string) => {
+  console.log('🗑️ Deleting survey:', surveyId);
+  
+  const response = await putData(`surveys/${surveyId}/delete`);
+  
+  if (response.error) {
+    console.error('❌ Failed to delete survey:', response.error);
+    throw Error(response.error.message);
+  }
+
+  console.log('✅ Survey deleted successfully');
+  return response.data;
+};
 
 export {
   publishSurvey,

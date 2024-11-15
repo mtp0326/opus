@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { isAuthenticated } from '../controllers/auth.middleware.ts';
-import { publishSurvey, getSurveys, saveSurvey, editSurvey } from '../controllers/survey.controller.ts';
+import { publishSurvey, getSurveys, saveSurvey, editSurvey, deleteSurvey } from '../controllers/survey.controller.ts';
 import { IUser } from '../models/user.model'; // Adjust import path as needed
 
 interface CustomRequest extends Request {
@@ -28,5 +28,11 @@ router.put('/:surveyId/edit', isAuthenticated, editSurvey as express.RequestHand
  * Expects surveyId in URL params
  */
 router.put('/:surveyId/publish', isAuthenticated, publishSurvey as express.RequestHandler);
+
+/**
+ * A PUT route to delete an existing survey
+ * Expects surveyId in URL params
+ */
+router.put('/:surveyId/delete', isAuthenticated, deleteSurvey as express.RequestHandler);
 
 export default router; 

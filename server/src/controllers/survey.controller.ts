@@ -102,4 +102,34 @@ export const editSurvey = async (req: Request & { user?: IUser }, res: Response)
     console.error('❌ Error updating survey:', error.message);
     res.status(400).json({ error: { message: error.message } });
   }
+};
+
+export const deleteSurvey = async (req: Request & { user?: IUser }, res: Response) => {
+  try {
+    if (!req.user?._id) {
+      throw new Error('User not authenticated');
+    }
+
+    const { surveyId } = req.params;
+    const deletedSurvey = await Survey.findOneAndDelete({
+      _id: surveyId,
+      createdBy: req.user._id,
+      status: 'draft'  // Only allow deletion of draft surveys
+    });
+
+    if (!deletedSurvey) {
+      return res.status(404).json({ 
+        error: { message: 'Survey not found or cannot be deleted' }
+      });
+    }
+
+    console.log('✅ Survey deleted:', surveyId);
+    return res.json({ 
+      data: deletedSurvey,
+      message: 'Survey deleted successfully' 
+    });
+  } catch (error: any) {
+    console.error('❌ Error deleting survey:', error.message);
+    res.status(400).json({ error: { message: error.message } });
+  }
 }; 

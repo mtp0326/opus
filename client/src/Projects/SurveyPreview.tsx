@@ -10,13 +10,18 @@ const SurveyPreview = () => {
 
   useEffect(() => {
     // When preview mounts, save the form data and set a flag
+    console.log('Saving survey data to session storage:', formData);
+    console.log('Survey ID:', formData._id);
     sessionStorage.setItem('surveyFormData', JSON.stringify(formData));
     sessionStorage.setItem('comingFromPreview', 'true');
 
     return () => {
-      // When preview unmounts, only keep the flag if it's a back navigation
+      // Only remove the flag if we're navigating forward, not on reload or back
       const navType = window.performance.getEntriesByType('navigation')[0].type;
-      if (navType !== 'reload') {
+      console.log('Navigation type:', navType);
+      console.log('Cleanup - current formData:', formData);
+      if (navType !== 'reload' && navType !== 'back_forward') {
+        console.log('Removing comingFromPreview flag');
         sessionStorage.removeItem('comingFromPreview');
       }
     };

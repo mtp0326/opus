@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { isAuthenticated } from '../controllers/auth.middleware.ts';
-import { createSurvey, getSurveys, saveSurvey } from '../controllers/survey.controller.ts';
+import { createSurvey, getSurveys, saveSurvey, editSurvey } from '../controllers/survey.controller.ts';
 import { IUser } from '../models/user.model'; // Adjust import path as needed
 
 interface CustomRequest extends Request {
@@ -23,5 +23,10 @@ router.get('/published', isAuthenticated, getSurveys as express.RequestHandler);
 
 router.post('/save', isAuthenticated, saveSurvey as express.RequestHandler);
 
+/**
+ * A POST route to edit an existing survey
+ * Expects surveyId in URL params and survey details in request body
+ */
+router.post('/:surveyId/edit', isAuthenticated, editSurvey as express.RequestHandler);
 
 export default router; 

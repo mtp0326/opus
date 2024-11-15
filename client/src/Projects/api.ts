@@ -83,9 +83,38 @@ async function saveSurvey(formData: SurveyData) {
   return res.data;
 }
 
+/**
+ * Updates an existing survey in the database
+ * @param surveyId The ID of the survey to update
+ * @param formData The updated survey data
+ * @throws An {@link Error} with a `message` field describing any issues in updating
+ */
+async function editSurvey(surveyId: string, formData: SurveyData) {
+  console.log('📝 Editing survey:', {
+    id: surveyId,
+    title: formData.title,
+    reward: formData.reward,
+    respondents: formData.respondents,
+  });
+
+  const res = await postData(`surveys/${surveyId}/edit`, {
+    ...formData,
+    workerQualifications: formData.workerQualifications || 'basic'
+  });
+  
+  if (res.error) {
+    console.error('❌ Failed to edit survey:', res.error);
+    throw Error(res.error.message);
+  }
+
+  console.log('✅ Survey edited successfully:', res.data);
+  return res.data.data;
+}
+
 export {
   publishSurvey,
   getPublishedSurveys,
   saveSurvey,
+  editSurvey,
   type SurveyData
 }; 

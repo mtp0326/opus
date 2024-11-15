@@ -83,6 +83,7 @@
 
 .input[type="number"] {
   /* Removes spinner buttons and mousewheel functionality */
+  appearance: textfield;
   -moz-appearance: textfield;
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {

@@ -67,4 +67,23 @@ export const saveSurvey = async (req: Request & { user?: IUser }, res: Response)
     console.error('❌ Error saving survey:', error.message);
     res.status(400).json({ error: { message: error.message } });
   }
+};
+
+export const editSurvey = async (req: Request, res: Response) => {
+  try {
+    const { surveyId } = req.params;
+    const updatedSurvey = await Survey.findByIdAndUpdate(
+      surveyId,
+      req.body,
+      { new: true }
+    );
+
+    if (!updatedSurvey) {
+      return res.status(404).json({ error: { message: 'Survey not found' } });
+    }
+
+    res.json({ data: updatedSurvey });
+  } catch (error) {
+    res.status(500).json({ error: { message: 'Failed to update survey' } });
+  }
 }; 

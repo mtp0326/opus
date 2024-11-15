@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './SurveyLink.module.css';
-import { saveSurvey } from './api';
+import { saveSurvey, editSurvey } from './api';
 import Navigation from '../components/Navigation';
 
 type WorkerQualification = 'basic' | 'intermediate' | 'expert';
+type SurveyStatus = 'draft' | 'active' | 'completed' | 'expired';
 
 interface FormData {
+  _id?: string;
   title: string;
   description: string;
   surveyUrl: string;
@@ -29,11 +31,18 @@ const SurveyLink = () => {
   const [formData, setFormData] = useState<FormData>(() => {
     const storedData = sessionStorage.getItem('surveyFormData');
     const comingFromPreview = sessionStorage.getItem('comingFromPreview');
+    const existingSurveyData = location.state?.survey;
     
     console.log('Coming from preview:', !!comingFromPreview);
     console.log('Stored Data exists:', !!storedData);
+    console.log('Existing survey data:', existingSurveyData);
     
-    // Only use stored data if coming from preview
+    // First priority: use existing survey data if available
+    if (existingSurveyData) {
+      return existingSurveyData;
+    }
+    
+    // Second priority: use stored data if coming from preview
     if (storedData && comingFromPreview) {
       sessionStorage.removeItem('comingFromPreview'); // Clear the flag
       return JSON.parse(storedData);
@@ -140,21 +149,32 @@ const SurveyLink = () => {
 
     setIsLoading(true);
     try {
-      await saveSurvey({
-        title: formData.title,
-        description: formData.description,
-        surveyUrl: formData.surveyUrl,
+      const surveyData = {
+        ...formData,
         reward: parseFloat(formData.reward),
         respondents: parseInt(formData.respondents),
         timeToComplete: parseInt(formData.timeToComplete),
         expiresIn: parseInt(formData.expiresIn),
-        workerQualifications: formData.workerQualifications,
-        instructions: formData.instructions,
-        status: 'draft'
-      });
+        status: 'draft' as SurveyStatus
+      };
+
+      let savedSurvey;
+      if (formData._id) {
+        savedSurvey = await editSurvey(formData._id, surveyData);
+        console.log('Edited existing survey data:', savedSurvey);
+      } else {
+        savedSurvey = await saveSurvey(surveyData);
+        console.log('Created new survey data:', savedSurvey);
+      }
       
+      // Store the complete survey data
+      sessionStorage.setItem('surveyFormData', JSON.stringify(savedSurvey));
+      
+      // Navigate with the complete survey data
       navigate('/survey-preview', { 
-        state: { formData } 
+        state: { 
+          formData: savedSurvey
+        } 
       });
     } catch (error) {
       console.error('Error saving survey:', error);

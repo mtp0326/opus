@@ -24,9 +24,11 @@ import AlertPopup from './components/AlertPopup.tsx';
 import InviteRegisterPage from './Authentication/InviteRegisterPage.tsx';
 import CreateProject from './Projects/CreateProject.tsx';
 import SurveyLink from './Projects/SurveyLink.tsx';
-import SurveyBuilder from './Projects/SurveyBuilder.tsx';
+import { SurveyBuilder } from './Projects/SurveyBuilder.tsx';
 import SurveyPreview from './Projects/SurveyPreview';
-import CreatePublishTest from './Projects/CreatePublishTest.tsx';
+import CreatePublishTest from './Projects/PublishSurvey.tsx';
+import ManageTasks from './Projects/ManageTasks.tsx';
+//import LabelData from './Projects/LabelData';
 
 function App() {
   return (
@@ -65,6 +67,7 @@ function App() {
                     <Route path="/create-project" element={<CreateProject />} />
                     <Route path="/survey-link" element={<SurveyLink />} />
                     <Route path="/survey-builder" element={<SurveyBuilder />} />
+                    <Route path="/manage-tasks" element={<ManageTasks />} />
                   </Route>
                   <Route element={<AdminRoutesWrapper />}>
                     <Route path="/users" element={<AdminDashboardPage />} />

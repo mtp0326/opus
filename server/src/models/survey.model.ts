@@ -1,6 +1,21 @@
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
-const surveySchema = new mongoose.Schema({
+interface ISurvey {
+  title: string;
+  description: string;
+  surveyUrl: string;
+  reward: number;
+  respondents: number;
+  timeToComplete: number;
+  expiresIn: number;
+  workerQualifications: 'basic' | 'intermediate' | 'expert';
+  status: 'active' | 'completed' | 'expired' | 'draft';
+  createdBy: string;
+  createdAt: Date;
+  instructions: string;
+}
+
+const surveySchema = new mongoose.Schema<ISurvey>({
   title: {
     type: String,
     required: true,
@@ -39,7 +54,7 @@ const surveySchema = new mongoose.Schema({
     default: 'basic',
   },
   createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: 'User',
     required: true,
   },
@@ -49,9 +64,16 @@ const surveySchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['active', 'completed', 'expired'],
+    enum: ['active', 'completed', 'expired', 'draft'],
     default: 'active',
   },
+<<<<<<< HEAD:server/src/models/Survey.ts
+=======
+  instructions: {
+    type: String,
+    required: true,
+  }
+>>>>>>> origin/main:server/src/models/survey.model.ts
 });
 
 export const Survey = mongoose.model('Survey', surveySchema);

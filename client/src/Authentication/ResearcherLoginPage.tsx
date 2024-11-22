@@ -16,13 +16,14 @@ import ScreenGrid from '../components/ScreenGrid.tsx';
  * A page allowing users to input their email and password to login. The default
  * starting page of the application
  */
-function LoginPage() {
+function ResearcherLoginPage() {
   const navigate = useNavigate();
 
   // Default values for state
   const defaultValues = {
     email: '',
     password: '',
+    userType: 'researcher',
   };
   const defaultShowErrors = {
     email: false,
@@ -111,8 +112,11 @@ function LoginPage() {
 
   async function handleSubmit() {
     if (validateInputs()) {
-      loginUser(values.email, values.password)
+      loginUser(values.email, values.password, "researcher")
         .then((user) => {
+          if (user.userType !== 'researcher') {
+            throw new Error('No research account found');
+          }
           console.log('navigating to home!');
           dispatchUser(
             user.email!,
@@ -200,4 +204,4 @@ function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default ResearcherLoginPage;

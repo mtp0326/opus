@@ -15,6 +15,7 @@ import {
   getUserByEmail,
   getUserByResetPasswordToken,
   getUserByVerificationToken,
+  getAllAccounts,
 } from '../services/user.service.ts';
 import {
   emailResetPasswordLink,
@@ -43,27 +44,45 @@ const login = async (
     next(ApiError.badRequest('Already logged in'));
     return;
   }
-  // TODO: look more into when each of these errors are thrown
+
+  const { email, userType } = req.body;
+
+  // Retrieve users with the same email
+  const users = (await getAllAccounts(email.toLowerCase())) as IUser[] || [];
+
+  if (users.length === 0) {
+    return next(ApiError.unauthorized('No account found with this email'));
+  }
+
+  // Find the user that matches the requested userType
+  const user = users.find(u => u.userType === userType);
+
+  if (!user) {
+    return next(ApiError.unauthorized(`No ${userType} account found`));
+  }
+
+  // Proceed with authentication
   passport.authenticate(
     ['local'],
     {
       failureMessage: true,
     },
     // Callback function defined by passport strategy in configPassport.ts
-    (err: Error | null, user: any, _info: any) => {
+    (err: Error | null, authenticatedUser: any, _info: any) => {
       if (err) {
         next(ApiError.internal('Failed to authenticate user.'));
         return;
       }
-      if (!user) {
+      if (!authenticatedUser) {
         next(ApiError.unauthorized('Incorrect credentials'));
         return;
       }
-      if (!user!.verified) {
+      if (!authenticatedUser!.verified) {
         next(ApiError.unauthorized('Need to verify account by email'));
         return;
       }
-      req.logIn(user, (error) => {
+
+      req.logIn(authenticatedUser, (error) => {
         if (error) {
           next(ApiError.internal('Failed to log in user'));
           return;
@@ -71,13 +90,13 @@ const login = async (
 
         // Mixpanel login tracking
         mixpanel.track('Login', {
-          distinct_id: user._id,
-          email: user.email,
+          distinct_id: authenticatedUser._id,
+          email: authenticatedUser.email,
         });
 
         // Datadog login
         logger_info.info('Login');
-        res.status(StatusCode.OK).send(user);
+        res.status(StatusCode.OK).send(authenticatedUser);
       });
     },
   )(req, res, next);
@@ -126,13 +145,20 @@ const register = async (
   res: express.Response,
   next: express.NextFunction,
 ) => {
-  const { firstName, lastName, email, password } = req.body;
-  if (!firstName || !lastName || !email || !password) {
+  const { firstName, lastName, email, password, userType } = req.body;
+  if (!firstName || !lastName || !email || !password || !userType) {
     next(
-      ApiError.missingFields(['firstName', 'lastName', 'email', 'password']),
+      ApiError.missingFields(['firstName', 'lastName', 'email', 'password', 'userType']),
     );
     return;
   }
+
+  // Validate userType
+  if (!['researcher', 'worker'].includes(userType)) {
+    next(ApiError.badRequest('Invalid user type. Must be either "researcher" or "worker".'));
+    return;
+  }
+
   const emailRegex =
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/g;
 
@@ -174,6 +200,11 @@ const register = async (
       lowercaseEmail,
       password,
     );
+
+    // Assign userType to the new user
+    user.userType = userType;
+    await user.save();
+
     // Don't need verification email if testing
     if (process.env.NODE_ENV === 'test') {
       user!.verified = true;

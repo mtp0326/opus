@@ -7,7 +7,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import theme from './assets/theme.ts';
 import { store, persistor } from './util/redux/store.ts';
 import NotFoundPage from './NotFound/NotFoundPage.tsx';
-import HomePage from './Home/HomePage.tsx';
+import HomePage from './Home/ResearcherHomePage.tsx';
 import AdminDashboardPage from './AdminDashboard/AdminDashboardPage.tsx';
 import {
   UnauthenticatedRoutesWrapper,
@@ -16,8 +16,8 @@ import {
   AdminRoutesWrapper,
 } from './util/routes.tsx';
 import VerifyAccountPage from './Authentication/VerifyAccountPage.tsx';
-import RegisterPage from './Authentication/RegisterPage.tsx';
-import LoginPage from './Authentication/LoginPage.tsx';
+import RegisterPage from './Authentication/ResearcherRegisterPage.tsx';
+import LoginPage from './Authentication/ResearcherLoginPage.tsx';
 import EmailResetPasswordPage from './Authentication/EmailResetPasswordPage.tsx';
 import ResetPasswordPage from './Authentication/ResetPasswordPage.tsx';
 import AlertPopup from './components/AlertPopup.tsx';

@@ -60,6 +60,13 @@ const getUserByEmail = async (email: string) => {
   return user;
 };
 
+const getAllAccounts = async (email: string) => {
+  const user = await User.find({ email })
+    .select(removeSensitiveDataQuery)
+    .exec();
+  return user;
+};
+
 /**
  * Gets a user from the database by their email and includes the password in
  * the returned user.
@@ -147,6 +154,7 @@ export {
   getUserByEmail,
   getUserByVerificationToken,
   getUserById,
+  getAllAccounts,
   getUserByEmailWithPassword,
   getUserByResetPasswordToken,
   getAllUsersFromDB,

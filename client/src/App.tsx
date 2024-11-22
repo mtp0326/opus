@@ -7,7 +7,8 @@ import { PersistGate } from 'redux-persist/integration/react';
 import theme from './assets/theme.ts';
 import { store, persistor } from './util/redux/store.ts';
 import NotFoundPage from './NotFound/NotFoundPage.tsx';
-import HomePage from './Home/ResearcherHomePage.tsx';
+import ResearcherHomePage from './Home/ResearcherHomePage.tsx';
+import WorkerHomePage from './Home/WorkerHomePage.tsx';
 import AdminDashboardPage from './AdminDashboard/AdminDashboardPage.tsx';
 import {
   UnauthenticatedRoutesWrapper,
@@ -16,8 +17,6 @@ import {
   AdminRoutesWrapper,
 } from './util/routes.tsx';
 import VerifyAccountPage from './Authentication/VerifyAccountPage.tsx';
-import RegisterPage from './Authentication/ResearcherRegisterPage.tsx';
-import LoginPage from './Authentication/ResearcherLoginPage.tsx';
 import EmailResetPasswordPage from './Authentication/EmailResetPasswordPage.tsx';
 import ResetPasswordPage from './Authentication/ResetPasswordPage.tsx';
 import AlertPopup from './components/AlertPopup.tsx';
@@ -28,6 +27,12 @@ import { SurveyBuilder } from './Projects/SurveyBuilder.tsx';
 import SurveyPreview from './Projects/SurveyPreview';
 import CreatePublishTest from './Projects/PublishSurvey.tsx';
 import ManageTasks from './Projects/ManageTasks.tsx';
+import WorkerLoginPage from './Authentication/WorkerLoginPage.tsx';
+import ResearcherLoginPage from './Authentication/ResearcherLoginPage.tsx';
+import WorkerRegisterPage from './Authentication/WorkerRegisterPage.tsx';
+import ResearcherRegisterPage from './Authentication/ResearcherRegisterPage.tsx';
+import HomePage from './Home/HomePage.tsx';
+import Leaderboard from './Projects/Leaderboard.tsx';
 //import LabelData from './Projects/LabelData';
 
 function App() {
@@ -42,8 +47,11 @@ function App() {
                 <Routes>
                   {/* Routes accessed only if user is not authenticated */}
                   <Route element={<UnauthenticatedRoutesWrapper />}>
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/wlogin" element={<WorkerLoginPage />} />
+                    <Route path="/rlogin" element={<ResearcherLoginPage />} />
+                    <Route path="/wregister" element={<WorkerRegisterPage />} />
+                    <Route path="/rregister" element={<ResearcherRegisterPage />} />
+                    <Route path="/home" element={<HomePage />} />
                     <Route
                       path="/verify-account/:token"
                       element={<VerifyAccountPage />}
@@ -63,7 +71,8 @@ function App() {
                   />
                   {/* Routes accessed only if user is authenticated */}
                   <Route element={<ProtectedRoutesWrapper />}>
-                    <Route path="/home" element={<HomePage />} />
+                    <Route path="/whome" element={<WorkerHomePage />} />
+                    <Route path="/rhome" element={<ResearcherHomePage />} />
                     <Route path="/create-project" element={<CreateProject />} />
                     <Route path="/survey-link" element={<SurveyLink />} />
                     <Route path="/survey-builder" element={<SurveyBuilder />} />
@@ -74,18 +83,26 @@ function App() {
                   </Route>
 
                   {/* Route which redirects to a different page depending on if the user is an authenticated or not by utilizing the DynamicRedirect component */}
+                  <Route path="/" element={<HomePage />} /> 
                   <Route
-                    path="/"
+                    path="/wlogin"
                     element={
-                      <DynamicRedirect unAuthPath="/login" authPath="/home" />
+                      <DynamicRedirect unAuthPath="/wlogin" authPath="/whome" />
                     }
                   />
-
+                  <Route
+                    path="/rlogin"
+                    element={
+                      <DynamicRedirect unAuthPath="/rlogin" authPath="/rhome" />
+                    }
+                  />
                   {/* Route which is accessed if no other route is matched */}
                   <Route path="*" element={<NotFoundPage />} />
 
                   <Route path="/survey-preview" element={<SurveyPreview />} />
                   <Route path="/create-publish-test" element={<CreatePublishTest />} />
+                  <Route path="/leaderboard" element={<Leaderboard />} />
+
                 </Routes>
               </CssBaseline>
             </ThemeProvider>

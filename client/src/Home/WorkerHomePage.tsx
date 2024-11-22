@@ -58,7 +58,7 @@ function WorkerHomePage() {
   const handleLogout = async () => {
     if (await logoutApi()) {
       logoutDispatch();
-      navigator('/login', { replace: true });
+      navigator('/wlogin', { replace: true });
     }
   };
 

@@ -58,7 +58,7 @@ function ResearcherHomePage() {
   const handleLogout = async () => {
     if (await logoutApi()) {
       logoutDispatch();
-      navigator('/login', { replace: true });
+      navigator('/rlogin', { replace: true });
     }
   };
 

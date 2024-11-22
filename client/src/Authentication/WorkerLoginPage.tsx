@@ -16,14 +16,14 @@ import ScreenGrid from '../components/ScreenGrid.tsx';
  * A page allowing users to input their email and password to login. The default
  * starting page of the application
  */
-function ResearcherLoginPage() {
+function WorkerLoginPage() {
   const navigate = useNavigate();
 
   // Default values for state
   const defaultValues = {
     email: '',
     password: '',
-    userType: 'researcher',
+    userType: 'worker',
   };
   const defaultShowErrors = {
     email: false,
@@ -75,7 +75,7 @@ function ResearcherLoginPage() {
     admin: boolean,
     userType: string,
   ) {
-    dispatch(loginRedux({ email: userEmail, firstName, lastName, admin, userType: "researcher" }));
+    dispatch(loginRedux({ email: userEmail, firstName, lastName, admin, userType: "worker" }));
   }
 
   const clearErrorMessages = () => {
@@ -113,10 +113,10 @@ function ResearcherLoginPage() {
 
   async function handleSubmit() {
     if (validateInputs()) {
-      loginUser(values.email, values.password, "researcher")
+      loginUser(values.email, values.password, "worker")
         .then((user) => {
-          if (user.userType !== 'researcher') {
-            throw new Error('No research account found');
+          if (user.userType !== 'worker') {
+            throw new Error('No worker account found');
           }
           console.log('navigating to home!');
           dispatchUser(
@@ -126,7 +126,7 @@ function ResearcherLoginPage() {
             user.admin!,
             user.userType!,
           );
-          navigate('/rhome');
+          navigate('/whome');
         })
         .catch((e) => {
           console.log('failed to login...');
@@ -186,7 +186,7 @@ function ResearcherLoginPage() {
               </Link>
             </Grid>
             <Grid item>
-              <Link component={RouterLink} to="/rregister">
+              <Link component={RouterLink} to="/wregister">
                 Sign up
               </Link>
             </Grid>
@@ -206,4 +206,4 @@ function ResearcherLoginPage() {
   );
 }
 
-export default ResearcherLoginPage;
+export default WorkerLoginPage;

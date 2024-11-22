@@ -182,8 +182,10 @@ const register = async (
   }
   const lowercaseEmail = email.toLowerCase();
   // Check if user exists
-  const existingUser: IUser | null = await getUserByEmail(lowercaseEmail);
-  if (existingUser) {
+  const existingUser = (await getAllAccounts(email.toLowerCase())) as IUser[] || []; 
+    // Find the user that matches the requested userType
+  const userWithType = existingUser.find(u => u.userType === userType);
+  if (userWithType) {
     next(
       ApiError.badRequest(
         `An account with email ${lowercaseEmail} already exists.`,
@@ -199,11 +201,9 @@ const register = async (
       lastName,
       lowercaseEmail,
       password,
+      userType,
     );
 
-    // Assign userType to the new user
-    user.userType = userType;
-    await user.save();
 
     // Don't need verification email if testing
     if (process.env.NODE_ENV === 'test') {
@@ -422,6 +422,7 @@ const registerInvite = async (
       lastName,
       lowercaseEmail,
       password,
+      "worker", //set userType to worker by default, should be changed later
     );
     user!.verified = true;
     await user?.save();

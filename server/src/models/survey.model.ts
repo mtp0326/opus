@@ -70,7 +70,7 @@ const surveySchema = new mongoose.Schema<ISurvey>({
   instructions: {
     type: String,
     required: true,
-  }
+  },
 });
 
 export const Survey = mongoose.model('Survey', surveySchema);

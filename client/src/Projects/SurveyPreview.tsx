@@ -35,86 +35,39 @@ function SurveyPreview() {
   }, [formData]);
 
   const handleNext = () => {
-<<<<<<< HEAD
+    // Make sure we pass both formData and surveyId to the next page
     navigate('/create-publish-test', {
       state: {
-        formData,
-      },
-=======
-    // Make sure we pass both formData and surveyId to the next page
-    navigate('/create-publish-test', { 
-      state: { 
         formData: formData,
-        surveyId: formData._id  // Make sure we're passing the ID
-      } 
->>>>>>> origin/main
+        surveyId: formData._id, // Make sure we're passing the ID
+      },
     });
   };
 
   return (
-<<<<<<< HEAD
-    <div className={styles.previewContainer}>
-      <h2>Survey Preview</h2>
-      <div className={styles.previewBox}>
-        <h3>Worker View</h3>
-
-        <div className={styles.surveyInfo}>
-          <h4>{formData.title}</h4>
-          <p>{formData.description}</p>
-          <p>Reward: ${formData.reward}</p>
-          <p>Estimated Time: {formData.timeToComplete} minutes</p>
-        </div>
-
-        <div className={styles.surveyActions}>
-          <a
-            href={formData.surveyUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.surveyLink}
-          >
-            Take Survey
-          </a>
-
-          <div className={styles.completionCodeSection}>
-            <label htmlFor="completionCode">Enter Completion Code:</label>
-            <input
-              type="text"
-              id="completionCode"
-              value={completionCode}
-              onChange={(e) => setCompletionCode(e.target.value)}
-              placeholder="Enter the code shown at the end of the survey"
-              className={styles.input}
-            />
-            <button
-              className={styles.submitButton}
-              onClick={() =>
-                alert(
-                  'This is a preview. Submit functionality will be available to workers.',
-                )
-              }
-=======
     <div className={styles.pageContainer}>
       <Navigation />
       <div className={styles.container}>
         <h2>Survey Preview</h2>
         <div className={styles.previewBox}>
           <h3>Worker View</h3>
-          
+
           <div className={styles.surveyInfo}>
             <h4>{formData.title}</h4>
             <p>{formData.description}</p>
             <p>Reward: ${formData.reward}</p>
             <p>Estimated Time: {formData.timeToComplete} minutes</p>
-            <p><strong>Instructions:</strong> {formData.instructions}</p>
+            <p>
+              <strong>Instructions:</strong> {formData.instructions}
+            </p>
           </div>
 
           <div className={styles.surveyActions}>
-            <a 
-              href={formData.surveyUrl} 
-              target="_blank" 
+            <a
+              href={formData.surveyUrl}
+              target="_blank"
               rel="noopener noreferrer"
               className={styles.surveyLink}
->>>>>>> origin/main
             >
               Take Survey
             </a>
@@ -127,9 +80,13 @@ function SurveyPreview() {
                 placeholder="Enter the code shown at the end of the survey"
                 className={styles.input}
               />
-              <button 
+              <button
                 className={styles.submitButton}
-                onClick={() => alert('This is a preview. Submit functionality will be available to workers.')}
+                onClick={() =>
+                  alert(
+                    'This is a preview. Submit functionality will be available to workers.',
+                  )
+                }
               >
                 Submit
               </button>
@@ -137,21 +94,11 @@ function SurveyPreview() {
           </div>
         </div>
 
-<<<<<<< HEAD
-      <div className={styles.previewActions}>
-        <button className={styles.nextButton} onClick={handleNext}>
-          Next: Create and Publish Test
-        </button>
-=======
         <div className={styles.previewActions}>
-          <button 
-            className={styles.nextButton}
-            onClick={handleNext}
-          >
+          <button className={styles.nextButton} onClick={handleNext}>
             Next: Create and Publish Test
           </button>
         </div>
->>>>>>> origin/main
       </div>
     </div>
   );

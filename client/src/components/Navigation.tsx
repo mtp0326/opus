@@ -1,11 +1,6 @@
 import React from 'react';
 import { AppBar, Toolbar, Button, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-<<<<<<< HEAD
-// Cursor made this navigation bar
-=======
-
->>>>>>> origin/main
 function Navigation() {
   const navigate = useNavigate();
 
@@ -26,10 +21,16 @@ function Navigation() {
           <Button color="inherit" onClick={() => handleNavigate('/')}>
             Home
           </Button>
-          <Button color="inherit" onClick={() => handleNavigate('/create-project')}>
+          <Button
+            color="inherit"
+            onClick={() => handleNavigate('/create-project')}
+          >
             Create Project
           </Button>
-          <Button color="inherit" onClick={() => handleNavigate('/manage-tasks')}>
+          <Button
+            color="inherit"
+            onClick={() => handleNavigate('/manage-tasks')}
+          >
             Manage Tasks
           </Button>
         </Box>

@@ -102,18 +102,15 @@
 .questionList {
   margin-top: 1rem;
 }
-<<<<<<< HEAD
-=======
 
 .container {
-    height: calc(100vh - 64px);
-    width: 100%;
-    display: flex;
-    flex-direction: column;
+  height: calc(100vh - 64px);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .container > :global(.svc-creator) {
-    flex: 1;
-    min-height: 0;
-} 
->>>>>>> origin/main
+  flex: 1;
+  min-height: 0;
+}

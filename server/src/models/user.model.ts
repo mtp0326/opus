@@ -65,6 +65,11 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
+  userType: {
+    type: String,
+    enum: ['researcher', 'worker'],
+    required: true,
+  },
 });
 
 interface IUser extends mongoose.Document {
@@ -81,7 +86,8 @@ interface IUser extends mongoose.Document {
   league: string;
   streak: number;
   tickets: number;
-  lastSurveyDate: Date | null | undefined;
+  lastSurveyDate: Date | null | undefined; 
+  userType: 'researcher' | 'worker';
 }
 
 const User = mongoose.model<IUser>('User', UserSchema);

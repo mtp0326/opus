@@ -86,7 +86,7 @@ interface IUser extends mongoose.Document {
   league: string;
   streak: number;
   tickets: number;
-  lastSurveyDate: Date | null | undefined; 
+  lastSurveyDate: Date | null | undefined;
   userType: 'researcher' | 'worker';
 }
 

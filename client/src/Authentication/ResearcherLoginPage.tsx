@@ -112,7 +112,7 @@ function ResearcherLoginPage() {
 
   async function handleSubmit() {
     if (validateInputs()) {
-      loginUser(values.email, values.password, "researcher")
+      loginUser(values.email, values.password, 'researcher')
         .then((user) => {
           if (user.userType !== 'researcher') {
             throw new Error('No research account found');

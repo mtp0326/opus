@@ -48,14 +48,14 @@ const login = async (
   const { email, userType } = req.body;
 
   // Retrieve users with the same email
-  const users = (await getAllAccounts(email.toLowerCase())) as IUser[] || [];
+  const users = ((await getAllAccounts(email.toLowerCase())) as IUser[]) || [];
 
   if (users.length === 0) {
     return next(ApiError.unauthorized('No account found with this email'));
   }
 
   // Find the user that matches the requested userType
-  const user = users.find(u => u.userType === userType);
+  const user = users.find((u) => u.userType === userType);
 
   if (!user) {
     return next(ApiError.unauthorized(`No ${userType} account found`));
@@ -148,14 +148,24 @@ const register = async (
   const { firstName, lastName, email, password, userType } = req.body;
   if (!firstName || !lastName || !email || !password || !userType) {
     next(
-      ApiError.missingFields(['firstName', 'lastName', 'email', 'password', 'userType']),
+      ApiError.missingFields([
+        'firstName',
+        'lastName',
+        'email',
+        'password',
+        'userType',
+      ]),
     );
     return;
   }
 
   // Validate userType
   if (!['researcher', 'worker'].includes(userType)) {
-    next(ApiError.badRequest('Invalid user type. Must be either "researcher" or "worker".'));
+    next(
+      ApiError.badRequest(
+        'Invalid user type. Must be either "researcher" or "worker".',
+      ),
+    );
     return;
   }
 

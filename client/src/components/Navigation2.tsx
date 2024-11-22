@@ -22,7 +22,10 @@ function Navigation2() {
           <Button color="inherit" onClick={() => handleNavigate('/')}>
             Home
           </Button>
-          <Button color="inherit" onClick={() => handleNavigate('/leaderboard')}>
+          <Button
+            color="inherit"
+            onClick={() => handleNavigate('/leaderboard')}
+          >
             Leaderboard
           </Button>
         </Box>
@@ -31,4 +34,4 @@ function Navigation2() {
   );
 }
 
-export default Navigation2; 
+export default Navigation2;

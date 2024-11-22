@@ -1,0 +1,28 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.container {
+  width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.leaderboardTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.leaderboardTable th, .leaderboardTable td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.leaderboardTable th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+} 

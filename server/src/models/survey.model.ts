@@ -67,13 +67,10 @@ const surveySchema = new mongoose.Schema<ISurvey>({
     enum: ['active', 'completed', 'expired', 'draft'],
     default: 'active',
   },
-<<<<<<< HEAD:server/src/models/Survey.ts
-=======
   instructions: {
     type: String,
     required: true,
   }
->>>>>>> origin/main:server/src/models/survey.model.ts
 });
 
 export const Survey = mongoose.model('Survey', surveySchema);

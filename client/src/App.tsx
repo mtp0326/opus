@@ -28,6 +28,7 @@ import { SurveyBuilder } from './Projects/SurveyBuilder.tsx';
 import SurveyPreview from './Projects/SurveyPreview';
 import CreatePublishTest from './Projects/PublishSurvey.tsx';
 import ManageTasks from './Projects/ManageTasks.tsx';
+import Leaderboard from './Projects/Leaderboard.tsx';
 //import LabelData from './Projects/LabelData';
 
 function App() {
@@ -85,10 +86,15 @@ function App() {
                   <Route path="*" element={<NotFoundPage />} />
 
                   <Route path="/survey-preview" element={<SurveyPreview />} />
+<<<<<<< HEAD
                   <Route
                     path="/create-publish-test"
                     element={<CreatePublishTest />}
                   />
+=======
+                  <Route path="/create-publish-test" element={<CreatePublishTest />} />
+                  <Route path="/leaderboard" element={<Leaderboard />} />
+>>>>>>> origin/main
                 </Routes>
               </CssBaseline>
             </ThemeProvider>

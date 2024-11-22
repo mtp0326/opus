@@ -33,6 +33,9 @@ function Navigation() {
           >
             Manage Tasks
           </Button>
+          <Button color="inherit" onClick={() => handleNavigate('/leaderboard')}>
+            Leaderboard
+          </Button>
         </Box>
       </Toolbar>
     </AppBar>

@@ -65,7 +65,7 @@ export const saveSurvey = async (req: Request & { user?: IUser }, res: Response)
       createdBy: (req.user as IUser)._id,
       status: 'draft'
     });
-    
+
     await survey.save();
     
     console.log('💾 Survey saved to database with ID:', survey._id);

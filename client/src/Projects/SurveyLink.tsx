@@ -168,8 +168,8 @@ const SurveyLink = () => {
 
       navigate('/survey-preview', { 
         state: { 
-          formData: savedSurvey.data,
-          surveyId: savedSurvey.data._id
+          formData: savedSurvey.data || savedSurvey,
+          surveyId: savedSurvey.data ? savedSurvey.data._id : savedSurvey._id
         } 
       });
     } catch (error) {

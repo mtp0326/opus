@@ -86,15 +86,8 @@ function App() {
                   <Route path="*" element={<NotFoundPage />} />
 
                   <Route path="/survey-preview" element={<SurveyPreview />} />
-<<<<<<< HEAD
-                  <Route
-                    path="/create-publish-test"
-                    element={<CreatePublishTest />}
-                  />
-=======
                   <Route path="/create-publish-test" element={<CreatePublishTest />} />
                   <Route path="/leaderboard" element={<Leaderboard />} />
->>>>>>> origin/main
                 </Routes>
               </CssBaseline>
             </ThemeProvider>

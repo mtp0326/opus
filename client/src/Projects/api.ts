@@ -17,6 +17,11 @@ interface SurveyData {
   instructions: string;
 }
 
+interface SurveyCompletionData {
+  surveyId: string;
+  completionCode: string;
+}
+
 /**
  * Sends a request to the server to publish a survey
  * @param surveyId The ID of the survey to publish
@@ -109,6 +114,21 @@ export const deleteSurvey = async (surveyId: string) => {
   }
 
   console.log('✅ Survey deleted successfully');
+  return response.data;
+};
+
+export const submitSurveyCompletion = async (data: SurveyCompletionData) => {
+  const response = await postData(`surveys/${data.surveyId}/submit`, {
+    completionCode: data.completionCode,
+  });
+
+  if (response.error) {
+    console.error('❌ Failed to submit completion code:', response.error);
+    throw new Error(
+      response.error.message || 'Failed to submit survey completion',
+    );
+  }
+
   return response.data;
 };
 

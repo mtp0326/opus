@@ -1,4 +1,4 @@
-import mongoose, { Types } from 'mongoose';
+import mongoose from 'mongoose';
 
 interface ISurvey {
   title: string;
@@ -70,7 +70,9 @@ const surveySchema = new mongoose.Schema<ISurvey>({
   instructions: {
     type: String,
     required: true,
-  }
+  },
 });
 
-export const Survey = mongoose.model('Survey', surveySchema); 
+surveySchema.index({ worker: 1, survey: 1 }, { unique: true });
+
+export default mongoose.model('Survey', surveySchema);

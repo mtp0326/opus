@@ -34,6 +34,7 @@ import ResearcherLoginPage from './Authentication/ResearcherLoginPage.tsx';
 import WorkerRegisterPage from './Authentication/WorkerRegisterPage.tsx';
 import ResearcherRegisterPage from './Authentication/ResearcherRegisterPage.tsx';
 import HomePage from './Home/HomePage.tsx';
+import SurveyCompletion from './Projects/SurveyCompletion.tsx';
 // import LabelData from './Projects/LabelData';
 
 function App() {
@@ -92,6 +93,11 @@ function App() {
                   {/* Routes accessed only if user is authenticated and researcher */}
                   <Route element={<WorkerRoutesWrapper />}>
                     <Route path="/whome" element={<WorkerHomePage />} />
+                    <Route
+                      path="/surveys/:surveyId/complete"
+                      element={<SurveyCompletion />}
+                    />
+
                     {/* Add other worker-specific routes here */}
                   </Route>
 

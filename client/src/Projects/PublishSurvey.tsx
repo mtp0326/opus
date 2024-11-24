@@ -32,7 +32,7 @@ const PublishSurvey = () => {
       const publishedSurvey = await publishSurvey(surveyId);
       console.log('✅ Published survey:', publishedSurvey);
       
-      navigate('/', { 
+      navigate('/rhome', { 
         state: { message: 'Survey published successfully!' }
       });
     } catch (error) {

@@ -2,8 +2,8 @@ import React from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import { useData } from './api.tsx';
 
-interface IDynamicElementProps {
-  unAuthPath: string;
+interface IDynamicRedirectProps {
+  unAuthElement: React.ReactElement;
   authPath: string;
 }
 
@@ -17,13 +17,14 @@ function UnauthenticatedRoutesWrapper() {
 }
 
 /**
- * A wrapper component whose children routes which can only be navigated to if the user is  authenticated.
+ * A wrapper component whose children routes which can only be navigated to if the user is authenticated.
  */
 function ProtectedRoutesWrapper() {
   const data = useData('auth/authstatus');
   if (data === null) return null;
   return !data.error ? <Outlet /> : <Navigate to="/" />;
 }
+
 /**
  * A wrapper component whose children routes which can only be navigated to if the user is an admin.
  */
@@ -34,17 +35,17 @@ function AdminRoutesWrapper() {
 }
 
 /**
- * A wrapper which navigates to a different route depending on if the user is authenticated or not.
- * @param unAuthPath - The path to navigate to if the user is not authenticated. It should be of the form "/path".
- * @param authPath - The path to navigate to if the user is  authenticated. It should be of the form "/path".
+ * A wrapper which either renders the unauth element or redirects to auth path depending on authentication status.
+ * @param unAuthElement - The React element to render if the user is not authenticated
+ * @param authPath - The path to navigate to if the user is authenticated. Should be of the form "/path"
  */
-function DynamicRedirect({ unAuthPath, authPath }: IDynamicElementProps) {
+function DynamicRedirect({ unAuthElement, authPath }: IDynamicRedirectProps) {
   const data = useData('auth/authstatus');
   if (data === null) return null;
   return !data.error ? (
     <Navigate to={authPath} />
   ) : (
-    <Navigate to={unAuthPath} />
+    unAuthElement
   );
 }
 

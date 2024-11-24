@@ -32,7 +32,6 @@ import ResearcherLoginPage from './Authentication/ResearcherLoginPage.tsx';
 import WorkerRegisterPage from './Authentication/WorkerRegisterPage.tsx';
 import ResearcherRegisterPage from './Authentication/ResearcherRegisterPage.tsx';
 import HomePage from './Home/HomePage.tsx';
-import Leaderboard from './Projects/Leaderboard.tsx';
 //import LabelData from './Projects/LabelData';
 
 function App() {
@@ -45,13 +44,12 @@ function App() {
               <CssBaseline>
                 <AlertPopup />
                 <Routes>
-                  {/* Routes accessed only if user is not authenticated */}
+
+
+                  {/* Other unauthenticated routes */}
                   <Route element={<UnauthenticatedRoutesWrapper />}>
-                    <Route path="/wlogin" element={<WorkerLoginPage />} />
-                    <Route path="/rlogin" element={<ResearcherLoginPage />} />
                     <Route path="/wregister" element={<WorkerRegisterPage />} />
                     <Route path="/rregister" element={<ResearcherRegisterPage />} />
-                    <Route path="/home" element={<HomePage />} />
                     <Route
                       path="/verify-account/:token"
                       element={<VerifyAccountPage />}
@@ -76,7 +74,9 @@ function App() {
                     <Route path="/create-project" element={<CreateProject />} />
                     <Route path="/survey-link" element={<SurveyLink />} />
                     <Route path="/survey-builder" element={<SurveyBuilder />} />
-                    <Route path="/manage-tasks" element={<ManageTasks />} />
+                    <Route path="/manage-tasks" element={<ManageTasks />} /> 
+                    <Route path="/survey-preview" element={<SurveyPreview />} />
+                    <Route path="/create-publish-test" element={<CreatePublishTest />} />
                   </Route>
                   <Route element={<AdminRoutesWrapper />}>
                     <Route path="/users" element={<AdminDashboardPage />} />
@@ -87,21 +87,28 @@ function App() {
                   <Route
                     path="/wlogin"
                     element={
-                      <DynamicRedirect unAuthPath="/wlogin" authPath="/whome" />
+                      <DynamicRedirect 
+                        unAuthElement={<WorkerLoginPage />}
+                        authPath="/whome"
+                      />
                     }
                   />
                   <Route
                     path="/rlogin"
                     element={
-                      <DynamicRedirect unAuthPath="/rlogin" authPath="/rhome" />
+                      <DynamicRedirect 
+                        unAuthElement={<ResearcherLoginPage />}
+                        authPath="/rhome"
+                      />
                     }
-                  />
+                  /> 
+                  {/* Login routes - accessible to unauthenticated users
+                  <Route path="/wlogin" element={<WorkerLoginPage />} />
+                  <Route path="/rlogin" element={<ResearcherLoginPage />} /> */}
                   {/* Route which is accessed if no other route is matched */}
                   <Route path="*" element={<NotFoundPage />} />
 
-                  <Route path="/survey-preview" element={<SurveyPreview />} />
-                  <Route path="/create-publish-test" element={<CreatePublishTest />} />
-                  <Route path="/leaderboard" element={<Leaderboard />} />
+
 
                 </Routes>
               </CssBaseline>

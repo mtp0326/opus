@@ -185,6 +185,7 @@ const register = async (
   const existingUser = (await getAllAccounts(email.toLowerCase())) as IUser[] || []; 
     // Find the user that matches the requested userType
   const userWithType = existingUser.find(u => u.userType === userType);
+  console.log('User with specified type:', userWithType);
   if (userWithType) {
     next(
       ApiError.badRequest(

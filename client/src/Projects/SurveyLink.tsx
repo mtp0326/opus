@@ -168,11 +168,6 @@ function SurveyLink() {
         savedSurvey = await saveSurvey(surveyData);
       }
 
-      const completionUrl = `${window.location.origin}/surveys/${savedSurvey.data._id}/complete`;
-      const surveyUrlWithRedirect = `${
-        formData.surveyUrl
-      }?redirect=${encodeURIComponent(completionUrl)}`;
-
       navigate('/survey-preview', {
         state: {
           formData: savedSurvey.data || savedSurvey,

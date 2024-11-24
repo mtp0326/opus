@@ -153,18 +153,8 @@ export const deleteSurvey = async (
   }
 };
 
-interface SubmitRequest extends Request {
-  user?: IUser;
-  params: {
-    surveyId: string;
-  };
-  body: {
-    completionCode: string;
-  };
-}
-
 export const submitSurveyCompletion = async (
-  req: SubmitRequest,
+  req: Request & { user?: IUser },
   res: Response,
 ) => {
   try {

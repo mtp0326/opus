@@ -36,7 +36,7 @@ const userSlice = createSlice({
       state.email = action.payload.email;
       state.firstName = action.payload.firstName;
       state.lastName = action.payload.lastName;
-      state.admin = action.payload.admin; 
+      state.admin = action.payload.admin;
       state.userType = action.payload.userType;
     },
     toggleAdmin: (state) => {

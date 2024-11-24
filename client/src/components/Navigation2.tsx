@@ -14,15 +14,15 @@ function Navigation2() {
     clearStorage();
     navigate(path);
   };
-
+  // Vikram add leaderboard here
   return (
     <AppBar position="static">
       <Toolbar>
         <Box sx={{ flexGrow: 1, display: 'flex', gap: 2 }}>
-          <Button color="inherit" onClick={() => handleNavigate('/')}>
+          <Button color="inherit" onClick={() => handleNavigate('/whome')}>
             Home
           </Button>
-          <Button color="inherit" onClick={() => handleNavigate('/leaderboard')}>
+          <Button color="inherit" onClick={() => handleNavigate('/whome')}>
             Leaderboard
           </Button>
         </Box>
@@ -31,4 +31,4 @@ function Navigation2() {
   );
 }
 
-export default Navigation2; 
+export default Navigation2;

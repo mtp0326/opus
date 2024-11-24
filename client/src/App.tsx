@@ -15,6 +15,8 @@ import {
   ProtectedRoutesWrapper,
   DynamicRedirect,
   AdminRoutesWrapper,
+  ResearcherRoutesWrapper,
+  WorkerRoutesWrapper,
 } from './util/routes.tsx';
 import VerifyAccountPage from './Authentication/VerifyAccountPage.tsx';
 import EmailResetPasswordPage from './Authentication/EmailResetPasswordPage.tsx';
@@ -32,7 +34,7 @@ import ResearcherLoginPage from './Authentication/ResearcherLoginPage.tsx';
 import WorkerRegisterPage from './Authentication/WorkerRegisterPage.tsx';
 import ResearcherRegisterPage from './Authentication/ResearcherRegisterPage.tsx';
 import HomePage from './Home/HomePage.tsx';
-//import LabelData from './Projects/LabelData';
+// import LabelData from './Projects/LabelData';
 
 function App() {
   return (
@@ -44,12 +46,13 @@ function App() {
               <CssBaseline>
                 <AlertPopup />
                 <Routes>
-
-
                   {/* Other unauthenticated routes */}
                   <Route element={<UnauthenticatedRoutesWrapper />}>
                     <Route path="/wregister" element={<WorkerRegisterPage />} />
-                    <Route path="/rregister" element={<ResearcherRegisterPage />} />
+                    <Route
+                      path="/rregister"
+                      element={<ResearcherRegisterPage />}
+                    />
                     <Route
                       path="/verify-account/:token"
                       element={<VerifyAccountPage />}
@@ -67,27 +70,37 @@ function App() {
                     path="/invite/:token"
                     element={<InviteRegisterPage />}
                   />
-                  {/* Routes accessed only if user is authenticated */}
-                  <Route element={<ProtectedRoutesWrapper />}>
-                    <Route path="/whome" element={<WorkerHomePage />} />
+                  {/* Routes accessed only if user is authenticated and researcher */}
+                  <Route element={<ResearcherRoutesWrapper />}>
                     <Route path="/rhome" element={<ResearcherHomePage />} />
                     <Route path="/create-project" element={<CreateProject />} />
                     <Route path="/survey-link" element={<SurveyLink />} />
                     <Route path="/survey-builder" element={<SurveyBuilder />} />
-                    <Route path="/manage-tasks" element={<ManageTasks />} /> 
+                    <Route path="/manage-tasks" element={<ManageTasks />} />
                     <Route path="/survey-preview" element={<SurveyPreview />} />
-                    <Route path="/create-publish-test" element={<CreatePublishTest />} />
+                    <Route
+                      path="/create-publish-test"
+                      element={<CreatePublishTest />}
+                    />
+                    {/* Add other researcher-specific routes here */}
                   </Route>
+
                   <Route element={<AdminRoutesWrapper />}>
                     <Route path="/users" element={<AdminDashboardPage />} />
                   </Route>
 
+                  {/* Routes accessed only if user is authenticated and researcher */}
+                  <Route element={<WorkerRoutesWrapper />}>
+                    <Route path="/whome" element={<WorkerHomePage />} />
+                    {/* Add other worker-specific routes here */}
+                  </Route>
+
                   {/* Route which redirects to a different page depending on if the user is an authenticated or not by utilizing the DynamicRedirect component */}
-                  <Route path="/" element={<HomePage />} /> 
+                  <Route path="/" element={<HomePage />} />
                   <Route
                     path="/wlogin"
                     element={
-                      <DynamicRedirect 
+                      <DynamicRedirect
                         unAuthElement={<WorkerLoginPage />}
                         authPath="/whome"
                       />
@@ -96,20 +109,17 @@ function App() {
                   <Route
                     path="/rlogin"
                     element={
-                      <DynamicRedirect 
+                      <DynamicRedirect
                         unAuthElement={<ResearcherLoginPage />}
                         authPath="/rhome"
                       />
                     }
-                  /> 
+                  />
                   {/* Login routes - accessible to unauthenticated users
                   <Route path="/wlogin" element={<WorkerLoginPage />} />
                   <Route path="/rlogin" element={<ResearcherLoginPage />} /> */}
                   {/* Route which is accessed if no other route is matched */}
                   <Route path="*" element={<NotFoundPage />} />
-
-
-
                 </Routes>
               </CssBaseline>
             </ThemeProvider>

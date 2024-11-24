@@ -15,7 +15,7 @@ import Navigation2 from '../components/Navigation2.tsx';
 
 interface PromoteButtonProps {
   admin: boolean | null;
-  handleSelfPromote: () => void;
+  handleSelfPromote?: () => void;
   navigator: NavigateFunction;
 }
 
@@ -33,18 +33,14 @@ function PromoteButton({
   if (admin === null) {
     return null;
   }
-  return !admin ? (
-    <PrimaryButton variant="contained" onClick={handleSelfPromote}>
-      Promote self to admin
-    </PrimaryButton>
-  ) : (
+  return admin ? (
     <PrimaryButton
       variant="contained"
       onClick={() => navigator('/users', { replace: true })}
     >
       View all users
     </PrimaryButton>
-  );
+  ) : null;
 }
 /**
  * The HomePage of the user dashboard. Displays a welcome message, a logout button and a button to promote the user to admin if they are not already an admin. If the user is an admin, the button will navigate them to the admin dashboard. This utilizes redux to access the current user's information.
@@ -61,16 +57,16 @@ function WorkerHomePage() {
       navigator('/wlogin', { replace: true });
     }
   };
+  // Idt we need selfpromote for a worker account/nonadmin account
+  // const handleSelfPromote = async () => {
+  //   const newAdminStatus = await selfUpgrade(user.email as string);
+  //   if (newAdminStatus) {
+  //     dispatch(toggleAdmin());
+  //     setAdmin(true);
+  //   }
+  // };
 
-  const handleSelfPromote = async () => {
-    const newAdminStatus = await selfUpgrade(user.email as string);
-    if (newAdminStatus) {
-      dispatch(toggleAdmin());
-      setAdmin(true);
-    }
-  };
-
-  const message = `Welcome to the Boilerplate, ${user.firstName} ${user.lastName}!`;
+  const message = `Welcome to the Opus, ${user.firstName} ${user.lastName}!`;
   return (
     <>
       <Navigation2 />
@@ -79,7 +75,7 @@ function WorkerHomePage() {
         <Grid item container justifyContent="center">
           <PromoteButton
             admin={admin}
-            handleSelfPromote={handleSelfPromote}
+            // handleSelfPromote={handleSelfPromote}
             navigator={navigator}
           />
         </Grid>

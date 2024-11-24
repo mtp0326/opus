@@ -19,13 +19,19 @@ function Navigation() {
     <AppBar position="static">
       <Toolbar>
         <Box sx={{ flexGrow: 1, display: 'flex', gap: 2 }}>
-          <Button color="inherit" onClick={() => handleNavigate('/')}>
+          <Button color="inherit" onClick={() => handleNavigate('/rhome')}>
             Home
           </Button>
-          <Button color="inherit" onClick={() => handleNavigate('/create-project')}>
+          <Button
+            color="inherit"
+            onClick={() => handleNavigate('/create-project')}
+          >
             Create Project
           </Button>
-          <Button color="inherit" onClick={() => handleNavigate('/manage-tasks')}>
+          <Button
+            color="inherit"
+            onClick={() => handleNavigate('/manage-tasks')}
+          >
             Manage Tasks
           </Button>
         </Box>
@@ -34,4 +40,4 @@ function Navigation() {
   );
 }
 
-export default Navigation; 
+export default Navigation;

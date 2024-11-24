@@ -7,6 +7,17 @@ interface IDynamicRedirectProps {
   authPath: string;
 }
 
+interface User {
+  userType: string;
+}
+
+interface AuthResponse {
+  error: boolean;
+  user?: {
+    userType: string;
+  };
+}
+
 /**
  * A wrapper component whose children routes which can only be navigated to if the user is not authenticated.
  */
@@ -42,11 +53,52 @@ function AdminRoutesWrapper() {
 function DynamicRedirect({ unAuthElement, authPath }: IDynamicRedirectProps) {
   const data = useData('auth/authstatus');
   if (data === null) return null;
-  return !data.error ? (
-    <Navigate to={authPath} />
-  ) : (
-    unAuthElement
-  );
+  return !data.error ? <Navigate to={authPath} /> : unAuthElement;
+}
+
+/**
+ * A wrapper component whose children routes can only be accessed by researchers
+ */
+function ResearcherRoutesWrapper() {
+  const response = useData('auth/authstatus') as {
+    data: AuthResponse;
+    error: null;
+  } | null;
+
+  if (response === null) {
+    return null;
+  }
+
+  const { data } = response;
+  if (!data.error && data.user?.userType === 'researcher') {
+    console.log('User is researcher, allowing access');
+    return <Outlet />;
+  }
+
+  console.log('User is not researcher, redirecting');
+  return <Navigate to="/" />;
+}
+
+/**
+ * A wrapper component whose children routes can only be accessed by workers
+ */
+function WorkerRoutesWrapper() {
+  const response = useData('auth/authstatus') as {
+    data: AuthResponse;
+    error: null;
+  } | null;
+  if (response === null) {
+    return null;
+  }
+
+  const { data } = response;
+  if (!data.error && data.user?.userType === 'worker') {
+    console.log('User is worker, allowing access');
+    return <Outlet />;
+  }
+
+  console.log('User is not worker, redirecting');
+  return <Navigate to="/" />;
 }
 
 export {
@@ -54,4 +106,6 @@ export {
   ProtectedRoutesWrapper,
   AdminRoutesWrapper,
   DynamicRedirect,
+  ResearcherRoutesWrapper,
+  WorkerRoutesWrapper,
 };

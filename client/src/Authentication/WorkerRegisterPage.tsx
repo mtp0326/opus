@@ -135,7 +135,13 @@ function WorkerRegisterPage() {
 
   async function handleSubmit() {
     if (validateInputs()) {
-      register(values.firstName, values.lastName, values.email, values.password, 'worker')
+      register(
+        values.firstName,
+        values.lastName,
+        values.email,
+        values.password,
+        'worker',
+      )
         .then(() => {
           setShowError('alert', true);
           setAlertTitle('');

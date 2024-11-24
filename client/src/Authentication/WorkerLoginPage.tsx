@@ -75,7 +75,15 @@ function WorkerLoginPage() {
     admin: boolean,
     userType: string,
   ) {
-    dispatch(loginRedux({ email: userEmail, firstName, lastName, admin, userType: "worker" }));
+    dispatch(
+      loginRedux({
+        email: userEmail,
+        firstName,
+        lastName,
+        admin,
+        userType: 'worker',
+      }),
+    );
   }
 
   const clearErrorMessages = () => {
@@ -113,7 +121,7 @@ function WorkerLoginPage() {
 
   async function handleSubmit() {
     if (validateInputs()) {
-      loginUser(values.email, values.password, "worker")
+      loginUser(values.email, values.password, 'worker')
         .then((user) => {
           if (user.userType !== 'worker') {
             throw new Error('No worker account found');
@@ -138,6 +146,27 @@ function WorkerLoginPage() {
 
   return (
     <ScreenGrid>
+      <Grid
+        container
+        justifyContent="flex-start"
+        sx={{ position: 'absolute', top: 0, left: 0, p: 2 }}
+      >
+        <PrimaryButton
+          onClick={() => navigate('/')}
+          sx={{
+            color: 'grey.400',
+            backgroundColor: 'transparent',
+            boxShadow: 'none',
+            '&:hover': {
+              color: 'grey.600',
+              backgroundColor: 'transparent',
+              boxShadow: 'none',
+            },
+          }}
+        >
+          Home
+        </PrimaryButton>
+      </Grid>
       <FormGrid>
         <FormCol>
           <Grid item container justifyContent="center">

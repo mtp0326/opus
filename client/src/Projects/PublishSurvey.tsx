@@ -109,6 +109,7 @@ function PublishSurvey() {
         <div className={styles.actions}>
           <button
             className={styles.publishButton}
+            type="button"
             onClick={() => {
               console.log('Button clicked via inline handler');
               handlePublish();

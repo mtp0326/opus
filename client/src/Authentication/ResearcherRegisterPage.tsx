@@ -135,7 +135,13 @@ function ResearcherRegisterPage() {
 
   async function handleSubmit() {
     if (validateInputs()) {
-      register(values.firstName, values.lastName, values.email, values.password, "researcher")
+      register(
+        values.firstName,
+        values.lastName,
+        values.email,
+        values.password,
+        'researcher',
+      )
         .then(() => {
           setShowError('alert', true);
           setAlertTitle('');

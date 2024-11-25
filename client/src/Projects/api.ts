@@ -17,6 +17,11 @@ interface SurveyData {
   instructions: string;
 }
 
+interface SurveyCompletionData {
+  surveyId: string;
+  completionCode: string;
+}
+
 /**
  * Sends a request to the server to publish a survey
  * @param surveyId The ID of the survey to publish
@@ -27,7 +32,7 @@ async function publishSurvey(surveyId: string) {
   console.log('📝 Publishing survey:', surveyId);
 
   const response = await putData(`surveys/${surveyId}/publish`);
-  
+
   if (response.error) {
     console.error('❌ Failed to publish survey:', response.error);
     throw Error(response.error.message);
@@ -44,13 +49,12 @@ async function publishSurvey(surveyId: string) {
  */
 async function getPublishedSurveys(): Promise<SurveyData[]> {
   const res = await getData('surveys/published');
-  
+
   if (res.error) {
     console.error('❌ Failed to fetch surveys:', res.error);
     throw Error(res.error.message);
   }
 
-  console.log('✅ Surveys fetched successfully:', res.data);
   return res.data;
 }
 
@@ -64,9 +68,9 @@ async function saveSurvey(formData: SurveyData) {
   const res = await postData('surveys/save', {
     ...formData, 
     workerQualifications: formData.workerQualifications || 'basic',
-    status: 'draft'
+    status: 'draft',
   });
-  
+
   if (res.error) {
     console.error('❌ Failed to save survey:', res.error);
     throw Error(res.error.message);
@@ -89,7 +93,7 @@ async function editSurvey(surveyId: string, formData: SurveyData) {
   });
 
   const response = await putData(`surveys/${surveyId}/edit`, formData);
-  
+
   if (response.error) {
     console.error('❌ Failed to edit survey:', response.error);
     throw Error(response.error.message);
@@ -97,13 +101,13 @@ async function editSurvey(surveyId: string, formData: SurveyData) {
 
   console.log('✅ Survey edited successfully:', response);
   return response.data;
-} 
+}
 
 export const deleteSurvey = async (surveyId: string) => {
   console.log('🗑️ Deleting survey:', surveyId);
-  
+
   const response = await putData(`surveys/${surveyId}/delete`);
-  
+
   if (response.error) {
     console.error('❌ Failed to delete survey:', response.error);
     throw Error(response.error.message);
@@ -113,10 +117,25 @@ export const deleteSurvey = async (surveyId: string) => {
   return response.data;
 };
 
+export const submitSurveyCompletion = async (data: SurveyCompletionData) => {
+  const response = await postData(`surveys/${data.surveyId}/submit`, {
+    completionCode: data.completionCode,
+  });
+
+  if (response.error) {
+    console.error('❌ Failed to submit completion code:', response.error);
+    throw new Error(
+      response.error.message || 'Failed to submit survey completion',
+    );
+  }
+
+  return response.data;
+};
+
 export {
   publishSurvey,
   getPublishedSurveys,
   saveSurvey,
   editSurvey,
-  type SurveyData
-}; 
+  type SurveyData,
+};

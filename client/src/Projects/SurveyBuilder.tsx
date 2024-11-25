@@ -1,26 +1,23 @@
 // Uncomment the following line if you are using Next.js:
 // 'use client'
 
+import React from 'react';
 import { SurveyCreatorComponent, SurveyCreator } from 'survey-creator-react';
 import 'survey-core/defaultV2.min.css';
 import 'survey-creator-core/survey-creator-core.min.css';
-import { slk } from "survey-core";
+import { slk } from 'survey-core';
 import Navigation from '../components/Navigation';
 import styles from './SurveyBuilder.module.css';
-
 
 const creatorOptions = {
   showLogicTab: true,
   isAutoSave: true,
-  haveCommercialLicense: true
+  haveCommercialLicense: true,
 };
 
-slk(
-     "M2ZlMjI3N2UtOTM4ZS00YWM1LTgxNjgtNjlhMjM3MTMzY2JiOzE9MjAyNS0xMS0xNA=="
-);
+slk('M2ZlMjI3N2UtOTM4ZS00YWM1LTgxNjgtNjlhMjM3MTMzY2JiOzE9MjAyNS0xMS0xNA==');
 
-
-export function SurveyBuilder() {
+function SurveyBuilder() {
   const creator = new SurveyCreator(creatorOptions);
   return (
     <>
@@ -29,5 +26,7 @@ export function SurveyBuilder() {
         <SurveyCreatorComponent creator={creator} />
       </div>
     </>
-  )
+  );
 }
+
+export default SurveyBuilder;

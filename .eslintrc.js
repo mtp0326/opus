@@ -5,6 +5,6 @@ module.exports = {
     'no-console': 'off',
     '@typescript-eslint/no-unused-vars': ['warn'],
     'import/no-extraneous-dependencies': 2,
-    'prettier/prettier': ['error', { endOfLine: 'auto' }],
+    'prettier/prettier': ['error', { endOfLine: 'off' }],
   },
 };

@@ -7,27 +7,35 @@ import { PersistGate } from 'redux-persist/integration/react';
 import theme from './assets/theme.ts';
 import { store, persistor } from './util/redux/store.ts';
 import NotFoundPage from './NotFound/NotFoundPage.tsx';
-import HomePage from './Home/HomePage.tsx';
+import ResearcherHomePage from './Home/ResearcherHomePage.tsx';
+import WorkerHomePage from './Home/WorkerHomePage.tsx';
 import AdminDashboardPage from './AdminDashboard/AdminDashboardPage.tsx';
 import {
   UnauthenticatedRoutesWrapper,
   ProtectedRoutesWrapper,
   DynamicRedirect,
   AdminRoutesWrapper,
+  ResearcherRoutesWrapper,
+  WorkerRoutesWrapper,
 } from './util/routes.tsx';
 import VerifyAccountPage from './Authentication/VerifyAccountPage.tsx';
-import RegisterPage from './Authentication/RegisterPage.tsx';
-import LoginPage from './Authentication/LoginPage.tsx';
 import EmailResetPasswordPage from './Authentication/EmailResetPasswordPage.tsx';
 import ResetPasswordPage from './Authentication/ResetPasswordPage.tsx';
 import AlertPopup from './components/AlertPopup.tsx';
 import InviteRegisterPage from './Authentication/InviteRegisterPage.tsx';
 import CreateProject from './Projects/CreateProject.tsx';
 import SurveyLink from './Projects/SurveyLink.tsx';
-import { SurveyBuilder } from './Projects/SurveyBuilder.tsx';
+import SurveyBuilder from './Projects/SurveyBuilder.tsx';
 import SurveyPreview from './Projects/SurveyPreview';
 import CreatePublishTest from './Projects/PublishSurvey.tsx';
 import ManageTasks from './Projects/ManageTasks.tsx';
+import WorkerLoginPage from './Authentication/WorkerLoginPage.tsx';
+import ResearcherLoginPage from './Authentication/ResearcherLoginPage.tsx';
+import WorkerRegisterPage from './Authentication/WorkerRegisterPage.tsx';
+import ResearcherRegisterPage from './Authentication/ResearcherRegisterPage.tsx';
+import HomePage from './Home/HomePage.tsx';
+import SurveyCompletion from './Projects/SurveyCompletion.tsx';
+// import LabelData from './Projects/LabelData';
 import Leaderboard from './Projects/Leaderboard.tsx';
 //import LabelData from './Projects/LabelData';
 
@@ -41,10 +49,13 @@ function App() {
               <CssBaseline>
                 <AlertPopup />
                 <Routes>
-                  {/* Routes accessed only if user is not authenticated */}
+                  {/* Other unauthenticated routes */}
                   <Route element={<UnauthenticatedRoutesWrapper />}>
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/wregister" element={<WorkerRegisterPage />} />
+                    <Route
+                      path="/rregister"
+                      element={<ResearcherRegisterPage />}
+                    />
                     <Route
                       path="/verify-account/:token"
                       element={<VerifyAccountPage />}
@@ -62,31 +73,61 @@ function App() {
                     path="/invite/:token"
                     element={<InviteRegisterPage />}
                   />
-                  {/* Routes accessed only if user is authenticated */}
-                  <Route element={<ProtectedRoutesWrapper />}>
-                    <Route path="/home" element={<HomePage />} />
+                  {/* Routes accessed only if user is authenticated and researcher */}
+                  <Route element={<ResearcherRoutesWrapper />}>
+                    <Route path="/rhome" element={<ResearcherHomePage />} />
                     <Route path="/create-project" element={<CreateProject />} />
                     <Route path="/survey-link" element={<SurveyLink />} />
                     <Route path="/survey-builder" element={<SurveyBuilder />} />
                     <Route path="/manage-tasks" element={<ManageTasks />} />
+                    <Route path="/survey-preview" element={<SurveyPreview />} />
+                    <Route
+                      path="/create-publish-test"
+                      element={<CreatePublishTest />}
+                    />
+                    {/* Add other researcher-specific routes here */}
                   </Route>
+
                   <Route element={<AdminRoutesWrapper />}>
                     <Route path="/users" element={<AdminDashboardPage />} />
                   </Route>
 
+                  {/* Routes accessed only if user is authenticated and researcher */}
+                  <Route element={<WorkerRoutesWrapper />}>
+                    <Route path="/whome" element={<WorkerHomePage />} />
+                    <Route
+                      path="/surveys/:surveyId/complete"
+                      element={<SurveyCompletion />}
+                    />
+
+                    {/* Add other worker-specific routes here */}
+                  </Route>
+
                   {/* Route which redirects to a different page depending on if the user is an authenticated or not by utilizing the DynamicRedirect component */}
+                  <Route path="/" element={<HomePage />} />
                   <Route
-                    path="/"
+                    path="/wlogin"
                     element={
-                      <DynamicRedirect unAuthPath="/login" authPath="/home" />
+                      <DynamicRedirect
+                        unAuthElement={<WorkerLoginPage />}
+                        authPath="/whome"
+                      />
                     }
                   />
-
+                  <Route
+                    path="/rlogin"
+                    element={
+                      <DynamicRedirect
+                        unAuthElement={<ResearcherLoginPage />}
+                        authPath="/rhome"
+                      />
+                    }
+                  />
+                  {/* Login routes - accessible to unauthenticated users
+                  <Route path="/wlogin" element={<WorkerLoginPage />} />
+                  <Route path="/rlogin" element={<ResearcherLoginPage />} /> */}
                   {/* Route which is accessed if no other route is matched */}
                   <Route path="*" element={<NotFoundPage />} />
-
-                  <Route path="/survey-preview" element={<SurveyPreview />} />
-                  <Route path="/create-publish-test" element={<CreatePublishTest />} />
                   <Route path="/leaderboard" element={<Leaderboard />} />
                 </Routes>
               </CssBaseline>

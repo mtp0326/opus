@@ -24,6 +24,7 @@ const removeSensitiveDataQueryKeepPassword = [
  * @param lastName - string representing the last name of the user
  * @param email - string representing the email of the user
  * @param password - string representing the password of the user
+ * @param userType - string representing the user role (worker or researcher)
  * @returns The created {@link User}
  */
 const createUser = async (
@@ -31,6 +32,7 @@ const createUser = async (
   lastName: string,
   email: string,
   password: string,
+  userType: string,
 ) => {
   const hashedPassword = await hash(password, passwordHashSaltRounds);
   if (!hashedPassword) {
@@ -42,6 +44,7 @@ const createUser = async (
     email,
     password: hashedPassword,
     admin: false,
+    userType,
   });
   const user = await newUser.save();
   return user;
@@ -55,6 +58,13 @@ const createUser = async (
  */
 const getUserByEmail = async (email: string) => {
   const user = await User.findOne({ email })
+    .select(removeSensitiveDataQuery)
+    .exec();
+  return user;
+};
+
+const getAllAccounts = async (email: string) => {
+  const user = await User.find({ email })
     .select(removeSensitiveDataQuery)
     .exec();
   return user;
@@ -147,6 +157,7 @@ export {
   getUserByEmail,
   getUserByVerificationToken,
   getUserById,
+  getAllAccounts,
   getUserByEmailWithPassword,
   getUserByResetPasswordToken,
   getAllUsersFromDB,

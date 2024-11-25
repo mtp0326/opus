@@ -16,13 +16,14 @@ import ScreenGrid from '../components/ScreenGrid.tsx';
  * A page allowing users to input their email and password to login. The default
  * starting page of the application
  */
-function LoginPage() {
+function WorkerLoginPage() {
   const navigate = useNavigate();
 
   // Default values for state
   const defaultValues = {
     email: '',
     password: '',
+    userType: 'worker',
   };
   const defaultShowErrors = {
     email: false,
@@ -72,8 +73,17 @@ function LoginPage() {
     firstName: string,
     lastName: string,
     admin: boolean,
+    userType: string,
   ) {
-    dispatch(loginRedux({ email: userEmail, firstName, lastName, admin }));
+    dispatch(
+      loginRedux({
+        email: userEmail,
+        firstName,
+        lastName,
+        admin,
+        userType: 'worker',
+      }),
+    );
   }
 
   const clearErrorMessages = () => {
@@ -111,16 +121,20 @@ function LoginPage() {
 
   async function handleSubmit() {
     if (validateInputs()) {
-      loginUser(values.email, values.password)
+      loginUser(values.email, values.password, 'worker')
         .then((user) => {
+          if (user.userType !== 'worker') {
+            throw new Error('No worker account found');
+          }
           console.log('navigating to home!');
           dispatchUser(
             user.email!,
             user.firstName!,
             user.lastName!,
             user.admin!,
+            user.userType!,
           );
-          navigate('/home');
+          navigate('/whome');
         })
         .catch((e) => {
           console.log('failed to login...');
@@ -132,6 +146,27 @@ function LoginPage() {
 
   return (
     <ScreenGrid>
+      <Grid
+        container
+        justifyContent="flex-start"
+        sx={{ position: 'absolute', top: 0, left: 0, p: 2 }}
+      >
+        <PrimaryButton
+          onClick={() => navigate('/')}
+          sx={{
+            color: 'grey.400',
+            backgroundColor: 'transparent',
+            boxShadow: 'none',
+            '&:hover': {
+              color: 'grey.600',
+              backgroundColor: 'transparent',
+              boxShadow: 'none',
+            },
+          }}
+        >
+          Home
+        </PrimaryButton>
+      </Grid>
       <FormGrid>
         <FormCol>
           <Grid item container justifyContent="center">
@@ -180,7 +215,7 @@ function LoginPage() {
               </Link>
             </Grid>
             <Grid item>
-              <Link component={RouterLink} to="/register">
+              <Link component={RouterLink} to="/wregister">
                 Sign up
               </Link>
             </Grid>
@@ -200,4 +235,4 @@ function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default WorkerLoginPage;

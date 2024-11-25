@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Container, 
-  Typography, 
-  Paper, 
-  Card, 
-  CardContent, 
+import {
+  Container,
+  Typography,
+  Paper,
+  Card,
+  CardContent,
   Grid,
   CircularProgress,
-  Box
+  Box,
+  Button,
 } from '@mui/material';
-import { getPublishedSurveys, type SurveyData } from './api';
-import Navigation from '../components/Navigation';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Navigation from '../components/Navigation';
+import { getPublishedSurveys, type SurveyData } from './api';
 import { deleteSurvey } from './api';
 
 interface Survey extends SurveyData {
@@ -29,7 +29,7 @@ function ManageTasks() {
 
   useEffect(() => {
     console.log('🎯 ManageTasks component mounted - fetching surveys...');
-    
+
     const fetchSurveys = async () => {
       try {
         const response = await getPublishedSurveys();
@@ -53,7 +53,7 @@ function ManageTasks() {
       try {
         await deleteSurvey(surveyId);
         // Refresh the surveys list
-        setSurveys(surveys.filter(survey => survey._id !== surveyId));
+        setSurveys(surveys.filter((survey) => survey._id !== surveyId));
       } catch (error) {
         console.error('❌ Error deleting survey:', error);
         alert('Failed to delete survey');
@@ -63,7 +63,12 @@ function ManageTasks() {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="200px"
+      >
         <CircularProgress />
       </Box>
     );
@@ -77,13 +82,17 @@ function ManageTasks() {
           <Typography variant="h4" gutterBottom>
             Manage Tasks
           </Typography>
-          
+
           <Grid container spacing={2}>
             {surveys.map((survey, index) => (
               <Grid item xs={12} key={index}>
                 <Card>
                   <CardContent>
-                    <Grid container justifyContent="space-between" alignItems="center">
+                    <Grid
+                      container
+                      justifyContent="space-between"
+                      alignItems="center"
+                    >
                       <Grid item xs={8}>
                         <Typography variant="h6" gutterBottom>
                           {survey.title}
@@ -95,24 +104,29 @@ function ManageTasks() {
                         )}
                       </Grid>
                       <Grid item xs={4}>
-                        <Box sx={{ 
-                          display: 'flex', 
-                          flexDirection: 'column', 
-                          alignItems: 'flex-end'  // Align content to the right
-                        }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'flex-end', // Align content to the right
+                          }}
+                        >
                           <Typography variant="body2" color="textSecondary">
-                            Created: {new Date(survey.createdAt).toLocaleDateString()}
+                            Created:{' '}
+                            {new Date(survey.createdAt).toLocaleDateString()}
                           </Typography>
                           <Typography variant="body2" color="textSecondary">
                             Status: {survey.status}
                           </Typography>
                           {survey.status === 'draft' && (
-                            <Box sx={{ 
-                              display: 'flex', 
-                              gap: 1, 
-                              mt: 1,
-                              justifyContent: 'flex-end'  // Align buttons to the right
-                            }}>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                gap: 1,
+                                mt: 1,
+                                justifyContent: 'flex-end', // Align buttons to the right
+                              }}
+                            >
                               <Button
                                 startIcon={<EditIcon />}
                                 onClick={() => handleEdit(survey)}
@@ -151,4 +165,4 @@ function ManageTasks() {
   );
 }
 
-export default ManageTasks; 
+export default ManageTasks;

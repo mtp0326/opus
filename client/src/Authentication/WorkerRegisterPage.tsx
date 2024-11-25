@@ -19,7 +19,7 @@ import FormGrid from '../components/form/FormGrid.tsx';
  * A page users visit to be able to register for a new account by inputting
  * fields such as their name, email, and password.
  */
-function RegisterPage() {
+function WorkerRegisterPage() {
   const navigate = useNavigate();
 
   // Default values for state
@@ -29,6 +29,7 @@ function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
+    userType: 'worker',
   };
   const defaultShowErrors = {
     firstName: false,
@@ -37,6 +38,7 @@ function RegisterPage() {
     password: false,
     confirmPassword: false,
     alert: false,
+    userType: false,
   };
   const defaultErrorMessages = {
     firstName: '',
@@ -45,6 +47,7 @@ function RegisterPage() {
     password: '',
     confirmPassword: '',
     alert: '',
+    userType: '',
   };
   type ValueType = keyof typeof values;
 
@@ -132,7 +135,13 @@ function RegisterPage() {
 
   async function handleSubmit() {
     if (validateInputs()) {
-      register(values.firstName, values.lastName, values.email, values.password)
+      register(
+        values.firstName,
+        values.lastName,
+        values.email,
+        values.password,
+        'worker',
+      )
         .then(() => {
           setShowError('alert', true);
           setAlertTitle('');
@@ -256,4 +265,4 @@ function RegisterPage() {
   );
 }
 
-export default RegisterPage;
+export default WorkerRegisterPage;

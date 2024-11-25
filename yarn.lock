@@ -13144,10 +13144,10 @@ survey-creator-core@^1.12.11:
   resolved "https://registry.npmjs.org/survey-creator-core/-/survey-creator-core-1.12.11.tgz"
   integrity sha512-S9YE56qFyxreLaP7S5YI3ft11N3uIgzVWC3UsuwbIBYA8ocJ37WWDO2fdEUjyiEAPTFjyaDY+RST128TwO6QiA==
 
-survey-creator-react@^1.12.9:
-  version "1.12.9"
-  resolved "https://registry.npmjs.org/survey-creator-react/-/survey-creator-react-1.12.9.tgz"
-  integrity sha512-eHyX+Op3NrHOgm+mI3w+xcfhMV+7NXWLriFmcoqLiIp2dTFMOwf/os1pUvdt5vkjg1LkPi8O6+1CXJDsxiwtLw==
+survey-creator-react@^1.12.11:
+  version "1.12.11"
+  resolved "https://registry.npmjs.org/survey-creator-react/-/survey-creator-react-1.12.11.tgz"
+  integrity sha512-GbwEQOh2rzjdkDyLEKFKsKtE7hevVeqbpTy9YRh+2YJiuOGUvS2azUXTVExhNSzC9VowfWn+k1vo/1NHRLfIHQ==
 
 survey-react-ui@^1.12.9:
   version "1.12.9"

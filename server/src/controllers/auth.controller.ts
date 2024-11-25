@@ -3,10 +3,10 @@
  * user's authentication such as login, logout, and registration.
  */
 import express from 'express';
-import { logger_info } from '../config/configDatadog.ts';
 import passport from 'passport';
 import crypto from 'crypto';
 import { hash } from 'bcrypt';
+import { logger_info } from '../config/configDatadog.ts';
 import { IUser } from '../models/user.model.ts';
 import StatusCode from '../util/statusCode.ts';
 import {
@@ -48,14 +48,14 @@ const login = async (
   const { email, userType } = req.body;
 
   // Retrieve users with the same email
-  const users = (await getAllAccounts(email.toLowerCase())) as IUser[] || [];
+  const users = ((await getAllAccounts(email.toLowerCase())) as IUser[]) || [];
 
   if (users.length === 0) {
     return next(ApiError.unauthorized('No account found with this email'));
   }
 
   // Find the user that matches the requested userType
-  const user = users.find(u => u.userType === userType);
+  const user = users.find((u) => u.userType === userType);
 
   if (!user) {
     return next(ApiError.unauthorized(`No ${userType} account found`));
@@ -148,14 +148,24 @@ const register = async (
   const { firstName, lastName, email, password, userType } = req.body;
   if (!firstName || !lastName || !email || !password || !userType) {
     next(
-      ApiError.missingFields(['firstName', 'lastName', 'email', 'password', 'userType']),
+      ApiError.missingFields([
+        'firstName',
+        'lastName',
+        'email',
+        'password',
+        'userType',
+      ]),
     );
     return;
   }
 
   // Validate userType
   if (!['researcher', 'worker'].includes(userType)) {
-    next(ApiError.badRequest('Invalid user type. Must be either "researcher" or "worker".'));
+    next(
+      ApiError.badRequest(
+        'Invalid user type. Must be either "researcher" or "worker".',
+      ),
+    );
     return;
   }
 
@@ -182,9 +192,10 @@ const register = async (
   }
   const lowercaseEmail = email.toLowerCase();
   // Check if user exists
-  const existingUser = (await getAllAccounts(email.toLowerCase())) as IUser[] || []; 
-    // Find the user that matches the requested userType
-  const userWithType = existingUser.find(u => u.userType === userType);
+  const existingUser =
+    ((await getAllAccounts(email.toLowerCase())) as IUser[]) || [];
+  // Find the user that matches the requested userType
+  const userWithType = existingUser.find((u) => u.userType === userType);
   console.log('User with specified type:', userWithType);
   if (userWithType) {
     next(
@@ -204,7 +215,6 @@ const register = async (
       password,
       userType,
     );
-
 
     // Don't need verification email if testing
     if (process.env.NODE_ENV === 'test') {
@@ -231,16 +241,13 @@ const register = async (
 /**
  * A dummy controller function which sends a 200 OK status code. Should be used to close a request after a middleware call.
  */
-export const approve = (
-  req: express.Request,
-  res: express.Response,
-) => {
+export const approve = (req: express.Request, res: express.Response) => {
   console.log('User data in approve:', req.user);
   res.status(200).json({
     error: false,
     user: {
       userType: req.user?.userType,
-    }
+    },
   });
 };
 
@@ -432,7 +439,7 @@ const registerInvite = async (
       lastName,
       lowercaseEmail,
       password,
-      "worker", //set userType to worker by default, should be changed later
+      'worker', // set userType to worker by default, should be changed later
     );
     user!.verified = true;
     await user?.save();

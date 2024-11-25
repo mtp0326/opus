@@ -2,8 +2,8 @@
  * All the middleware functions related to authentication
  */
 import express from 'express';
-import ApiError from '../util/apiError.ts';
 import { Request } from 'express';
+import ApiError from '../util/apiError.ts';
 
 // Extend the Express Request interface to include the user type
 declare global {
@@ -13,7 +13,7 @@ declare global {
       // ... other properties ...
     }
     interface Request {
-      user?: User; 
+      user?: User;
     }
   }
 }
@@ -46,13 +46,12 @@ const isResearcher = (
   res: express.Response,
   next: express.NextFunction,
 ) => {
-  
   // Check if the user has the 'researcher' role
   if (req.user && req.user.userType === 'researcher') {
     next(); // Go to the next non-error-handling middleware
     return;
   }
-  
+
   // Providing a parameter means go to the next error handler
   next(ApiError.forbidden('Must be a researcher.'));
 };
@@ -67,7 +66,7 @@ const isWorker = (
     next(); // Go to the next non-error-handling middleware
     return;
   }
-  
+
   // Providing a parameter means go to the next error handler
   next(ApiError.forbidden('Must be a worker.'));
 };

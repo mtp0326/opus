@@ -14,7 +14,7 @@ async function loginUser(email: string, password: string, userType: string) {
   const lowercaseEmail = email.toLowerCase();
   const res = await postData('auth/login', {
     email: lowercaseEmail,
-    password, 
+    password,
     userType,
   });
   if (res.error) {

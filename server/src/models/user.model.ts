@@ -73,6 +73,11 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  userType: {
+    type: String,
+    enum: ['researcher', 'worker'],
+    required: true,
+  },
 });
 
 interface IUser extends mongoose.Document {
@@ -92,6 +97,7 @@ interface IUser extends mongoose.Document {
   lastSurveyDate: Date | null | undefined;
   points: number;
   surveysCompleted: number;
+  userType: 'researcher' | 'worker';
 }
 
 const User = mongoose.model<IUser>('User', UserSchema);
@@ -104,7 +110,11 @@ export const updateLeague = async (userId: string) => {
 
   // Calculate points
   const completionSpeed = 5; // Example: calculate this based on actual data
-  user.points = calculatePoints(user.streak, user.surveysCompleted, completionSpeed);
+  user.points = calculatePoints(
+    user.streak,
+    user.surveysCompleted,
+    completionSpeed,
+  );
 
   // Update league based on points
   if (user.points >= 100) {
@@ -120,13 +130,19 @@ export const updateLeague = async (userId: string) => {
   await user.save();
 };
 
-function calculateLotteryRewards(totalBudget: number, numParticipants: number, baseFee: number, highestReward: number, decayRate: number) {
-  const lotteryPool = totalBudget - (numParticipants * baseFee);
+function calculateLotteryRewards(
+  totalBudget: number,
+  numParticipants: number,
+  baseFee: number,
+  highestReward: number,
+  decayRate: number,
+) {
+  const lotteryPool = totalBudget - numParticipants * baseFee;
   const rewards = [];
   let remainingPool = lotteryPool;
 
   for (let i = 0; i < numParticipants; i++) {
-    const reward = highestReward * Math.pow(1 - decayRate, i);
+    const reward = highestReward * (1 - decayRate) ** i;
     rewards.push(reward);
     remainingPool -= reward;
     if (remainingPool <= 0) break;
@@ -143,7 +159,11 @@ function calculateProbabilities(numParticipants: number) {
   };
 }
 
-function calculatePoints(streak: number, surveysCompleted: number, completionSpeed: number): number {
+function calculatePoints(
+  streak: number,
+  surveysCompleted: number,
+  completionSpeed: number,
+): number {
   const basePoints = 10;
   const streakBonus = streak * 2; // Example: 2 points per day of streak
   const surveyBonus = surveysCompleted * 5; // Example: 5 points per survey completed

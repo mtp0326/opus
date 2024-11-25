@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './SurveyPreview.module.css';
 import Navigation from '../components/Navigation';
 
-const SurveyPreview = () => {
+function SurveyPreview() {
   const location = useLocation();
   const navigate = useNavigate();
   const formData = location.state?.formData || {};
@@ -36,11 +36,11 @@ const SurveyPreview = () => {
 
   const handleNext = () => {
     // Make sure we pass both formData and surveyId to the next page
-    navigate('/create-publish-test', { 
-      state: { 
-        formData: formData,
-        surveyId: formData._id  // Make sure we're passing the ID
-      } 
+    navigate('/create-publish-test', {
+      state: {
+        formData,
+        surveyId: formData._id, // Make sure we're passing the ID
+      },
     });
   };
 
@@ -51,19 +51,21 @@ const SurveyPreview = () => {
         <h2>Survey Preview</h2>
         <div className={styles.previewBox}>
           <h3>Worker View</h3>
-          
+
           <div className={styles.surveyInfo}>
             <h4>{formData.title}</h4>
             <p>{formData.description}</p>
             <p>Reward: ${formData.reward}</p>
             <p>Estimated Time: {formData.timeToComplete} minutes</p>
-            <p><strong>Instructions:</strong> {formData.instructions}</p>
+            <p>
+              <strong>Instructions:</strong> {formData.instructions}
+            </p>
           </div>
 
           <div className={styles.surveyActions}>
-            <a 
-              href={formData.surveyUrl} 
-              target="_blank" 
+            <a
+              href={formData.surveyUrl}
+              target="_blank"
               rel="noopener noreferrer"
               className={styles.surveyLink}
             >
@@ -78,9 +80,13 @@ const SurveyPreview = () => {
                 placeholder="Enter the code shown at the end of the survey"
                 className={styles.input}
               />
-              <button 
+              <button
                 className={styles.submitButton}
-                onClick={() => alert('This is a preview. Submit functionality will be available to workers.')}
+                onClick={() =>
+                  alert(
+                    'This is a preview. Submit functionality will be available to workers.',
+                  )
+                }
               >
                 Submit
               </button>
@@ -89,16 +95,13 @@ const SurveyPreview = () => {
         </div>
 
         <div className={styles.previewActions}>
-          <button 
-            className={styles.nextButton}
-            onClick={handleNext}
-          >
+          <button className={styles.nextButton} onClick={handleNext}>
             Next: Create and Publish Test
           </button>
         </div>
       </div>
     </div>
   );
-};
+}
 
-export default SurveyPreview; 
+export default SurveyPreview;

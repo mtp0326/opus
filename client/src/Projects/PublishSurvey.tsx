@@ -4,16 +4,16 @@ import styles from './PublishSurvey.module.css';
 import { publishSurvey } from './api';
 import Navigation from '../components/Navigation';
 
-const FEE_PERCENTAGE = 0.20; // 20% fee
+const FEE_PERCENTAGE = 0.2; // 20% fee
 
-const PublishSurvey = () => {
+function PublishSurvey() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Get surveyId from location state
   const { formData, surveyId } = location.state || {};
-  
+
   console.log('📝 Survey data:', { formData, surveyId }); // Debug log
 
   // Calculate costs
@@ -31,9 +31,9 @@ const PublishSurvey = () => {
 
       const publishedSurvey = await publishSurvey(surveyId);
       console.log('✅ Published survey:', publishedSurvey);
-      
-      navigate('/', { 
-        state: { message: 'Survey published successfully!' }
+
+      navigate('/rhome', {
+        state: { message: 'Survey published successfully!' },
       });
     } catch (error) {
       console.error('❌ Error publishing survey:', error);
@@ -48,17 +48,34 @@ const PublishSurvey = () => {
       <Navigation />
       <div className={styles.container}>
         <h2>Review and Publish Survey</h2>
-        
+
         <div className={styles.surveyInfo}>
           <h3>Survey Details</h3>
-          <p><strong>Title:</strong> {formData.title}</p>
-          <p><strong>Description:</strong> {formData.description}</p>
-          <p><strong>Survey URL:</strong> {formData.surveyUrl}</p>
-          <p><strong>Time to Complete:</strong> {formData.timeToComplete} minutes</p>
-          <p><strong>Number of Respondents:</strong> {formData.respondents}</p>
-          <p><strong>Expires In:</strong> {formData.expiresIn} days</p>
-          <p><strong>Worker Qualifications:</strong> {formData.workerQualifications || 'Basic'}</p>
-          <p><strong>Instructions:</strong> {formData.instructions}</p>
+          <p>
+            <strong>Title:</strong> {formData.title}
+          </p>
+          <p>
+            <strong>Description:</strong> {formData.description}
+          </p>
+          <p>
+            <strong>Survey URL:</strong> {formData.surveyUrl}
+          </p>
+          <p>
+            <strong>Time to Complete:</strong> {formData.timeToComplete} minutes
+          </p>
+          <p>
+            <strong>Number of Respondents:</strong> {formData.respondents}
+          </p>
+          <p>
+            <strong>Expires In:</strong> {formData.expiresIn} days
+          </p>
+          <p>
+            <strong>Worker Qualifications:</strong>{' '}
+            {formData.workerQualifications || 'Basic'}
+          </p>
+          <p>
+            <strong>Instructions:</strong> {formData.instructions}
+          </p>
         </div>
 
         <div className={styles.costBreakdown}>
@@ -82,7 +99,8 @@ const PublishSurvey = () => {
             <h4>Total Project Cost:</h4>
             <p className={styles.totalAmount}>${totalCost.toFixed(2)}</p>
             <p className={styles.costNote}>
-              This amount covers {formData.respondents} worker{formData.respondents > 1 ? 's ' : ' '} 
+              This amount covers {formData.respondents} worker
+              {formData.respondents > 1 ? 's ' : ' '}
               at ${totalCostPerWorker.toFixed(2)} each
             </p>
           </div>
@@ -91,6 +109,7 @@ const PublishSurvey = () => {
         <div className={styles.actions}>
           <button
             className={styles.publishButton}
+            type="button"
             onClick={() => {
               console.log('Button clicked via inline handler');
               handlePublish();
@@ -103,6 +122,6 @@ const PublishSurvey = () => {
       </div>
     </>
   );
-};
+}
 
-export default PublishSurvey; 
+export default PublishSurvey;

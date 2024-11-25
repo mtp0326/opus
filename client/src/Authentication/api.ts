@@ -10,11 +10,12 @@ import { postData } from '../util/api.tsx';
  * @param password The password for the user's account
  * @throws An {@link Error} with a `messsage` field describing the issue in verifying
  */
-async function loginUser(email: string, password: string) {
+async function loginUser(email: string, password: string, userType: string) {
   const lowercaseEmail = email.toLowerCase();
   const res = await postData('auth/login', {
     email: lowercaseEmail,
-    password,
+    password, 
+    userType,
   });
   if (res.error) {
     throw Error(res.error.message);
@@ -49,6 +50,7 @@ async function register(
   lastName: string,
   email: string,
   password: string,
+  userType: string,
 ) {
   const lowercaseEmail = email.toLowerCase();
   const res = await postData('auth/register', {
@@ -56,6 +58,7 @@ async function register(
     lastName,
     email: lowercaseEmail,
     password,
+    userType,
   });
   if (res.error) {
     throw Error(res.error.message);

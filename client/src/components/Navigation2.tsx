@@ -2,7 +2,7 @@ import React from 'react';
 import { AppBar, Toolbar, Button, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-function Navigation() {
+function Navigation2() {
   const navigate = useNavigate();
 
   const clearStorage = () => {
@@ -14,27 +14,15 @@ function Navigation() {
     clearStorage();
     navigate(path);
   };
-
+  // Vikram add leaderboard here
   return (
     <AppBar position="static">
       <Toolbar>
         <Box sx={{ flexGrow: 1, display: 'flex', gap: 2 }}>
-          <Button color="inherit" onClick={() => handleNavigate('/rhome')}>
+          <Button color="inherit" onClick={() => handleNavigate('/whome')}>
             Home
           </Button>
-          <Button
-            color="inherit"
-            onClick={() => handleNavigate('/create-project')}
-          >
-            Create Project
-          </Button>
-          <Button
-            color="inherit"
-            onClick={() => handleNavigate('/manage-tasks')}
-          >
-            Manage Tasks
-          </Button>
-          <Button color="inherit" onClick={() => handleNavigate('/leaderboard')}>
+          <Button color="inherit" onClick={() => handleNavigate('/whome')}>
             Leaderboard
           </Button>
         </Box>
@@ -43,4 +31,4 @@ function Navigation() {
   );
 }
 
-export default Navigation;
+export default Navigation2;

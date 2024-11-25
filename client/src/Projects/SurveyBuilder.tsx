@@ -7,8 +7,10 @@ import 'survey-core/defaultV2.min.css';
 import 'survey-creator-core/survey-creator-core.min.css';
 import { slk } from 'survey-core';
 import { Button, ButtonGroup, Snackbar, Alert } from '@mui/material';
+import { useLocation } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import styles from './SurveyBuilder.module.css';
+import { postData, getData } from '../util/api.tsx';
 
 const creatorOptions = {
   showLogicTab: true,
@@ -19,7 +21,16 @@ const creatorOptions = {
 slk('M2ZlMjI3N2UtOTM4ZS00YWM1LTgxNjgtNjlhMjM3MTMzY2JiOzE9MjAyNS0xMS0xNA==');
 
 function SurveyBuilder() {
-  const creator = useMemo(() => new SurveyCreator(creatorOptions), []);
+  const location = useLocation();
+  const setupData = location.state?.setupData;
+  const creator = useMemo(() => {
+    const c = new SurveyCreator(creatorOptions);
+    if (setupData?.title) {
+      c.survey.title = setupData.title;
+      c.survey.description = setupData.description;
+    }
+    return c;
+  }, [setupData]);
   const [notification, setNotification] = useState({
     message: '',
     type: 'info',
@@ -35,7 +46,7 @@ function SurveyBuilder() {
     try {
       const surveyJSON = creator.JSON;
       const title = creator.survey.title || 'Untitled Survey';
-      
+
       // Save to backend
       const response = await postData('surveys/js/save', {
         title,

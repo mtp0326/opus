@@ -201,8 +201,11 @@ export const saveSurveyJs = async (
   res: Response,
 ) => {
   try {
-    const { title, content } = req.body;
+    if (!req.user) {
+      return res.status(401).json({ error: { message: 'Unauthorized' } });
+    }
 
+    const { title, content } = req.body;
     const survey = new SurveyJs({
       title,
       content,
@@ -227,8 +230,8 @@ export const loadSurveyJs = async (
   res: Response,
 ) => {
   try {
-    if (!req.user?._id) {
-      throw new Error('User not authenticated');
+    if (!req.user) {
+      return res.status(401).json({ error: { message: 'Unauthorized' } });
     }
 
     const surveys = await SurveyJs.find({ createdBy: req.user._id })

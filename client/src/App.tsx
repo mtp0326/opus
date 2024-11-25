@@ -38,6 +38,7 @@ import SurveyCompletion from './Projects/SurveyCompletion.tsx';
 // import LabelData from './Projects/LabelData';
 import Leaderboard from './Projects/Leaderboard.tsx';
 // import LabelData from './Projects/LabelData';
+import SurveyBuilderSetup from './Projects/SurveyBuilderSetup.tsx';
 
 function App() {
   return (
@@ -84,6 +85,10 @@ function App() {
                     <Route
                       path="/create-publish-test"
                       element={<CreatePublishTest />}
+                    />
+                    <Route
+                      path="/survey-builder-setup"
+                      element={<SurveyBuilderSetup />}
                     />
                     {/* Add other researcher-specific routes here */}
                   </Route>

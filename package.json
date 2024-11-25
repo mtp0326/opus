@@ -39,7 +39,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.2.2",
     "styled-components": "^5.3.3",
-    "survey-core": "^1.12.9",
+    "survey-core": "^1.12.11",
     "survey-creator-core": "^1.12.9",
     "survey-creator-react": "^1.12.9",
     "survey-react-ui": "^1.12.9",

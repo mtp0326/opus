@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { Survey } from '../models/survey.model';
+import Survey from '../models/survey.model.ts';
 import { IUser } from '../models/user.model.ts';
-import SurveySubmission from '../models/surveySubmission.model';
-import SurveyJs from '../models/surveyJs.model';
+import SurveySubmission from '../models/surveySubmission.model.ts';
+import SurveyJs from '../models/surveyJs.model.ts';
 
 export const publishSurvey = async (
   req: Request & { user?: IUser },

@@ -11,7 +11,7 @@
   "scripts": {
     "start": "node server/dist/index.js",
     "setup": "yarn install",
-    "clean": "rm -rf node_modules && cd client && yarn clean && cd ../server && yarn clean",
+    "clean": "rimraf node_modules && cd client && yarn clean && cd ../server && yarn clean",
     "dev": "cross-env NODE_ENV=development concurrently --kill-others-on-fail \"yarn server\" \"yarn client\"",
     "server": "cd server && yarn start",
     "client": "cd client && yarn start",

@@ -253,3 +253,31 @@ export const loadSurveyJs = async (
     });
   }
 };
+
+export const getDraftSurveys = async (
+  req: Request & { user?: IUser },
+  res: Response,
+) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: { message: 'Unauthorized' } });
+    }
+
+    const surveys = await SurveyJs.find({
+      createdBy: req.user._id,
+      status: 'draft',
+    })
+      .select('_id title')
+      .sort({ updatedAt: -1 });
+
+    res.json({ data: surveys });
+  } catch (error) {
+    console.error('Failed to fetch draft surveys:', error);
+    res.status(500).json({
+      error: {
+        message:
+          error instanceof Error ? error.message : 'Failed to fetch surveys',
+      },
+    });
+  }
+};

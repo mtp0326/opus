@@ -9,6 +9,7 @@ import {
   submitSurveyCompletion,
   saveSurveyJs,
   loadSurveyJs,
+  getDraftSurveys,
 } from '../controllers/survey.controller.ts';
 import { IUser } from '../models/user.model.ts';
 
@@ -73,5 +74,11 @@ router.post(
 );
 
 router.get('/js/load', isAuthenticated, loadSurveyJs as express.RequestHandler);
+
+router.get(
+  '/js/drafts',
+  isAuthenticated,
+  getDraftSurveys as express.RequestHandler,
+);
 
 export default router;

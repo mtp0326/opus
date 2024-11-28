@@ -9,6 +9,10 @@ export const publishSurvey = async (
   req: Request & { user?: IUser },
   res: Response,
 ) => {
+export const publishSurvey = async (
+  req: Request & { user?: IUser },
+  res: Response,
+) => {
   try {
     console.log('📨 Publishing survey:', req.params.surveyId);
 
@@ -21,17 +25,24 @@ export const publishSurvey = async (
       { _id: surveyId, createdBy: req.user._id },
       { status: 'active' },
       { new: true },
+      { new: true },
     );
 
     if (!updatedSurvey) {
       return res
         .status(404)
         .json({ error: { message: 'Survey not found or unauthorized' } });
+      return res
+        .status(404)
+        .json({ error: { message: 'Survey not found or unauthorized' } });
     }
+
 
     console.log('✅ Survey published:', updatedSurvey._id);
     return res.json({
+    return res.json({
       data: updatedSurvey,
+      message: 'Survey published successfully',
       message: 'Survey published successfully',
     });
   } catch (error: any) {
@@ -44,15 +55,24 @@ export const getSurveys = async (
   req: Request & { user?: IUser },
   res: Response,
 ) => {
+export const getSurveys = async (
+  req: Request & { user?: IUser },
+  res: Response,
+) => {
   try {
     console.log('📧 Fetching surveys for user:', req.user?._id);
 
     const surveys = await Survey.find({
       createdBy: req.user?._id,
+
+    const surveys = await Survey.find({
+      createdBy: req.user?._id,
     }).sort({ createdAt: -1 });
+
 
     console.log('🔍 Found surveys:', surveys.length);
     console.log('📊 Query results:', JSON.stringify(surveys, null, 2));
+
 
     res.json(surveys);
   } catch (error) {
@@ -61,6 +81,10 @@ export const getSurveys = async (
   }
 };
 
+export const saveSurvey = async (
+  req: Request & { user?: IUser },
+  res: Response,
+) => {
 export const saveSurvey = async (
   req: Request & { user?: IUser },
   res: Response,
@@ -76,9 +100,11 @@ export const saveSurvey = async (
       ...req.body,
       createdBy: (req.user as IUser)._id,
       status: 'draft',
+      status: 'draft',
     });
 
     await survey.save();
+
 
     console.log('💾 Survey saved to database with ID:', survey._id);
     res.status(201).json(survey);
@@ -88,6 +114,10 @@ export const saveSurvey = async (
   }
 };
 
+export const editSurvey = async (
+  req: Request & { user?: IUser },
+  res: Response,
+) => {
 export const editSurvey = async (
   req: Request & { user?: IUser },
   res: Response,
@@ -102,15 +132,22 @@ export const editSurvey = async (
       { _id: surveyId, createdBy: req.user._id },
       req.body,
       { new: true },
+      { new: true },
     );
 
     if (!updatedSurvey) {
       return res
         .status(404)
         .json({ error: { message: 'Survey not found or unauthorized' } });
+      return res
+        .status(404)
+        .json({ error: { message: 'Survey not found or unauthorized' } });
     }
 
     console.log('✅ Updated survey:', updatedSurvey);
+    return res.json({
+      data: updatedSurvey,
+      message: 'Survey updated successfully',
     return res.json({
       data: updatedSurvey,
       message: 'Survey updated successfully',
@@ -125,6 +162,10 @@ export const deleteSurvey = async (
   req: Request & { user?: IUser },
   res: Response,
 ) => {
+export const deleteSurvey = async (
+  req: Request & { user?: IUser },
+  res: Response,
+) => {
   try {
     if (!req.user?._id) {
       throw new Error('User not authenticated');
@@ -135,9 +176,12 @@ export const deleteSurvey = async (
       _id: surveyId,
       createdBy: req.user._id,
       status: 'draft', // Only allow deletion of draft surveys
+      status: 'draft', // Only allow deletion of draft surveys
     });
 
     if (!deletedSurvey) {
+      return res.status(404).json({
+        error: { message: 'Survey not found or cannot be deleted' },
       return res.status(404).json({
         error: { message: 'Survey not found or cannot be deleted' },
       });
@@ -145,7 +189,9 @@ export const deleteSurvey = async (
 
     console.log('✅ Survey deleted:', surveyId);
     return res.json({
+    return res.json({
       data: deletedSurvey,
+      message: 'Survey deleted successfully',
       message: 'Survey deleted successfully',
     });
   } catch (error: any) {

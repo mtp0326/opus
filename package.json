@@ -28,6 +28,8 @@
     "@emotion/styled": "^11.6.0",
     "@mui/icons-material": "^6.1.8",
     "@mui/material": "^5.4.1",
+    "@mui/icons-material": "^6.1.8",
+    "@mui/material": "^5.4.1",
     "@mui/system": "^5.5.1",
     "axios": "^1.1.2",
     "concurrently": "^7.0.0",

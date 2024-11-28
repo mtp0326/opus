@@ -9,12 +9,16 @@ import { store, persistor } from './util/redux/store.ts';
 import NotFoundPage from './NotFound/NotFoundPage.tsx';
 import ResearcherHomePage from './Home/ResearcherHomePage.tsx';
 import WorkerHomePage from './Home/WorkerHomePage.tsx';
+import ResearcherHomePage from './Home/ResearcherHomePage.tsx';
+import WorkerHomePage from './Home/WorkerHomePage.tsx';
 import AdminDashboardPage from './AdminDashboard/AdminDashboardPage.tsx';
 import {
   UnauthenticatedRoutesWrapper,
   ProtectedRoutesWrapper,
   DynamicRedirect,
   AdminRoutesWrapper,
+  ResearcherRoutesWrapper,
+  WorkerRoutesWrapper,
   ResearcherRoutesWrapper,
   WorkerRoutesWrapper,
 } from './util/routes.tsx';
@@ -26,9 +30,17 @@ import InviteRegisterPage from './Authentication/InviteRegisterPage.tsx';
 import CreateProject from './Projects/CreateProject.tsx';
 import SurveyLink from './Projects/SurveyLink.tsx';
 import SurveyBuilder from './Projects/SurveyBuilder.tsx';
+import SurveyBuilder from './Projects/SurveyBuilder.tsx';
 import SurveyPreview from './Projects/SurveyPreview';
 import CreatePublishTest from './Projects/PublishSurvey.tsx';
 import ManageTasks from './Projects/ManageTasks.tsx';
+import WorkerLoginPage from './Authentication/WorkerLoginPage.tsx';
+import ResearcherLoginPage from './Authentication/ResearcherLoginPage.tsx';
+import WorkerRegisterPage from './Authentication/WorkerRegisterPage.tsx';
+import ResearcherRegisterPage from './Authentication/ResearcherRegisterPage.tsx';
+import HomePage from './Home/HomePage.tsx';
+import SurveyCompletion from './Projects/SurveyCompletion.tsx';
+// import LabelData from './Projects/LabelData';
 import WorkerLoginPage from './Authentication/WorkerLoginPage.tsx';
 import ResearcherLoginPage from './Authentication/ResearcherLoginPage.tsx';
 import WorkerRegisterPage from './Authentication/WorkerRegisterPage.tsx';
@@ -51,7 +63,13 @@ function App() {
                 <AlertPopup />
                 <Routes>
                   {/* Other unauthenticated routes */}
+                  {/* Other unauthenticated routes */}
                   <Route element={<UnauthenticatedRoutesWrapper />}>
+                    <Route path="/wregister" element={<WorkerRegisterPage />} />
+                    <Route
+                      path="/rregister"
+                      element={<ResearcherRegisterPage />}
+                    />
                     <Route path="/wregister" element={<WorkerRegisterPage />} />
                     <Route
                       path="/rregister"
@@ -77,6 +95,9 @@ function App() {
                   {/* Routes accessed only if user is authenticated and researcher */}
                   <Route element={<ResearcherRoutesWrapper />}>
                     <Route path="/rhome" element={<ResearcherHomePage />} />
+                  {/* Routes accessed only if user is authenticated and researcher */}
+                  <Route element={<ResearcherRoutesWrapper />}>
+                    <Route path="/rhome" element={<ResearcherHomePage />} />
                     <Route path="/create-project" element={<CreateProject />} />
                     <Route path="/survey-link" element={<SurveyLink />} />
                     <Route path="/survey-builder" element={<SurveyBuilder />} />
@@ -93,8 +114,20 @@ function App() {
                     {/* Add other researcher-specific routes here */}
                   </Route>
 
+
                   <Route element={<AdminRoutesWrapper />}>
                     <Route path="/users" element={<AdminDashboardPage />} />
+                  </Route>
+
+                  {/* Routes accessed only if user is authenticated and researcher */}
+                  <Route element={<WorkerRoutesWrapper />}>
+                    <Route path="/whome" element={<WorkerHomePage />} />
+                    <Route
+                      path="/surveys/:surveyId/complete"
+                      element={<SurveyCompletion />}
+                    />
+
+                    {/* Add other worker-specific routes here */}
                   </Route>
 
                   {/* Routes accessed only if user is authenticated and researcher */}
@@ -119,15 +152,33 @@ function App() {
                       />
                     }
                   />
+                  <Route path="/" element={<HomePage />} />
                   <Route
+                    path="/wlogin"
+                    element={
+                      <DynamicRedirect
+                        unAuthElement={<WorkerLoginPage />}
+                        authPath="/whome"
+                      />
+                    }
+                  />
+                  <Route
+                    path="/rlogin"
                     path="/rlogin"
                     element={
                       <DynamicRedirect
                         unAuthElement={<ResearcherLoginPage />}
                         authPath="/rhome"
                       />
+                      <DynamicRedirect
+                        unAuthElement={<ResearcherLoginPage />}
+                        authPath="/rhome"
+                      />
                     }
                   />
+                  {/* Login routes - accessible to unauthenticated users
+                  <Route path="/wlogin" element={<WorkerLoginPage />} />
+                  <Route path="/rlogin" element={<ResearcherLoginPage />} /> */}
                   {/* Login routes - accessible to unauthenticated users
                   <Route path="/wlogin" element={<WorkerLoginPage />} />
                   <Route path="/rlogin" element={<ResearcherLoginPage />} /> */}

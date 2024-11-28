@@ -25,6 +25,7 @@ const creatorOptions = {
   showLogicTab: true,
   isAutoSave: true,
   haveCommercialLicense: true,
+  haveCommercialLicense: true,
 };
 
 slk('M2ZlMjI3N2UtOTM4ZS00YWM1LTgxNjgtNjlhMjM3MTMzY2JiOzE9MjAyNS0xMS0xNA==');
@@ -161,6 +162,9 @@ function SurveyBuilder() {
       </div>
     </>
   );
+  );
 }
+
+export default SurveyBuilder;
 
 export default SurveyBuilder;

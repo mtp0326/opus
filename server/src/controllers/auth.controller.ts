@@ -16,7 +16,6 @@ import {
   getUserByResetPasswordToken,
   getUserByVerificationToken,
   getAllAccounts,
-  getAllAccounts,
 } from '../services/user.service.ts';
 import {
   emailResetPasswordLink,
@@ -68,25 +67,19 @@ const login = async (
     {
       failureMessage: true,
     },
-    // Callback function defined by passport strategy in configPassport.ts
-    (err: Error | null, authenticatedUser: any, _info: any) => {
     (err: Error | null, authenticatedUser: any, _info: any) => {
       if (err) {
         next(ApiError.internal('Failed to authenticate user.'));
         return;
       }
       if (!authenticatedUser) {
-      if (!authenticatedUser) {
         next(ApiError.unauthorized('Incorrect credentials'));
         return;
       }
-      if (!authenticatedUser!.verified) {
-      if (!authenticatedUser!.verified) {
+      if (!authenticatedUser.verified) {
         next(ApiError.unauthorized('Need to verify account by email'));
         return;
       }
-
-      req.logIn(authenticatedUser, (error) => {
 
       req.logIn(authenticatedUser, (error) => {
         if (error) {
@@ -98,13 +91,10 @@ const login = async (
         mixpanel.track('Login', {
           distinct_id: authenticatedUser._id,
           email: authenticatedUser.email,
-          distinct_id: authenticatedUser._id,
-          email: authenticatedUser.email,
         });
 
         // Datadog login
         logger_info.info('Login');
-        res.status(StatusCode.OK).send(authenticatedUser);
         res.status(StatusCode.OK).send(authenticatedUser);
       });
     },
@@ -222,7 +212,6 @@ const register = async (
       lastName,
       lowercaseEmail,
       password,
-      userType,
       userType,
     );
 

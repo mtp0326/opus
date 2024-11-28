@@ -9,16 +9,12 @@ import { store, persistor } from './util/redux/store.ts';
 import NotFoundPage from './NotFound/NotFoundPage.tsx';
 import ResearcherHomePage from './Home/ResearcherHomePage.tsx';
 import WorkerHomePage from './Home/WorkerHomePage.tsx';
-import ResearcherHomePage from './Home/ResearcherHomePage.tsx';
-import WorkerHomePage from './Home/WorkerHomePage.tsx';
 import AdminDashboardPage from './AdminDashboard/AdminDashboardPage.tsx';
 import {
   UnauthenticatedRoutesWrapper,
   ProtectedRoutesWrapper,
   DynamicRedirect,
   AdminRoutesWrapper,
-  ResearcherRoutesWrapper,
-  WorkerRoutesWrapper,
   ResearcherRoutesWrapper,
   WorkerRoutesWrapper,
 } from './util/routes.tsx';
@@ -30,16 +26,9 @@ import InviteRegisterPage from './Authentication/InviteRegisterPage.tsx';
 import CreateProject from './Projects/CreateProject.tsx';
 import SurveyLink from './Projects/SurveyLink.tsx';
 import SurveyBuilder from './Projects/SurveyBuilder.tsx';
-import SurveyBuilder from './Projects/SurveyBuilder.tsx';
 import SurveyPreview from './Projects/SurveyPreview';
 import CreatePublishTest from './Projects/PublishSurvey.tsx';
 import ManageTasks from './Projects/ManageTasks.tsx';
-import WorkerLoginPage from './Authentication/WorkerLoginPage.tsx';
-import ResearcherLoginPage from './Authentication/ResearcherLoginPage.tsx';
-import WorkerRegisterPage from './Authentication/WorkerRegisterPage.tsx';
-import ResearcherRegisterPage from './Authentication/ResearcherRegisterPage.tsx';
-import HomePage from './Home/HomePage.tsx';
-import SurveyCompletion from './Projects/SurveyCompletion.tsx';
 // import LabelData from './Projects/LabelData';
 import WorkerLoginPage from './Authentication/WorkerLoginPage.tsx';
 import ResearcherLoginPage from './Authentication/ResearcherLoginPage.tsx';
@@ -166,10 +155,6 @@ function App() {
                     path="/rlogin"
                     path="/rlogin"
                     element={
-                      <DynamicRedirect
-                        unAuthElement={<ResearcherLoginPage />}
-                        authPath="/rhome"
-                      />
                       <DynamicRedirect
                         unAuthElement={<ResearcherLoginPage />}
                         authPath="/rhome"

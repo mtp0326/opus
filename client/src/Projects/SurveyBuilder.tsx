@@ -15,7 +15,6 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Box,
 } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navigation from '../components/Navigation';
@@ -26,6 +25,8 @@ const creatorOptions = {
   showLogicTab: true,
   isAutoSave: true,
   haveCommercialLicense: true,
+  textEditMode: 'text',
+  showEmbededSurveyTab: false,
 };
 
 slk('M2ZlMjI3N2UtOTM4ZS00YWM1LTgxNjgtNjlhMjM3MTMzY2JiOzE9MjAyNS0xMS0xNA==');
@@ -94,15 +95,30 @@ function SurveyBuilder() {
       if (!creatorRef.current) return;
       const surveyJSON = creatorRef.current.JSON;
       const title = creatorRef.current.survey.title || 'Untitled Survey';
+      const description = creatorRef.current.survey.description || '';
 
-      // Save to backend
-      const response = await postData('surveys/js/save', {
+      // Get the current survey ID from localStorage
+      const savedSurvey = localStorage.getItem('currentSurveyId');
+
+      // If we have an existing survey ID, update it; otherwise create new
+      const endpoint = savedSurvey
+        ? `surveys/js/${savedSurvey}/edit`
+        : 'surveys/js/save';
+
+      const response = await postData(endpoint, {
         title,
+        description,
         content: surveyJSON,
+        status: 'draft',
       });
 
       if (response.error) {
         throw new Error(response.error.message);
+      }
+
+      // Save the survey ID for future updates
+      if (!savedSurvey && response.data?._id) {
+        localStorage.setItem('currentSurveyId', response.data._id);
       }
 
       showAlert('Survey saved successfully!', 'success');
@@ -158,7 +174,7 @@ function SurveyBuilder() {
           sx={{
             mt: 2,
             display: 'flex',
-            justifyContent: 'flex-end', // Align buttons to the right
+            justifyContent: 'flex-end',
           }}
         >
           <Button onClick={handleSave} color="primary">
@@ -184,7 +200,10 @@ function SurveyBuilder() {
             Load Survey
           </Button>
           <Button
-            onClick={() => navigate('/survey-builder-setup')}
+            onClick={async () => {
+              await handleSave();
+              navigate('/survey-builder-setup');
+            }}
             color="secondary"
           >
             Publish Setup

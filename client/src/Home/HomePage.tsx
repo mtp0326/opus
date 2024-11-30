@@ -18,12 +18,14 @@ function HomePage() {
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
       <h1>Welcome to Opus</h1>
       <button
+        type="button"
         onClick={handleWorkerLogin}
         style={{ margin: '10px', padding: '10px 20px' }}
       >
         Start earning
       </button>
       <button
+        type="button"
         onClick={handleResearcherLogin}
         style={{ margin: '10px', padding: '10px 20px' }}
       >

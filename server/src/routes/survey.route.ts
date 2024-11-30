@@ -10,6 +10,7 @@ import {
   saveSurveyJs,
   loadSurveyJs,
   getDraftSurveys,
+  editSurveyJs,
 } from '../controllers/survey.controller.ts';
 import { IUser } from '../models/user.model.ts';
 
@@ -90,6 +91,12 @@ router.get(
   '/js/drafts',
   isAuthenticated,
   getDraftSurveys as express.RequestHandler,
+);
+
+router.put(
+  '/js/:surveyId/edit',
+  isAuthenticated,
+  editSurveyJs as express.RequestHandler,
 );
 
 export default router;

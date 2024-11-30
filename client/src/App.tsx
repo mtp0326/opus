@@ -27,7 +27,7 @@ import CreateProject from './Projects/CreateProject.tsx';
 import SurveyLink from './Projects/SurveyLink.tsx';
 import SurveyBuilder from './Projects/SurveyBuilder.tsx';
 import SurveyPreview from './Projects/SurveyPreview';
-import CreatePublishTest from './Projects/PublishSurvey.tsx';
+import PublishSurvey from './Projects/PublishSurvey.tsx';
 import ManageTasks from './Projects/ManageTasks.tsx';
 // import LabelData from './Projects/LabelData';
 import WorkerLoginPage from './Authentication/WorkerLoginPage.tsx';
@@ -86,7 +86,7 @@ function App() {
                     <Route path="/survey-preview" element={<SurveyPreview />} />
                     <Route
                       path="/create-publish-test"
-                      element={<CreatePublishTest />}
+                      element={<PublishSurvey />}
                     />
                     <Route
                       path="/survey-builder-setup"

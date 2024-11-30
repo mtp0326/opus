@@ -77,7 +77,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     enum: ['researcher', 'worker'],
     required: true,
-  }
+  },
 });
 
 interface IUser extends mongoose.Document {

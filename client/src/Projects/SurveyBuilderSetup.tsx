@@ -5,29 +5,28 @@ import Navigation from '../components/Navigation';
 import styles from './SurveyLink.module.css'; // Reuse existing styles
 
 interface FormData {
-  title: string;
-  description: string;
   reward: string;
   respondents: string;
   timeToComplete: string;
   expiresIn: string;
   workerQualifications: 'basic' | 'intermediate' | 'expert';
-  instructions: string;
 }
 
 function SurveyBuilderSetup() {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
-    title: '',
-    description: '',
     reward: '',
     respondents: '',
     timeToComplete: '',
     expiresIn: '',
     workerQualifications: 'basic',
-    instructions: 'Please complete the following survey carefully.',
   });
   const [errors, setErrors] = useState<Partial<FormData>>({});
+
+  const preventScroll = (e: React.WheelEvent<HTMLInputElement>) => {
+    e.currentTarget.blur();
+  };
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -43,9 +42,6 @@ function SurveyBuilderSetup() {
 
   const validateForm = () => {
     const newErrors: Partial<FormData> = {};
-    if (!formData.title) newErrors.title = 'Title is required';
-    if (!formData.description)
-      newErrors.description = 'Description is required';
     if (!formData.reward || Number(formData.reward) <= 0)
       newErrors.reward = 'Please enter a valid reward';
     if (!formData.respondents || Number(formData.respondents) <= 0)
@@ -59,10 +55,32 @@ function SurveyBuilderSetup() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      navigate('/survey-builder', { state: { setupData: formData } });
+      setIsLoading(true);
+      try {
+        // Get the survey content from localStorage
+        const savedSurvey = localStorage.getItem('currentSurvey');
+        const surveyContent = savedSurvey ? JSON.parse(savedSurvey) : {};
+
+        // Navigate to payment review page with all necessary data
+        navigate('/create-publish-test', {
+          state: {
+            formData: {
+              ...formData,
+              title: surveyContent.title || 'Untitled Survey',
+              description: surveyContent.description || '',
+              surveyType: 'surveyjs',
+              content: surveyContent,
+            },
+          },
+        });
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -70,106 +88,130 @@ function SurveyBuilderSetup() {
     <div className={styles.pageContainer}>
       <Navigation />
       <div className={styles.container}>
-        <Paper sx={{ p: 3 }}>
-          <h2>Create New Survey</h2>
+        <Paper sx={{ p: 3, maxWidth: '800px', margin: '0 auto' }}>
+          <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>
+            Publishing Setup
+          </h2>
           <form onSubmit={handleSubmit}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <TextField
-                label="Survey Title"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                error={!!errors.title}
-                helperText={errors.title}
-                required
-              />
+              <div className={styles.formGroup}>
+                <label className={styles.label} htmlFor="reward">
+                  Reward ($):
+                </label>
+                <input
+                  className={styles.input}
+                  style={{ width: '500px' }}
+                  type="number"
+                  id="reward"
+                  name="reward"
+                  min="0"
+                  step="0.01"
+                  value={formData.reward}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                  onWheel={preventScroll}
+                />
+                {errors.reward && (
+                  <div className={styles.error}>{errors.reward}</div>
+                )}
+              </div>
 
-              <TextField
-                label="Description"
-                name="description"
-                multiline
-                rows={3}
-                value={formData.description}
-                onChange={handleChange}
-                error={!!errors.description}
-                helperText={errors.description}
-                required
-              />
+              <div className={styles.formGroup}>
+                <label className={styles.label} htmlFor="respondents">
+                  Number of Respondents:
+                </label>
+                <input
+                  className={styles.input}
+                  style={{ width: '500px' }}
+                  type="number"
+                  id="respondents"
+                  name="respondents"
+                  min="1"
+                  step="1"
+                  value={formData.respondents}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                  onWheel={preventScroll}
+                />
+                {errors.respondents && (
+                  <div className={styles.error}>{errors.respondents}</div>
+                )}
+              </div>
 
-              <TextField
-                label="Reward ($)"
-                name="reward"
-                type="number"
-                value={formData.reward}
-                onChange={handleChange}
-                error={!!errors.reward}
-                helperText={errors.reward}
-                required
-              />
+              <div className={styles.formGroup}>
+                <label className={styles.label} htmlFor="timeToComplete">
+                  Estimated Time to Complete (minutes):
+                </label>
+                <input
+                  className={styles.input}
+                  style={{ width: '500px' }}
+                  type="number"
+                  id="timeToComplete"
+                  name="timeToComplete"
+                  min="1"
+                  step="1"
+                  value={formData.timeToComplete}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                  onWheel={preventScroll}
+                />
+                {errors.timeToComplete && (
+                  <div className={styles.error}>{errors.timeToComplete}</div>
+                )}
+              </div>
 
-              <TextField
-                label="Number of Respondents"
-                name="respondents"
-                type="number"
-                value={formData.respondents}
-                onChange={handleChange}
-                error={!!errors.respondents}
-                helperText={errors.respondents}
-                required
-              />
+              <div className={styles.formGroup}>
+                <label className={styles.label} htmlFor="expiresIn">
+                  Survey Expires In (days):
+                </label>
+                <input
+                  className={styles.input}
+                  style={{ width: '500px' }}
+                  type="number"
+                  id="expiresIn"
+                  name="expiresIn"
+                  min="1"
+                  step="1"
+                  value={formData.expiresIn}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                  onWheel={preventScroll}
+                />
+                {errors.expiresIn && (
+                  <div className={styles.error}>{errors.expiresIn}</div>
+                )}
+              </div>
 
-              <TextField
-                label="Time to Complete (minutes)"
-                name="timeToComplete"
-                type="number"
-                value={formData.timeToComplete}
-                onChange={handleChange}
-                error={!!errors.timeToComplete}
-                helperText={errors.timeToComplete}
-                required
-              />
+              <div className={styles.formGroup}>
+                <label className={styles.label} htmlFor="workerQualifications">
+                  Worker Qualifications:
+                </label>
+                <select
+                  className={styles.select}
+                  style={{ width: '500px' }}
+                  id="workerQualifications"
+                  name="workerQualifications"
+                  value={formData.workerQualifications}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                >
+                  <option value="basic">Basic</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="expert">Expert</option>
+                </select>
+              </div>
 
-              <TextField
-                label="Expires In (days)"
-                name="expiresIn"
-                type="number"
-                value={formData.expiresIn}
-                onChange={handleChange}
-                error={!!errors.expiresIn}
-                helperText={errors.expiresIn}
-                required
-              />
-
-              <Select
-                value={formData.workerQualifications}
-                name="workerQualifications"
-                onChange={(e) =>
-                  handleChange(
-                    e as React.ChangeEvent<
-                      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-                    >,
-                  )
-                }
-                label="Worker Qualifications"
-              >
-                <MenuItem value="basic">Basic</MenuItem>
-                <MenuItem value="intermediate">Intermediate</MenuItem>
-                <MenuItem value="expert">Expert</MenuItem>
-              </Select>
-
-              <TextField
-                label="Instructions"
-                name="instructions"
-                multiline
-                rows={4}
-                value={formData.instructions}
-                onChange={handleChange}
-                required
-              />
-
-              <Button type="submit" variant="contained" color="primary">
-                Continue to Survey Builder
-              </Button>
+              <div className={styles.buttonGroup}>
+                <button
+                  className={`${styles.button} ${
+                    isLoading ? styles.loading : ''
+                  }`}
+                  type="submit"
+                  disabled={isLoading}
+                >
+                  Continue to Payment
+                </button>
+              </div>
             </Box>
           </form>
         </Paper>

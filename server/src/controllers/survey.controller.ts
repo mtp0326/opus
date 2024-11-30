@@ -47,17 +47,33 @@ export const getSurveys = async (
   try {
     console.log('📧 Fetching surveys for user:', req.user?._id);
 
-    const surveys = await Survey.find({
-      createdBy: req.user?._id,
-    }).sort({ createdAt: -1 });
+    // Fetch from both collections
+    const [externalSurveys, jsSurveys] = await Promise.all([
+      Survey.find({
+        createdBy: req.user?._id,
+      }).sort({ createdAt: -1 }),
 
-    console.log('🔍 Found surveys:', surveys.length);
-    console.log('📊 Query results:', JSON.stringify(surveys, null, 2));
+      SurveyJs.find({
+        createdBy: req.user?._id,
+      }).sort({ createdAt: -1 }),
+    ]);
 
-    res.json(surveys);
+    // Combine and format the results
+    const allSurveys = [
+      ...externalSurveys,
+      ...jsSurveys.map((survey) => ({
+        ...survey.toObject(),
+        surveyType: 'surveyjs', // Add identifier for frontend
+      })),
+    ];
+
+    console.log('🔍 Found surveys:', allSurveys.length);
+    console.log('📊 Query results:', JSON.stringify(allSurveys, null, 2));
+
+    return res.json(allSurveys);
   } catch (error) {
     console.error('❌ Error fetching surveys:', error);
-    res.status(500).json({ message: 'Error fetching surveys' });
+    return res.status(500).json({ message: 'Error fetching surveys' });
   }
 };
 
@@ -205,18 +221,27 @@ export const saveSurveyJs = async (
       return res.status(401).json({ error: { message: 'Unauthorized' } });
     }
 
-    const { title, content } = req.body;
+    const { title, description, content } = req.body;
+
+    if (!content) {
+      return res.status(400).json({
+        error: { message: 'Survey content is required' },
+      });
+    }
+
     const survey = new SurveyJs({
       title,
+      description,
       content,
       createdBy: req.user._id,
+      status: 'draft',
     });
 
     await survey.save();
-    res.status(201).json({ data: survey });
+    return res.status(201).json({ data: survey });
   } catch (error) {
     console.error('Failed to save survey:', error);
-    res.status(500).json({
+    return res.status(500).json({
       error: {
         message:
           error instanceof Error ? error.message : 'Failed to save survey',
@@ -277,6 +302,41 @@ export const getDraftSurveys = async (
       error: {
         message:
           error instanceof Error ? error.message : 'Failed to fetch surveys',
+      },
+    });
+  }
+};
+
+export const editSurveyJs = async (
+  req: Request & { user?: IUser },
+  res: Response,
+) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: { message: 'Unauthorized' } });
+    }
+
+    const { surveyId } = req.params;
+    const { title, description, content } = req.body;
+
+    const survey = await SurveyJs.findOneAndUpdate(
+      { _id: surveyId, createdBy: req.user._id },
+      { title, description, content },
+      { new: true }
+    );
+
+    if (!survey) {
+      return res.status(404).json({ 
+        error: { message: 'Survey not found or unauthorized' }
+      });
+    }
+
+    return res.json({ data: survey });
+  } catch (error) {
+    console.error('Failed to update survey:', error);
+    return res.status(500).json({
+      error: {
+        message: error instanceof Error ? error.message : 'Failed to update survey',
       },
     });
   }

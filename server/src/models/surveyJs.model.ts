@@ -2,25 +2,29 @@ import mongoose from 'mongoose';
 
 interface ISurveyJs {
   title: string;
+  description: string;
   createdBy: string;
   content: Record<string, any>;
   createdAt: Date;
   updatedAt: Date;
-  description?: string;
   surveyUrl?: string;
   reward?: number;
   respondents?: number;
   timeToComplete?: number;
   expiresIn?: number;
   workerQualifications?: 'basic' | 'intermediate' | 'expert';
-  status?: 'active' | 'completed' | 'expired' | 'draft';
-  instructions?: string;
+  status: 'active' | 'completed' | 'expired' | 'draft';
 }
 
 const surveyJsSchema = new mongoose.Schema<ISurveyJs>({
   title: {
     type: String,
     required: true,
+  },
+  description: {
+    type: String,
+    required: false,
+    default: '',
   },
   createdBy: {
     type: String,
@@ -38,9 +42,6 @@ const surveyJsSchema = new mongoose.Schema<ISurveyJs>({
   updatedAt: {
     type: Date,
     default: Date.now,
-  },
-  description: {
-    type: String,
   },
   surveyUrl: {
     type: String,
@@ -70,9 +71,6 @@ const surveyJsSchema = new mongoose.Schema<ISurveyJs>({
     type: String,
     enum: ['active', 'completed', 'expired', 'draft'],
     default: 'draft',
-  },
-  instructions: {
-    type: String,
   },
 });
 

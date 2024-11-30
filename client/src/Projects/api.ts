@@ -66,7 +66,7 @@ async function saveSurvey(formData: SurveyData) {
   });
 
   const res = await postData('surveys/save', {
-    ...formData, 
+    ...formData,
     workerQualifications: formData.workerQualifications || 'basic',
     status: 'draft',
   });

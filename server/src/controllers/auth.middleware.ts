@@ -73,4 +73,3 @@ const isWorker = (
 
 // eslint-disable-next-line import/prefer-default-export
 export { isAuthenticated, isResearcher, isWorker };
-export { isAuthenticated, isResearcher, isWorker };

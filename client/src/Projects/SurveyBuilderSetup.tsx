@@ -143,7 +143,13 @@ function SurveyBuilderSetup() {
               <Select
                 value={formData.workerQualifications}
                 name="workerQualifications"
-                onChange={handleChange}
+                onChange={(e) =>
+                  handleChange(
+                    e as React.ChangeEvent<
+                      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+                    >,
+                  )
+                }
                 label="Worker Qualifications"
               >
                 <MenuItem value="basic">Basic</MenuItem>

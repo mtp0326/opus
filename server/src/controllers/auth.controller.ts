@@ -241,6 +241,7 @@ const register = async (
  * A dummy controller function which sends a 200 OK status code. Should be used to close a request after a middleware call.
  */
 export const approve = (req: express.Request, res: express.Response) => {
+  // TODO: remove this in prod
   console.log('User data in approve:', req.user);
   res.status(200).json({
     error: false,

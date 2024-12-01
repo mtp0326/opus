@@ -47,7 +47,7 @@ function PublishSurvey() {
     <>
       <Navigation />
       <div className={styles.container}>
-        <h2>Review and Publish Survey</h2>
+        <h2 className={styles.title}>Review and Publish Survey</h2>
 
         <div className={styles.surveyInfo}>
           <h3>Survey Details</h3>
@@ -57,9 +57,11 @@ function PublishSurvey() {
           <p>
             <strong>Description:</strong> {formData.description}
           </p>
-          <p>
-            <strong>Survey URL:</strong> {formData.surveyUrl}
-          </p>
+          {formData.surveyUrl && (
+            <p>
+              <strong>Survey URL:</strong> {formData.surveyUrl}
+            </p>
+          )}
           <p>
             <strong>Time to Complete:</strong> {formData.timeToComplete} minutes
           </p>
@@ -73,9 +75,11 @@ function PublishSurvey() {
             <strong>Worker Qualifications:</strong>{' '}
             {formData.workerQualifications || 'Basic'}
           </p>
-          <p>
-            <strong>Instructions:</strong> {formData.instructions}
-          </p>
+          {formData.instructions && (
+            <p>
+              <strong>Instructions:</strong> {formData.instructions}
+            </p>
+          )}
         </div>
 
         <div className={styles.costBreakdown}>

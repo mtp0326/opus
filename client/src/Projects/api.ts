@@ -2,6 +2,7 @@
  * A file for defining functions used to interact with the backend server
  * for project and survey-related operations.
  */
+import { SurveyCreator } from 'survey-creator-react';
 import { postData, getData, putData } from '../util/api.tsx';
 
 interface SurveyData {
@@ -130,6 +131,56 @@ export const submitSurveyCompletion = async (data: SurveyCompletionData) => {
   }
 
   return response.data;
+};
+
+export const handleSurveyJsSave = async (
+  creatorRef: React.RefObject<SurveyCreator>,
+  showAlert: (message: string, type: 'success' | 'error' | 'info') => void,
+) => {
+  try {
+    if (!creatorRef.current) return;
+    const surveyJSON = creatorRef.current.JSON;
+    const title = creatorRef.current.survey.title || 'Untitled Survey';
+    const description = creatorRef.current.survey.description || '';
+
+    const savedSurveyId = localStorage.getItem('currentSurveyId');
+    console.log('📝 Current saved survey ID:', savedSurveyId);
+
+    const saveData = {
+      title,
+      description,
+      content: surveyJSON,
+      status: 'draft',
+    };
+
+    let response;
+    if (savedSurveyId) {
+      console.log('🔄 Updating existing survey:', savedSurveyId);
+      response = await putData(`surveys/js/${savedSurveyId}/edit`, saveData);
+    } else {
+      console.log('✨ Creating new survey');
+      response = await postData('surveys/js/save', saveData);
+      console.log('📦 Save response:', response);
+      if (response.data?.data?._id) {
+        const surveyId = response.data.data._id.toString();
+        console.log('💾 Storing new survey ID:', surveyId);
+        localStorage.setItem('currentSurveyId', surveyId);
+      } else {
+        console.warn('⚠️ No survey ID in response:', response);
+      }
+    }
+
+    if (response.error) {
+      throw new Error(response.error.message);
+    }
+
+    showAlert('Survey saved successfully!', 'success');
+    return response;
+  } catch (error) {
+    console.error('Failed to save survey:', error);
+    showAlert('Failed to save survey', 'error');
+    throw error;
+  }
 };
 
 export {

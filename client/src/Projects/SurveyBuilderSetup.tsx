@@ -60,8 +60,9 @@ function SurveyBuilderSetup() {
     if (validateForm()) {
       setIsLoading(true);
       try {
-        // Get the survey content from localStorage
+        // Get the survey content and ID from localStorage
         const savedSurvey = localStorage.getItem('currentSurvey');
+        const surveyId = localStorage.getItem('currentSurveyId');
         const surveyContent = savedSurvey ? JSON.parse(savedSurvey) : {};
 
         // Navigate to payment review page with all necessary data
@@ -74,6 +75,7 @@ function SurveyBuilderSetup() {
               surveyType: 'surveyjs',
               content: surveyContent,
             },
+            surveyId, // Add the surveyId to the state
           },
         });
       } catch (error) {

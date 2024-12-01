@@ -20,6 +20,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import styles from './SurveyBuilder.module.css';
 import { postData, getData, putData } from '../util/api.tsx';
+import { handleSurveyJsSave } from './api';
 
 const creatorOptions = {
   showLogicTab: true,
@@ -71,6 +72,7 @@ function SurveyBuilder() {
         !path.includes('survey-builder-setup')
       ) {
         localStorage.removeItem('currentSurvey');
+        localStorage.removeItem('currentSurveyId');
       }
     };
   }, []);
@@ -91,46 +93,9 @@ function SurveyBuilder() {
 
   const handleSave = useCallback(async () => {
     try {
-      if (!creatorRef.current) return;
-      const surveyJSON = creatorRef.current.JSON;
-      const title = creatorRef.current.survey.title || 'Untitled Survey';
-      const description = creatorRef.current.survey.description || '';
-
-      const savedSurveyId = localStorage.getItem('currentSurveyId');
-      console.log('📝 Current saved survey ID:', savedSurveyId);
-
-      const saveData = {
-        title,
-        description,
-        content: surveyJSON,
-        status: 'draft',
-      };
-
-      let response;
-      if (savedSurveyId) {
-        console.log('🔄 Updating existing survey:', savedSurveyId);
-        response = await putData(`surveys/js/${savedSurveyId}/edit`, saveData);
-      } else {
-        console.log('✨ Creating new survey');
-        response = await postData('surveys/js/save', saveData);
-        console.log('📦 Save response:', response);
-        if (response.data?.data?._id) {
-          const surveyId = response.data.data._id.toString();
-          console.log('💾 Storing new survey ID:', surveyId);
-          localStorage.setItem('currentSurveyId', surveyId);
-        } else {
-          console.warn('⚠️ No survey ID in response:', response);
-        }
-      }
-
-      if (response.error) {
-        throw new Error(response.error.message);
-      }
-
-      showAlert('Survey saved successfully!', 'success');
+      await handleSurveyJsSave(creatorRef, showAlert);
     } catch (error) {
-      console.error('Failed to save survey:', error);
-      showAlert('Failed to save survey', 'error');
+      console.error('Save failed:', error);
     }
   }, []);
 

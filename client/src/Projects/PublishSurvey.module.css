@@ -126,4 +126,8 @@
 .costNote {
   color: #6c757d;
   font-size: 0.875rem;
+}
+
+.title {
+  text-align: center;
 } 

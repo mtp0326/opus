@@ -24,10 +24,10 @@
     "heroku-postbuild": "cd client && yarn install && yarn build && cd ../server && yarn install --production=false && yarn build"
   },
   "dependencies": {
-    "@emotion/react": "^11.7.1",
-    "@emotion/styled": "^11.6.0",
+    "@emotion/react": "^11.13.5",
+    "@emotion/styled": "^11.13.5",
     "@mui/icons-material": "^6.1.8",
-    "@mui/material": "^5.4.1",
+    "@mui/material": "^5.16.8",
     "@mui/system": "^5.5.1",
     "axios": "^1.1.2",
     "concurrently": "^7.0.0",

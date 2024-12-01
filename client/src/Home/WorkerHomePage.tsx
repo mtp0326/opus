@@ -25,11 +25,7 @@ interface PromoteButtonProps {
  * @param handleSelfPromote - a function which promotes the user to admin
  * @param navigator - a function which navigates to a new page (passed in from parent function)
  */
-function PromoteButton({
-  admin,
-  handleSelfPromote,
-  navigator,
-}: PromoteButtonProps) {
+function PromoteButton({ admin, navigator }: PromoteButtonProps) {
   if (admin === null) {
     return null;
   }

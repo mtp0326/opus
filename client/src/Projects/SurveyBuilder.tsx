@@ -19,7 +19,7 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import styles from './SurveyBuilder.module.css';
-import { postData, getData } from '../util/api.tsx';
+import { postData, getData, putData } from '../util/api.tsx';
 
 const creatorOptions = {
   showLogicTab: true,
@@ -83,7 +83,6 @@ function SurveyBuilder() {
   const [surveys, setSurveys] = useState<Array<{ _id: string; title: string }>>(
     [],
   );
-  const [selectedSurveyId, setSelectedSurveyId] = useState('');
 
   const showAlert = (message: string, type: 'success' | 'error' | 'info') => {
     setNotification({ message, type });
@@ -97,28 +96,35 @@ function SurveyBuilder() {
       const title = creatorRef.current.survey.title || 'Untitled Survey';
       const description = creatorRef.current.survey.description || '';
 
-      // Get the current survey ID from localStorage
-      const savedSurvey = localStorage.getItem('currentSurveyId');
+      const savedSurveyId = localStorage.getItem('currentSurveyId');
+      console.log('📝 Current saved survey ID:', savedSurveyId);
 
-      // If we have an existing survey ID, update it; otherwise create new
-      const endpoint = savedSurvey
-        ? `surveys/js/${savedSurvey}/edit`
-        : 'surveys/js/save';
-
-      const response = await postData(endpoint, {
+      const saveData = {
         title,
         description,
         content: surveyJSON,
         status: 'draft',
-      });
+      };
+
+      let response;
+      if (savedSurveyId) {
+        console.log('🔄 Updating existing survey:', savedSurveyId);
+        response = await putData(`surveys/js/${savedSurveyId}/edit`, saveData);
+      } else {
+        console.log('✨ Creating new survey');
+        response = await postData('surveys/js/save', saveData);
+        console.log('📦 Save response:', response);
+        if (response.data?.data?._id) {
+          const surveyId = response.data.data._id.toString();
+          console.log('💾 Storing new survey ID:', surveyId);
+          localStorage.setItem('currentSurveyId', surveyId);
+        } else {
+          console.warn('⚠️ No survey ID in response:', response);
+        }
+      }
 
       if (response.error) {
         throw new Error(response.error.message);
-      }
-
-      // Save the survey ID for future updates
-      if (!savedSurvey && response.data?._id) {
-        localStorage.setItem('currentSurveyId', response.data._id);
       }
 
       showAlert('Survey saved successfully!', 'success');
@@ -145,25 +151,6 @@ function SurveyBuilder() {
     fetchSurveys();
   }, []);
 
-  const handleLoadSurvey = useCallback(async () => {
-    if (!selectedSurveyId || !creatorRef.current) {
-      showAlert('Please select a survey to load', 'error');
-      return;
-    }
-
-    try {
-      const response = await getData(`surveys/js/${selectedSurveyId}`);
-      if (response.error) {
-        throw new Error(response.error.message);
-      }
-      creatorRef.current.JSON = response.data.content;
-      showAlert('Survey loaded successfully', 'success');
-    } catch (error) {
-      console.error('Failed to load survey:', error);
-      showAlert('Failed to load survey', 'error');
-    }
-  }, [selectedSurveyId]);
-
   return (
     <>
       <Navigation />
@@ -179,25 +166,6 @@ function SurveyBuilder() {
         >
           <Button onClick={handleSave} color="primary">
             Save Survey
-          </Button>
-          <FormControl sx={{ minWidth: 200 }}>
-            <InputLabel id="survey-select-label">Select Survey</InputLabel>
-            <Select
-              labelId="survey-select-label"
-              value={selectedSurveyId}
-              onChange={(e) => setSelectedSurveyId(e.target.value)}
-              label="Select Survey"
-            >
-              {Array.isArray(surveys) &&
-                surveys.map((survey) => (
-                  <MenuItem key={survey._id} value={survey._id}>
-                    {survey.title}
-                  </MenuItem>
-                ))}
-            </Select>
-          </FormControl>
-          <Button onClick={handleLoadSurvey} disabled={!selectedSurveyId}>
-            Load Survey
           </Button>
           <Button
             onClick={async () => {

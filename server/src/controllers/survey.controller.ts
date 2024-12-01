@@ -222,6 +222,7 @@ export const saveSurveyJs = async (
     }
 
     const { title, description, content } = req.body;
+    console.log(' Received survey data:', { title, description });
 
     if (!content) {
       return res.status(400).json({
@@ -238,7 +239,17 @@ export const saveSurveyJs = async (
     });
 
     await survey.save();
-    return res.status(201).json({ data: survey });
+    console.log('💾 Saved survey with ID:', survey._id.toString());
+
+    const responseData = {
+      data: {
+        _id: survey._id.toString(),
+        title: survey.title,
+        description: survey.description,
+      },
+    };
+    console.log('📤 Sending response:', responseData);
+    return res.status(201).json(responseData);
   } catch (error) {
     console.error('Failed to save survey:', error);
     return res.status(500).json({
@@ -322,12 +333,12 @@ export const editSurveyJs = async (
     const survey = await SurveyJs.findOneAndUpdate(
       { _id: surveyId, createdBy: req.user._id },
       { title, description, content },
-      { new: true }
+      { new: true },
     );
 
     if (!survey) {
-      return res.status(404).json({ 
-        error: { message: 'Survey not found or unauthorized' }
+      return res.status(404).json({
+        error: { message: 'Survey not found or unauthorized' },
       });
     }
 
@@ -336,7 +347,8 @@ export const editSurveyJs = async (
     console.error('Failed to update survey:', error);
     return res.status(500).json({
       error: {
-        message: error instanceof Error ? error.message : 'Failed to update survey',
+        message:
+          error instanceof Error ? error.message : 'Failed to update survey',
       },
     });
   }

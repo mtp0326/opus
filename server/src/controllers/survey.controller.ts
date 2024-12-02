@@ -159,13 +159,25 @@ export const deleteSurvey = async (
     }
 
     const { surveyId } = req.params;
-    const deletedSurvey = await Survey.findOneAndDelete({
-      _id: surveyId,
-      createdBy: req.user._id,
-      status: 'draft', // Only allow deletion of draft surveys
-    });
 
-    if (!deletedSurvey) {
+    // Try to delete from both collections
+    const [deletedSurvey, deletedSurveyJs] = await Promise.all([
+      Survey.findOneAndDelete({
+        _id: surveyId,
+        createdBy: req.user._id,
+        status: 'draft', // Only allow deletion of draft surveys
+      }),
+      SurveyJs.findOneAndDelete({
+        _id: surveyId,
+        createdBy: req.user._id,
+        status: 'draft', // Only allow deletion of draft surveys
+      }),
+    ]);
+
+    // Check if the survey was found and deleted in either collection
+    const deletedResult = deletedSurvey || deletedSurveyJs;
+
+    if (!deletedResult) {
       return res.status(404).json({
         error: { message: 'Survey not found or cannot be deleted' },
       });
@@ -173,7 +185,7 @@ export const deleteSurvey = async (
 
     console.log('✅ Survey deleted:', surveyId);
     return res.json({
-      data: deletedSurvey,
+      data: deletedResult,
       message: 'Survey deleted successfully',
     });
   } catch (error: any) {

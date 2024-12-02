@@ -38,7 +38,9 @@ const Leaderboard = () => {
             {users.map((user, index) => (
               <tr key={user._id}>
                 <td>{index + 1}</td>
-                <td>{user.firstName} {user.lastName}</td>
+                <td>
+                  {user.firstName} {user.lastName}
+                </td>
                 <td>{user.points}</td>
                 <td>{user.league}</td>
               </tr>
@@ -50,4 +52,4 @@ const Leaderboard = () => {
   );
 };
 
-export default Leaderboard; 
+export default Leaderboard;

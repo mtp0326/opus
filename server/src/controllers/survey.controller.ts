@@ -3,8 +3,12 @@ import { Survey } from '../models/survey.model';
 import mongoose from 'mongoose';
 import { IUser } from '../models/user.model.ts';
 
+require('dotenv').config();
 
-export const publishSurvey = async (req: Request & { user?: IUser }, res: Response) => {
+const publishSurvey = async (
+  req: Request & { user?: IUser },
+  res: Response,
+) => {
   try {
     console.log('📨 Publishing survey:', req.params.surveyId);
 
@@ -16,17 +20,19 @@ export const publishSurvey = async (req: Request & { user?: IUser }, res: Respon
     const updatedSurvey = await Survey.findOneAndUpdate(
       { _id: surveyId, createdBy: req.user._id },
       { status: 'active' },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedSurvey) {
-      return res.status(404).json({ error: { message: 'Survey not found or unauthorized' } });
+      return res
+        .status(404)
+        .json({ error: { message: 'Survey not found or unauthorized' } });
     }
-    
+
     console.log('✅ Survey published:', updatedSurvey._id);
-    return res.json({ 
+    return res.json({
       data: updatedSurvey,
-      message: 'Survey published successfully' 
+      message: 'Survey published successfully',
     });
   } catch (error: any) {
     console.error('❌ Error publishing survey:', error.message);
@@ -34,17 +40,17 @@ export const publishSurvey = async (req: Request & { user?: IUser }, res: Respon
   }
 };
 
-export const getSurveys = async (req: Request & { user?: IUser }, res: Response) => {
+const getSurveys = async (req: Request & { user?: IUser }, res: Response) => {
   try {
     console.log('📧 Fetching surveys for user:', req.user?._id);
-    
-    const surveys = await Survey.find({ 
-      createdBy: req.user?._id
+
+    const surveys = await Survey.find({
+      createdBy: req.user?._id,
     }).sort({ createdAt: -1 });
-    
+
     console.log('🔍 Found surveys:', surveys.length);
     console.log('📊 Query results:', JSON.stringify(surveys, null, 2));
-    
+
     res.json(surveys);
   } catch (error) {
     console.error('❌ Error fetching surveys:', error);
@@ -52,7 +58,7 @@ export const getSurveys = async (req: Request & { user?: IUser }, res: Response)
   }
 };
 
-export const saveSurvey = async (req: Request & { user?: IUser }, res: Response) => {
+const saveSurvey = async (req: Request & { user?: IUser }, res: Response) => {
   try {
     console.log('📨 Received survey save request from user:', req.user?._id);
 
@@ -63,11 +69,11 @@ export const saveSurvey = async (req: Request & { user?: IUser }, res: Response)
     const survey = new Survey({
       ...req.body,
       createdBy: (req.user as IUser)._id,
-      status: 'draft'
+      status: 'draft',
     });
-    
+
     await survey.save();
-    
+
     console.log('💾 Survey saved to database with ID:', survey._id);
     res.status(201).json(survey);
   } catch (error: any) {
@@ -76,7 +82,7 @@ export const saveSurvey = async (req: Request & { user?: IUser }, res: Response)
   }
 };
 
-export const editSurvey = async (req: Request & { user?: IUser }, res: Response) => {
+const editSurvey = async (req: Request & { user?: IUser }, res: Response) => {
   try {
     if (!req.user?._id) {
       throw new Error('User not authenticated');
@@ -86,17 +92,19 @@ export const editSurvey = async (req: Request & { user?: IUser }, res: Response)
     const updatedSurvey = await Survey.findOneAndUpdate(
       { _id: surveyId, createdBy: req.user._id },
       req.body,
-      { new: true }
+      { new: true },
     );
 
     if (!updatedSurvey) {
-      return res.status(404).json({ error: { message: 'Survey not found or unauthorized' } });
+      return res
+        .status(404)
+        .json({ error: { message: 'Survey not found or unauthorized' } });
     }
 
     console.log('✅ Updated survey:', updatedSurvey);
-    return res.json({ 
-      data: updatedSurvey, 
-      message: 'Survey updated successfully' 
+    return res.json({
+      data: updatedSurvey,
+      message: 'Survey updated successfully',
     });
   } catch (error: any) {
     console.error('❌ Error updating survey:', error.message);
@@ -104,7 +112,7 @@ export const editSurvey = async (req: Request & { user?: IUser }, res: Response)
   }
 };
 
-export const deleteSurvey = async (req: Request & { user?: IUser }, res: Response) => {
+const deleteSurvey = async (req: Request & { user?: IUser }, res: Response) => {
   try {
     if (!req.user?._id) {
       throw new Error('User not authenticated');
@@ -114,22 +122,59 @@ export const deleteSurvey = async (req: Request & { user?: IUser }, res: Respons
     const deletedSurvey = await Survey.findOneAndDelete({
       _id: surveyId,
       createdBy: req.user._id,
-      status: 'draft'  // Only allow deletion of draft surveys
+      status: 'draft', // Only allow deletion of draft surveys
     });
 
     if (!deletedSurvey) {
-      return res.status(404).json({ 
-        error: { message: 'Survey not found or cannot be deleted' }
+      return res.status(404).json({
+        error: { message: 'Survey not found or cannot be deleted' },
       });
     }
 
     console.log('✅ Survey deleted:', surveyId);
-    return res.json({ 
+    return res.json({
       data: deletedSurvey,
-      message: 'Survey deleted successfully' 
+      message: 'Survey deleted successfully',
     });
   } catch (error: any) {
     console.error('❌ Error deleting survey:', error.message);
     res.status(400).json({ error: { message: error.message } });
   }
-}; 
+};
+
+const includePayment = async (
+  req: Request & { user?: IUser },
+  res: Response,
+) => {
+  const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+  const session = await stripe.checkout.sessions.create({
+    line_items: [
+      {
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: 'T-shirt',
+          },
+          unit_amount: 2000,
+        },
+        quantity: 1,
+      },
+    ],
+    mode: 'payment',
+    ui_mode: 'embedded',
+    return_url:
+      'https://example.com/checkout/return?session_id={CHECKOUT_SESSION_ID}',
+  });
+
+  res.send({ clientSecret: session.client_secret });
+};
+
+export {
+  publishSurvey,
+  getSurveys,
+  saveSurvey,
+  editSurvey,
+  deleteSurvey,
+  includePayment,
+};

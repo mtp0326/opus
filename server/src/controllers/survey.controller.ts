@@ -67,7 +67,9 @@ export const getSurveys = async (
 
       SurveyJs.find({
         createdBy: req.user?._id,
-      }).sort({ createdAt: -1 }),
+      })
+        .select('_id title description content createdAt status') // Explicitly select content
+        .sort({ createdAt: -1 }),
     ]);
 
     // Combine and format the results

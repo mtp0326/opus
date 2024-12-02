@@ -20,6 +20,8 @@ import { deleteSurvey } from './api';
 interface Survey extends SurveyData {
   createdAt: string;
   _id: string;
+  surveyType?: 'surveyjs';
+  content?: any;
 }
 
 function ManageTasks() {
@@ -44,8 +46,14 @@ function ManageTasks() {
     fetchSurveys();
   }, []);
 
-  const handleEdit = (survey: Survey) => {
-    navigate('/survey-link', { state: { survey } });
+  const handleEdit = async (survey: Survey) => {
+    if (survey.surveyType === 'surveyjs') {
+      localStorage.setItem('currentSurvey', JSON.stringify(survey.content));
+      localStorage.setItem('currentSurveyId', survey._id);
+      navigate('/survey-builder');
+    } else {
+      navigate('/survey-link', { state: { survey } });
+    }
   };
 
   const handleDelete = async (surveyId: string) => {

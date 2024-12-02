@@ -17,21 +17,33 @@ export const publishSurvey = async (
     }
 
     const { surveyId } = req.params;
-    const updatedSurvey = await Survey.findOneAndUpdate(
-      { _id: surveyId, createdBy: req.user._id },
-      { status: 'active' },
-      { new: true },
-    );
 
-    if (!updatedSurvey) {
+    // Try to update in both collections
+    const [updatedSurvey, updatedSurveyJs] = await Promise.all([
+      Survey.findOneAndUpdate(
+        { _id: surveyId, createdBy: req.user._id },
+        { status: 'active' },
+        { new: true },
+      ),
+      SurveyJs.findOneAndUpdate(
+        { _id: surveyId, createdBy: req.user._id },
+        { status: 'active' },
+        { new: true },
+      ),
+    ]);
+
+    // Check if the survey was found and updated in either collection
+    const publishedSurvey = updatedSurvey || updatedSurveyJs;
+
+    if (!publishedSurvey) {
       return res
         .status(404)
         .json({ error: { message: 'Survey not found or unauthorized' } });
     }
 
-    console.log('✅ Survey published:', updatedSurvey._id);
+    console.log('✅ Survey published:', publishedSurvey._id);
     return res.json({
-      data: updatedSurvey,
+      data: publishedSurvey,
       message: 'Survey published successfully',
     });
   } catch (error: any) {

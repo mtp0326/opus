@@ -25,8 +25,6 @@ const router = express.Router();
  * Expects a query parameter to filter surveys by publisher
  */
 router.get('/published', isAuthenticated, getSurveys as express.RequestHandler);
-router.get('/published', isAuthenticated, getSurveys as express.RequestHandler);
-
 router.post('/save', isAuthenticated, saveSurvey as express.RequestHandler);
 
 /**
@@ -38,21 +36,11 @@ router.put(
   isAuthenticated,
   editSurvey as express.RequestHandler,
 );
-router.put(
-  '/:surveyId/edit',
-  isAuthenticated,
-  editSurvey as express.RequestHandler,
-);
 
 /**
  * A PUT route to publish an existing survey
  * Expects surveyId in URL params
  */
-router.put(
-  '/:surveyId/publish',
-  isAuthenticated,
-  publishSurvey as express.RequestHandler,
-);
 router.put(
   '/:surveyId/publish',
   isAuthenticated,

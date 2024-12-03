@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import styles from './Leaderboard.module.css';
-import Navigation from '../components/Navigation';
-import { getData } from '../util/api';
+import Navigation from '../components/Navigation2';
+// import { getData } from '../util/api';
 // import IUser from '../util/types/user'; // Ensure this import is correct
+import { getLeaderboard } from 'client/src/Projects/api.ts';
 import { IUser } from 'server/src/models/user.model.ts';
 
 const Leaderboard = () => {
@@ -14,7 +15,8 @@ const Leaderboard = () => {
     async function fetchLeaderboardData() {
       try {
         const response = await fetch('/api/leaderboard'); // Example API endpoint
-        const data = await response.json();
+        // const data = await response.json();
+        const data = await getLeaderboard();
         setUsers(data);
       } catch (error) {
         console.error('Error fetching leaderboard data:', error);

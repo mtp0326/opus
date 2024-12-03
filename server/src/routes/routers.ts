@@ -11,6 +11,7 @@ import adminRouter from './admin.route.ts';
 import authRouter from './auth.route.ts';
 //import incentiveRouter from './incentive.route.ts';
 import surveyRouter from './survey.route.ts';
+import leaderboardRouter from './leaderboard.route.ts';
 
 const prefixToRouterMap: { prefix: string; router: Router }[] = [
   {
@@ -28,6 +29,10 @@ const prefixToRouterMap: { prefix: string; router: Router }[] = [
   {
     prefix: '/api/surveys',
     router: surveyRouter,
+  },
+  {
+    prefix: '/api/leaderboard',
+    router: leaderboardRouter,
   },
 ];
 

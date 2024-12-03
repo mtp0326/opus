@@ -4,6 +4,7 @@
  */
 import { SurveyCreator } from 'survey-creator-react';
 import { postData, getData, putData } from '../util/api.tsx';
+import { IUser } from 'server/src/models/user.model.ts';
 
 interface SurveyData {
   title: string;
@@ -181,6 +182,22 @@ export const handleSurveyJsSave = async (
     showAlert('Failed to save survey', 'error');
     throw error;
   }
+};
+
+/**
+ * Fetches the leaderboard data from the server
+ * @returns A promise that resolves to an array of users
+ * @throws An {@link Error} with a `message` field describing any issues in fetching
+ */
+export const getLeaderboard = async (): Promise<IUser[]> => {
+  const response = await getData('leaderboard/');
+
+  if (response.error) {
+    console.error('❌ Failed to fetch leaderboard:', response.error);
+    throw new Error(response.error.message);
+  }
+
+  return response.data; // Ensure this matches the expected data structure
 };
 
 export {

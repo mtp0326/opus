@@ -2128,7 +2128,7 @@
   resolved "https://registry.npmjs.org/@emotion/memoize/-/memoize-0.9.0.tgz"
   integrity sha512-30FAj7/EoJ5mwVPOWhAyCX+FPfMDrVecJAM+Iw9NRoSl4BBAQeqj4cApHHUXOVvIPgLVDsCFoz/hGD+5QQD1GQ==
 
-"@emotion/react@^11.13.5":
+"@emotion/react@^11.7.1":
   version "11.13.5"
   resolved "https://registry.npmjs.org/@emotion/react/-/react-11.13.5.tgz"
   integrity sha512-6zeCUxUH+EPF1s+YF/2hPVODeV/7V07YU5x+2tfuRL8MdW6rv5vb2+CBEGTGwBdux0OIERcOS+RzxeK80k2DsQ==
@@ -2158,7 +2158,7 @@
   resolved "https://registry.npmjs.org/@emotion/sheet/-/sheet-1.4.0.tgz"
   integrity sha512-fTBW9/8r2w3dXWYM4HCB1Rdp8NLibOw2+XELH5m5+AkWiL/KqYX6dc0kKYlaYyKjrQ6ds33MCdMPEwgs2z1rqg==
 
-"@emotion/styled@^11.13.5":
+"@emotion/styled@^11.6.0":
   version "11.13.5"
   resolved "https://registry.npmjs.org/@emotion/styled/-/styled-11.13.5.tgz"
   integrity sha512-gnOQ+nGLPvDXgIx119JqGalys64lhMdnNQA9TMxhDA4K0Hq5+++OE20Zs5GxiCV9r814xQ2K5WmtofSpHVW6BQ==
@@ -2768,28 +2768,28 @@
   dependencies:
     sparse-bitfield "^3.0.3"
 
-"@mui/core-downloads-tracker@^5.16.8":
+"@mui/core-downloads-tracker@^5.16.7":
   version "5.16.8"
-  resolved "https://registry.npmjs.org/@mui/core-downloads-tracker/-/core-downloads-tracker-5.16.8.tgz"
+  resolved "https://registry.yarnpkg.com/@mui/core-downloads-tracker/-/core-downloads-tracker-5.16.8.tgz#b83316d14dad08fac7cd0574f2643b01959b4464"
   integrity sha512-DARxShbBsWz6azwkTmv05rR7rJfcd9cXFsQtbcr24A+5esQBSnK2N3cbg/izlvuMGxonfWaysz/ae+6Ij9RAHQ==
 
-"@mui/icons-material@^6.1.8":
-  version "6.1.8"
-  resolved "https://registry.npmjs.org/@mui/icons-material/-/icons-material-6.1.8.tgz"
-  integrity sha512-6frsXcf1TcJKWevWwRup6V4L8lzI33cbHcAjT83YLgKw0vYRZKY0kjMI9fhrJZdRWXgFFgKKvEv3GjoxbqFF7A==
+"@mui/icons-material@^6.1.9":
+  version "6.1.9"
+  resolved "https://registry.npmjs.org/@mui/icons-material/-/icons-material-6.1.9.tgz"
+  integrity sha512-AzlhIT51rdjkZ/EcUV2dbhNkNSUHIqCnNoUxodpiTw8buyAUBd+qnxg5OBSuPpun/ZEdSSB8Q7Uyh6zqjiMsEQ==
   dependencies:
     "@babel/runtime" "^7.26.0"
 
-"@mui/material@^5.16.8", "@mui/material@^5.5.3":
-  version "5.16.8"
-  resolved "https://registry.npmjs.org/@mui/material/-/material-5.16.8.tgz"
-  integrity sha512-amnDx385shdQasC7wAk/oQjfti8N4wm0fLEcD7n5KXDZxn9Y+0VKEC+ieVseOUGuY5B2FqzdNfeVwUPTmUBszQ==
+"@mui/material@^5.4.1", "@mui/material@^5.5.3":
+  version "5.16.7"
+  resolved "https://registry.npmjs.org/@mui/material/-/material-5.16.7.tgz"
+  integrity sha512-cwwVQxBhK60OIOqZOVLFt55t01zmarKJiJUWbk0+8s/Ix5IaUzAShqlJchxsIQ4mSrWqgcKCCXKtIlG5H+/Jmg==
   dependencies:
     "@babel/runtime" "^7.23.9"
-    "@mui/core-downloads-tracker" "^5.16.8"
-    "@mui/system" "^5.16.8"
+    "@mui/core-downloads-tracker" "^5.16.7"
+    "@mui/system" "^5.16.7"
     "@mui/types" "^7.2.15"
-    "@mui/utils" "^5.16.8"
+    "@mui/utils" "^5.16.6"
     "@popperjs/core" "^2.11.8"
     "@types/react-transition-group" "^4.4.10"
     clsx "^2.1.0"
@@ -2828,9 +2828,9 @@
     hoist-non-react-statics "^3.3.2"
     prop-types "^15.8.1"
 
-"@mui/system@^5.16.8", "@mui/system@^5.5.1", "@mui/system@^5.5.2":
+"@mui/system@^5.16.7", "@mui/system@^5.5.1", "@mui/system@^5.5.2":
   version "5.16.8"
-  resolved "https://registry.npmjs.org/@mui/system/-/system-5.16.8.tgz"
+  resolved "https://registry.yarnpkg.com/@mui/system/-/system-5.16.8.tgz#e5010d76cd2fdcc403ad3f98abfba99d330055ad"
   integrity sha512-L32TaFDFpGIi1g6ysRtmhc9zDgrlxDXu3NlrGE8gAsQw/ziHrPdr0PNr20O0POUshA1q14W4dNZ/z0Nx2F9lhA==
   dependencies:
     "@babel/runtime" "^7.23.9"
@@ -2847,9 +2847,9 @@
   resolved "https://registry.npmjs.org/@mui/types/-/types-7.2.19.tgz"
   integrity sha512-6XpZEM/Q3epK9RN8ENoXuygnqUQxE+siN/6rGRi2iwJPgBUR25mphYQ9ZI87plGh58YoZ5pp40bFvKYOCDJ3tA==
 
-"@mui/utils@^5.16.8":
+"@mui/utils@^5.16.6", "@mui/utils@^5.16.8":
   version "5.16.8"
-  resolved "https://registry.npmjs.org/@mui/utils/-/utils-5.16.8.tgz"
+  resolved "https://registry.yarnpkg.com/@mui/utils/-/utils-5.16.8.tgz#e44acf38d446d361347c46b3e81ae366f615f37b"
   integrity sha512-P/yb7BSWallQUeiNGxb+TM8epHteIUC8gzNTdPV2VfKhVY/EnGliHgt5np0GPkjQ7EzwDi/+gBevrAJtf+K94A==
   dependencies:
     "@babel/runtime" "^7.23.9"
@@ -4039,7 +4039,7 @@
     hoist-non-react-statics "^3.3.0"
     redux "^4.0.0"
 
-"@types/react-transition-group@^4.4.10":
+"@types/react-transition-group@^4.4.11":
   version "4.4.11"
   resolved "https://registry.npmjs.org/@types/react-transition-group/-/react-transition-group-4.4.11.tgz"
   integrity sha512-RM05tAniPZ5DZPzzNFP+DmrcOdD0efDUxMy3145oljWSl3x9ZV5vhme98gTxFrj2lhXvmGNnUiuDyJgY9IKkNA==
@@ -7809,7 +7809,7 @@ fs.realpath@^1.0.0:
 
 fsevents@^2.3.2, fsevents@~2.3.2:
   version "2.3.3"
-  resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-2.3.3.tgz#cac6407785d03675a2a5e1a5305c697b347d90d6"
+  resolved "https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz"
   integrity sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==
 
 function-bind@^1.1.2:
@@ -11743,7 +11743,7 @@ prettier-linter-helpers@^1.0.0:
   dependencies:
     fast-diff "^1.1.2"
 
-prettier@^2.5.1:
+prettier@^2.5.1, prettier@^2.8.8:
   version "2.8.8"
   resolved "https://registry.npmjs.org/prettier/-/prettier-2.8.8.tgz"
   integrity sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==
@@ -13234,9 +13234,9 @@ survey-core@1.9.116:
   integrity sha512-yQ56PJ6U0Xm9OhUKAJyZ16yUzO3QZTI5HMBaFeBkiFpEmByFSlx1x7IS9uqML1sbLYeGVNP+kt7P9J4wZ7P3qQ==
 
 survey-core@^1.12.11:
-  version "1.12.11"
-  resolved "https://registry.npmjs.org/survey-core/-/survey-core-1.12.11.tgz"
-  integrity sha512-EkRVQOsFWuvr5lHon2/kXBvAKNZmoXuQbfYgFG1jfsY4byPTvVjwswNMk9yaHvMed0BdY0Mo3Ay0/+Bu/b2TBw==
+  version "1.12.12"
+  resolved "https://registry.npmjs.org/survey-core/-/survey-core-1.12.12.tgz"
+  integrity sha512-usV59AdjbxVfzEs/dwLyjgeN2CFAJ26uKSxFPmLJbKygprAYviMeeFW/K9EjExp9F0bSbR5dzhGrzsfRFEZ1eQ==
 
 survey-creator-core@1.9.116:
   version "1.9.116"
@@ -13246,9 +13246,9 @@ survey-creator-core@1.9.116:
     survey-core "1.9.116"
 
 survey-creator-core@^1.12.11:
-  version "1.12.11"
-  resolved "https://registry.npmjs.org/survey-creator-core/-/survey-creator-core-1.12.11.tgz"
-  integrity sha512-S9YE56qFyxreLaP7S5YI3ft11N3uIgzVWC3UsuwbIBYA8ocJ37WWDO2fdEUjyiEAPTFjyaDY+RST128TwO6QiA==
+  version "1.12.12"
+  resolved "https://registry.npmjs.org/survey-creator-core/-/survey-creator-core-1.12.12.tgz"
+  integrity sha512-uK+/SdIqV/9eggPgPzAWbfab0Z81jpv4eFbL10EvpiiUjFbd/FFnlrsmC+HEycVXU14lLoCbf5woa9NgxpXzkA==
 
 survey-creator-react@1.9.116:
   version "1.9.116"
@@ -13276,9 +13276,9 @@ survey-react-ui@1.9.116:
     survey-core "1.9.116"
 
 survey-react-ui@^1.12.9:
-  version "1.12.11"
-  resolved "https://registry.npmjs.org/survey-react-ui/-/survey-react-ui-1.12.11.tgz"
-  integrity sha512-5zz7Pu6BPIi4JcgdNU08KA7EwOb+bvCxw/VDsiImYz5oopty/34GQQlB7CqEkYWKtUFzL/EvFhFo3VGJMygJow==
+  version "1.12.12"
+  resolved "https://registry.npmjs.org/survey-react-ui/-/survey-react-ui-1.12.12.tgz"
+  integrity sha512-9xBjorSA4xUrjVDg8kB/IQbTTeOGqW/UrTCKdGWgrtf+dIk+/REZBMAQQZM2blHxZtHMoDTHrRhr+N94KCmQ3g==
 
 surveyjs-widgets@^1.12.12:
   version "1.12.12"

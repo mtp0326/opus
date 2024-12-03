@@ -9,5 +9,9 @@ yarn-error.log
 .env.test.local
 .env.production.local
 .terraform.env
+
 /venv
 /opus-venv
+/opus-venv1
+client/opus-venv1/
+/opus-venv2

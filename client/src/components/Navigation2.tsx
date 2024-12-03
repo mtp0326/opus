@@ -28,7 +28,10 @@ function Navigation2() {
           >
             Recommended
           </Button>
-          <Button color="inherit" onClick={() => handleNavigate('/whome')}>
+          <Button
+            color="inherit"
+            onClick={() => handleNavigate('/leaderboard')}
+          >
             Leaderboard
           </Button>
         </Box>

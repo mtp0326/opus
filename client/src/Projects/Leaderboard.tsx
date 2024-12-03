@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styles from './Leaderboard.module.css';
 import Navigation from '../components/Navigation';
 
-const Leaderboard = () => {
+function Leaderboard() {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
@@ -38,7 +38,9 @@ const Leaderboard = () => {
             {users.map((user, index) => (
               <tr key={user._id}>
                 <td>{index + 1}</td>
-                <td>{user.firstName} {user.lastName}</td>
+                <td>
+                  {user.firstName} {user.lastName}
+                </td>
                 <td>{user.points}</td>
                 <td>{user.league}</td>
               </tr>
@@ -48,6 +50,6 @@ const Leaderboard = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Leaderboard;

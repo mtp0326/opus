@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import styles from './Leaderboard.module.css';
 import Navigation from '../components/Navigation';
+import { getData } from '../util/api';
+// import IUser from '../util/types/user'; // Ensure this import is correct
+import { IUser } from 'server/src/models/user.model.ts';
 
 const Leaderboard = () => {
-  const [users, setUsers] = useState([]);
+  // const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<IUser[]>([]); // Use IUser type for users
 
   useEffect(() => {
     // Fetch leaderboard data from the server

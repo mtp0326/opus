@@ -24,17 +24,19 @@
     "heroku-postbuild": "cd client && yarn install && yarn build && cd ../server && yarn install --production=false && yarn build"
   },
   "dependencies": {
-    "@emotion/react": "^11.13.5",
-    "@emotion/styled": "^11.13.5",
-    "@mui/icons-material": "^6.1.8",
-    "@mui/material": "^5.16.8",
+    "@emotion/react": "^11.7.1",
+    "@emotion/styled": "^11.6.0",
+    "@mui/icons-material": "^6.1.9",
+    "@mui/material": "^5.4.1",
     "@mui/system": "^5.5.1",
+    "@types/nouislider": "^9.0.10",
     "axios": "^1.1.2",
     "concurrently": "^7.0.0",
     "dd-trace": "^5.22.0",
     "jsonwebtoken": "9.0.2",
     "label-studio": "^1.0.1",
     "label-studio-frontend": "^1.7.1",
+    "nouislider": "^15.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.2.2",
@@ -43,6 +45,7 @@
     "survey-creator-core": "^1.12.11",
     "survey-creator-react": "^1.12.12",
     "survey-react-ui": "^1.12.9",
+    "surveyjs-widgets": "^1.12.12",
     "winston": "^3.14.2"
   },
   "devDependencies": {
@@ -62,7 +65,7 @@
     "eslint-plugin-react-hooks": "^4.3.0",
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3",
-    "prettier": "^2.5.1",
+    "prettier": "^2.8.8",
     "ts-node-dev": "^2.0.0",
     "typescript": "^4.5.5"
   },

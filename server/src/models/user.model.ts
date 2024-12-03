@@ -50,8 +50,8 @@ const UserSchema = new mongoose.Schema({
   },
   league: {
     type: String,
-    enum: ['Bronze', 'Silver', 'Gold', 'Platinum'],
-    default: 'Bronze',
+    enum: ['Wood', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'],
+    default: 'Wood',
   },
   streak: {
     type: Number,
@@ -65,6 +65,11 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
+  userType: {
+    type: String,
+    enum: ['researcher', 'worker'],
+    required: true,
+  },
   points: {
     type: Number,
     default: 0,
@@ -72,11 +77,6 @@ const UserSchema = new mongoose.Schema({
   surveysCompleted: {
     type: Number,
     default: 0,
-  },
-  userType: {
-    type: String,
-    enum: ['researcher', 'worker'],
-    required: true,
   },
 });
 
@@ -110,45 +110,41 @@ export const updateLeague = async (userId: string) => {
 
   // Calculate points
   const completionSpeed = 5; // Example: calculate this based on actual data
-  user.points = calculatePoints(
-    user.streak,
-    user.surveysCompleted,
-    completionSpeed,
-  );
+  user.points = calculatePoints(user.streak, user.surveysCompleted, completionSpeed);
 
   // Update league based on points
-  if (user.points >= 100) {
+  if (user.points >= 8001) {
+    user.league = 'Diamond';
+  } else if (user.points >= 5001) {
     user.league = 'Platinum';
-  } else if (user.points >= 50) {
+  } else if (user.points >= 3001) {
     user.league = 'Gold';
-  } else if (user.points >= 20) {
+  } else if (user.points >= 2001) {
     user.league = 'Silver';
-  } else {
+  } else if (user.points >= 1001) {
     user.league = 'Bronze';
+  } else {
+    user.league = 'Wood';
   }
 
   await user.save();
 };
 
-function calculateLotteryRewards(
-  totalBudget: number,
-  numParticipants: number,
-  baseFee: number,
-  highestReward: number,
-  decayRate: number,
-) {
-  const lotteryPool = totalBudget - numParticipants * baseFee;
+function calculateLotteryRewards(totalBudget: number, numParticipants: number, baseFee: number, highestReward: number, decayRate: number) {
+  const lotteryPool = totalBudget - (numParticipants * baseFee);
+  const biWeeklyJackpot = 0.1 * lotteryPool;
+  const adjustedLotteryPool = lotteryPool - biWeeklyJackpot;
   const rewards = [];
-  let remainingPool = lotteryPool;
+  let remainingPool = adjustedLotteryPool;
 
   for (let i = 0; i < numParticipants; i++) {
-    const reward = highestReward * (1 - decayRate) ** i;
+    const reward = highestReward * Math.pow(1 - decayRate, i);
     rewards.push(reward);
     remainingPool -= reward;
     if (remainingPool <= 0) break;
   }
 
-  return rewards;
+  return { rewards, biWeeklyJackpot };
 }
 
 function calculateProbabilities(numParticipants: number) {
@@ -159,11 +155,7 @@ function calculateProbabilities(numParticipants: number) {
   };
 }
 
-function calculatePoints(
-  streak: number,
-  surveysCompleted: number,
-  completionSpeed: number,
-): number {
+function calculatePoints(streak: number, surveysCompleted: number, completionSpeed: number): number {
   const basePoints = 10;
   const streakBonus = streak * 2; // Example: 2 points per day of streak
   const surveyBonus = surveysCompleted * 5; // Example: 5 points per survey completed
@@ -176,3 +168,86 @@ function applyBoosters(userId: string, boosterType: string) {
   // Logic to apply boosters to a user's account
   // This could involve increasing points or chances to win
 }
+
+export const generateLeaderboard = async () => {
+  const users = await User.find({}).sort({ points: -1 });
+  const leaderboard = users.map((user, index) => {
+    let leagueMultiplier = 1;
+
+    // Assign multiplier based on league
+    switch (user.league) {
+      case 'Wood':
+        leagueMultiplier = 0.8;
+        break;
+      case 'Bronze':
+        leagueMultiplier = 1;
+        break;
+      case 'Silver':
+        leagueMultiplier = 1.2;
+        break;
+      case 'Gold':
+        leagueMultiplier = 1.5;
+        break;
+      case 'Platinum':
+        leagueMultiplier = 2;
+        break;
+      case 'Diamond':
+        leagueMultiplier = 2.5;
+        break;
+    }
+
+    // Rank the user with league multipliers taken into account
+    return {
+      rank: index + 1,
+      userId: user._id,
+      name: `${user.firstName} ${user.lastName}`,
+      points: user.points,
+      adjustedPoints: user.points * leagueMultiplier,
+      league: user.league,
+    };
+  });
+
+  return leaderboard;
+};
+
+export const distributeLotteryRewards = async (totalBudget: number, baseFee: number, highestReward: number, decayRate: number) => {
+  const users = await User.find({}).sort({ points: -1 });
+  const numParticipants = users.length;
+
+  const { rewards, biWeeklyJackpot } = calculateLotteryRewards(totalBudget, numParticipants, baseFee, highestReward, decayRate);
+
+  for (let i = 0; i < users.length; i++) {
+    if (i < rewards.length) {
+      users[i].tickets += rewards[i];
+      await users[i].save();
+    }
+  }
+
+  await distributeBiWeeklyJackpot(biWeeklyJackpot);
+};
+
+export const distributeBiWeeklyJackpot = async (biWeeklyJackpot: number) => {
+  const leagues = ['Wood', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
+
+  for (const league of leagues) {
+    const usersInLeague = await User.find({ league });
+    if (usersInLeague.length > 0) {
+      const randomIndex = Math.floor(Math.random() * usersInLeague.length);
+      const winningUser = usersInLeague[randomIndex];
+      winningUser.tickets += biWeeklyJackpot / leagues.length;
+      await winningUser.save();
+    }
+  }
+};
+
+export const rewardTopPerformers = async () => {
+  const leaderboard = await generateLeaderboard();
+  leaderboard.forEach(async (user, index) => {
+    const additionalTickets = Math.max(0, 10 - index); // Example: reward top users with decreasing tickets based on rank
+    const foundUser = await User.findById(user.userId);
+    if (foundUser && additionalTickets > 0) {
+      foundUser.tickets += additionalTickets;
+      await foundUser.save();
+    }
+  });
+};

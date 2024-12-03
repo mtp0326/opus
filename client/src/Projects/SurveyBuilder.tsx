@@ -5,6 +5,11 @@ import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import { SurveyCreatorComponent, SurveyCreator } from 'survey-creator-react';
 import 'survey-core/defaultV2.min.css';
 import 'survey-creator-core/survey-creator-core.min.css';
+// import noUiSlider from 'nouislider';
+// import 'nouislider/dist/nouislider.css';
+// import * as widgets from 'surveyjs-widgets';
+import * as SurveyCore from 'survey-core';
+
 import { slk } from 'survey-core';
 import {
   Button,
@@ -55,7 +60,10 @@ function SurveyBuilder() {
     creatorRef.current = c;
 
     // Save survey state when it changes
-    c.saveSurveyFunc = (saveNo: number, callback: Function) => {
+    c.saveSurveyFunc = (
+      saveNo: number,
+      callback: (saveNo: number, success: boolean) => void,
+    ) => {
       localStorage.setItem('currentSurvey', JSON.stringify(c.JSON));
       callback(saveNo, true);
     };

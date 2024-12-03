@@ -102,6 +102,7 @@ function App() {
                   {/* Routes accessed only if user is authenticated and researcher */}
                   <Route element={<WorkerRoutesWrapper />}>
                     <Route path="/whome" element={<WorkerHomePage />} />
+                    <Route path="/leaderboard" element={<Leaderboard />} />
                     <Route
                       path="/wrecommended"
                       element={<RecommendationPage />}

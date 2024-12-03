@@ -2,7 +2,9 @@ import express, { Request, Response } from 'express';
 import { isAuthenticated } from '../controllers/auth.middleware.ts';
 import {
   publishSurvey,
-  getSurveys,
+  getResearcherSurveys,
+  getUserSurveys,
+  getAllSurveys,
   saveSurvey,
   editSurvey,
   deleteSurvey,
@@ -24,8 +26,24 @@ const router = express.Router();
  * A GET route to fetch published surveys
  * Expects a query parameter to filter surveys by publisher
  */
-router.get('/published', isAuthenticated, getSurveys as express.RequestHandler);
+router.get(
+  '/published',
+  isAuthenticated,
+  getResearcherSurveys as express.RequestHandler,
+);
 router.post('/save', isAuthenticated, saveSurvey as express.RequestHandler);
+
+router.get(
+  '/all-surveys',
+  isAuthenticated,
+  getAllSurveys as express.RequestHandler,
+);
+
+router.get(
+  '/:userEmail/surveys',
+  isAuthenticated,
+  getUserSurveys as express.RequestHandler,
+);
 
 /**
  * A POST route to edit an existing survey

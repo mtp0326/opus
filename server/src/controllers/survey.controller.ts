@@ -1,4 +1,6 @@
 import { Request, Response } from 'express';
+import express from 'express';
+import ApiError from '../util/apiError.ts';
 import mongoose from 'mongoose';
 import Survey from '../models/survey.model.ts';
 import { IUser } from '../models/user.model.ts';
@@ -52,7 +54,7 @@ export const publishSurvey = async (
   }
 };
 
-export const getSurveys = async (
+export const getResearcherSurveys = async (
   req: Request & { user?: IUser },
   res: Response,
 ) => {
@@ -69,6 +71,89 @@ export const getSurveys = async (
         createdBy: req.user?._id,
       })
         .select('_id title description content createdAt status') // Explicitly select content
+        .sort({ createdAt: -1 }),
+    ]);
+
+    // Combine and format the results
+    const allSurveys = [
+      ...externalSurveys,
+      ...jsSurveys.map((survey) => ({
+        ...survey.toObject(),
+        surveyType: 'surveyjs', // Add identifier for frontend
+      })),
+    ];
+
+    console.log('🔍 Found surveys:', allSurveys.length);
+    console.log('📊 Query results:', JSON.stringify(allSurveys, null, 2));
+
+    return res.json(allSurveys);
+  } catch (error) {
+    console.error('❌ Error fetching surveys:', error);
+    return res.status(500).json({ message: 'Error fetching surveys' });
+  }
+};
+
+export const getUserSurveys = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction,
+) => {
+  const { userEmail } = req.params;
+  if (!userEmail) {
+    next(ApiError.missingFields(['userId']));
+    return;
+  }
+  try {
+    // Fetch from both collections
+    const [externalSurveys, jsSurveys] = await Promise.all([
+      Survey.find({
+        submitterList: userEmail,
+      })
+        .select('_id title description createdAt surveyUrl status') // Explicitly select content
+        .sort({ createdAt: -1 }),
+
+      SurveyJs.find({
+        submitterList: userEmail,
+      })
+        .select('_id title description createdAt status') // Explicitly select content
+        .sort({ createdAt: -1 }),
+    ]);
+
+    // Combine and format the results
+    const allSurveys = [
+      ...externalSurveys,
+      ...jsSurveys.map((survey) => ({
+        ...survey.toObject(),
+        surveyType: 'surveyjs', // Add identifier for frontend
+      })),
+    ];
+
+    console.log('🔍 Found surveys:', allSurveys.length);
+    console.log('📊 Query results:', JSON.stringify(allSurveys, null, 2));
+
+    return res.json(allSurveys);
+  } catch (error) {
+    console.error('❌ Error fetching surveys:', error);
+    return res.status(500).json({ message: 'Error fetching surveys' });
+  }
+};
+
+export const getAllSurveys = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction,
+) => {
+  try {
+    // Fetch from both collections
+    const [externalSurveys, jsSurveys] = await Promise.all([
+      Survey.find({})
+        .select(
+          '_id title description createdAt surveyUrl status submitterList',
+        ) // Explicitly select content
+        .sort({ createdAt: -1 }),
+
+      SurveyJs.find({})
+        .select('_id title description createdAt status submitterList') // Explicitly select content
         .sort({ createdAt: -1 }),
     ]);
 

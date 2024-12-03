@@ -171,7 +171,7 @@ function ResearcherLoginPage() {
         <FormCol>
           <Grid item container justifyContent="center">
             <Typography variant="h2" textAlign="center">
-              Welcome to Boilerplate
+              Welcome to Opus Research
             </Typography>
           </Grid>
           <Grid item width="1">

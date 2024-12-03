@@ -12,6 +12,7 @@ interface ISurvey {
   status: 'active' | 'completed' | 'expired' | 'draft';
   createdBy: string;
   createdAt: Date;
+  submitterList: string[];
   instructions: string;
 }
 
@@ -61,6 +62,10 @@ const surveySchema = new mongoose.Schema<ISurvey>({
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  submitterList: {
+    type: [String],
+    default: [],
   },
   status: {
     type: String,

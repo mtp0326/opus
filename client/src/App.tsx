@@ -40,6 +40,7 @@ import SurveyCompletion from './Projects/SurveyCompletion.tsx';
 import Leaderboard from './Projects/Leaderboard.tsx';
 // import LabelData from './Projects/LabelData';
 import SurveyBuilderSetup from './Projects/SurveyBuilderSetup.tsx';
+import RecommendationPage from './UserPages/RecommendationPage.tsx';
 
 function App() {
   return (
@@ -101,6 +102,10 @@ function App() {
                   {/* Routes accessed only if user is authenticated and researcher */}
                   <Route element={<WorkerRoutesWrapper />}>
                     <Route path="/whome" element={<WorkerHomePage />} />
+                    <Route
+                      path="/wrecommended"
+                      element={<RecommendationPage />}
+                    />
                     <Route
                       path="/surveys/:surveyId/complete"
                       element={<SurveyCompletion />}

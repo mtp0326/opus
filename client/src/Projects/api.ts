@@ -200,6 +200,19 @@ export const getLeaderboard = async (): Promise<IUser[]> => {
   return response.data; // Ensure this matches the expected data structure
 };
 
+export const getSurveyById = async (surveyId: string) => {
+  console.log('🔍 Fetching survey:', surveyId);
+
+  const response = await getData(`surveys/js/${surveyId}`);
+
+  if (response.error) {
+    console.error('❌ Failed to fetch survey:', response.error);
+    throw new Error(response.error.message || 'Failed to fetch survey');
+  }
+
+  return response.data;
+};
+
 export {
   publishSurvey,
   getPublishedSurveys,

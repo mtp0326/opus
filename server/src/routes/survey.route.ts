@@ -13,6 +13,7 @@ import {
   loadSurveyJs,
   getDraftSurveys,
   editSurveyJs,
+  getSurveyById,
 } from '../controllers/survey.controller.ts';
 import { IUser } from '../models/user.model.ts';
 
@@ -104,5 +105,11 @@ router.put(
   isAuthenticated,
   editSurveyJs as express.RequestHandler,
 );
+
+/**
+ * A GET route to fetch a single survey by ID
+ * Expects surveyId in URL params
+ */
+router.get('/js/:surveyId', isAuthenticated, getSurveyById as express.RequestHandler);
 
 export default router;

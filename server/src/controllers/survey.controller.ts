@@ -464,3 +464,35 @@ export const editSurveyJs = async (
     });
   }
 };
+
+export const getSurveyById = async (
+  req: Request & { user?: IUser },
+  res: Response,
+) => {
+  try {
+    const { surveyId } = req.params;
+    console.log('🔍 Fetching survey by ID:', surveyId);
+
+    // Try to find in both collections
+    const [externalSurvey, jsSurvey] = await Promise.all([
+      Survey.findById(surveyId),
+      SurveyJs.findById(surveyId),
+    ]);
+
+    const survey = externalSurvey || jsSurvey;
+
+    if (!survey) {
+      return res.status(404).json({ error: { message: 'Survey not found' } });
+    }
+
+    console.log('✅ Found survey:', survey._id);
+    return res.json({ data: survey });
+  } catch (error) {
+    console.error('❌ Error fetching survey:', error);
+    return res.status(500).json({
+      error: {
+        message: error instanceof Error ? error.message : 'Failed to fetch survey',
+      },
+    });
+  }
+};

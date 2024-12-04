@@ -29,18 +29,17 @@ import SurveyBuilder from './Projects/SurveyBuilder.tsx';
 import SurveyPreview from './Projects/SurveyPreview';
 import PublishSurvey from './Projects/PublishSurvey.tsx';
 import ManageTasks from './Projects/ManageTasks.tsx';
-// import LabelData from './Projects/LabelData';
 import WorkerLoginPage from './Authentication/WorkerLoginPage.tsx';
 import ResearcherLoginPage from './Authentication/ResearcherLoginPage.tsx';
 import WorkerRegisterPage from './Authentication/WorkerRegisterPage.tsx';
 import ResearcherRegisterPage from './Authentication/ResearcherRegisterPage.tsx';
 import HomePage from './Home/HomePage.tsx';
 import SurveyCompletion from './Projects/SurveyCompletion.tsx';
-// import LabelData from './Projects/LabelData';
 import Leaderboard from './Projects/Leaderboard.tsx';
-// import LabelData from './Projects/LabelData';
 import SurveyBuilderSetup from './Projects/SurveyBuilderSetup.tsx';
 import RecommendationPage from './UserPages/RecommendationPage.tsx';
+import TakeSurveyLink from './UserPages/TakeSurveyLink';
+import TakeSurveyJs from './UserPages/TakeSurveyJs';
 
 function App() {
   return (
@@ -99,7 +98,7 @@ function App() {
                     <Route path="/users" element={<AdminDashboardPage />} />
                   </Route>
 
-                  {/* Routes accessed only if user is authenticated and researcher */}
+                  {/* Routes accessed only if user is authenticated and worker */}
                   <Route element={<WorkerRoutesWrapper />}>
                     <Route path="/whome" element={<WorkerHomePage />} />
                     <Route path="/leaderboard" element={<Leaderboard />} />
@@ -111,11 +110,17 @@ function App() {
                       path="/surveys/:surveyId/complete"
                       element={<SurveyCompletion />}
                     />
-
-                    {/* Add other worker-specific routes here */}
+                    <Route
+                      path="/take-survey-link/:surveyId"
+                      element={<TakeSurveyLink />}
+                    />
+                    <Route
+                      path="/take-survey-js/:surveyId"
+                      element={<TakeSurveyJs />}
+                    />
                   </Route>
 
-                  {/* Route which redirects to a different page depending on if the user is an authenticated or not by utilizing the DynamicRedirect component */}
+                  {/* Route which redirects to a different page depending on if the user is authenticated or not */}
                   <Route path="/" element={<HomePage />} />
                   <Route
                     path="/wlogin"

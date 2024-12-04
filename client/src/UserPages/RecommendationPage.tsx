@@ -9,12 +9,14 @@ import { selectUser } from '../util/redux/userSlice.ts';
 import { getData } from '../util/api';
 
 interface SurveyData {
-  id: number;
+  _id: string;
   title: string;
   description: string;
-  surveyUrl: string;
+  surveyUrl?: string;
+  content?: any;
+  surveyType?: 'surveyjs' | undefined;
   submitterList: string[];
-  status: 'active' | 'inactive'; // Added status property
+  status: 'active' | 'inactive';
 }
 
 function RecommendationPage() {
@@ -46,21 +48,7 @@ function RecommendationPage() {
       }
     };
     fetchOutcomes();
-  }, []);
-
-  //   useEffect(() => {
-  //     const fetchOutcomes = async () => {
-  //       if (!user.email) return;
-  //       try {
-  //         const response = await getData(`surveys/${user.email}/surveys`);
-  //         setFilledSurveyData(response.data);
-  //         console.log('Survey data:', response.data);
-  //       } catch (error) {
-  //         console.error('Error fetching data:', error);
-  //       }
-  //     };
-  //     fetchOutcomes();
-  //   }, []);
+  }, [user.email]);
 
   return (
     <>
@@ -91,10 +79,6 @@ function RecommendationPage() {
               Recent Activity
             </Typography>
             <ScrollBar recommendations={filledSurveyData} />
-
-            {/* <Typography variant="h4" sx={{ mb: 4 }}>
-              Statistics
-            </Typography> */}
           </Stack>
         </Box>
       </ScreenGrid>

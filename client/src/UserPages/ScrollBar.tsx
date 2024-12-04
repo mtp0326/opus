@@ -10,13 +10,16 @@ import {
   Button,
 } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 interface Recommendation {
-  id: number;
+  _id: string;
   title: string;
   description: string;
-  surveyUrl: string;
-  status: 'active' | 'inactive'; // Status property
+  surveyUrl?: string;
+  content?: any;
+  surveyType?: 'surveyjs' | undefined;
+  status: 'active' | 'inactive';
 }
 
 interface ScrollBarProps {
@@ -25,10 +28,35 @@ interface ScrollBarProps {
 
 function ScrollBar({ recommendations }: ScrollBarProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const scroll = (scrollOffset: number) => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollLeft += scrollOffset;
+    }
+  };
+
+  const handleAcceptWork = (item: Recommendation) => {
+    if (item.surveyType === 'surveyjs') {
+      navigate(`/take-survey-js/${item._id}`, {
+        state: {
+          formData: {
+            title: item.title,
+            description: item.description,
+            content: item.content,
+          },
+        },
+      });
+    } else {
+      navigate(`/take-survey-link/${item._id}`, {
+        state: {
+          formData: {
+            title: item.title,
+            description: item.description,
+            surveyUrl: item.surveyUrl,
+          },
+        },
+      });
     }
   };
 
@@ -67,7 +95,7 @@ function ScrollBar({ recommendations }: ScrollBarProps) {
         <Box sx={{ display: 'flex', flexWrap: 'nowrap' }}>
           {recommendations?.map((item) => (
             <Card
-              key={item.id}
+              key={item._id}
               sx={{
                 position: 'relative', // Make the card a containing block
                 width: { xs: 150, sm: 200, md: 250 }, // Responsive widths
@@ -133,17 +161,14 @@ function ScrollBar({ recommendations }: ScrollBarProps) {
                   variant="contained"
                   color="primary"
                   size="small"
-                  component="a"
-                  href={item.surveyUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  onClick={() => handleAcceptWork(item)}
                   sx={{
-                    padding: '2px 6px', // Smaller padding
-                    fontSize: '0.7rem', // Smaller font size
-                    minWidth: 'unset', // Remove minimum width
+                    padding: '2px 6px',
+                    fontSize: '0.7rem',
+                    minWidth: 'unset',
                   }}
                 >
-                  Learn More
+                  Accept and Work
                 </Button>
               </Box>
             </Card>

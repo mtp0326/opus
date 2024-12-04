@@ -15,67 +15,58 @@ function TakeSurveyJs() {
   const [survey, setSurvey] = useState<Model | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isFound, setIsFound] = useState(false);
 
   useEffect(() => {
-    const loadSurvey = async () => {
+    const fetchSurvey = async () => {
       try {
         setIsLoading(true);
-        setError(null);
-
-        // If we don't have formData from navigation state, fetch it
-        if (!initialFormData && surveyId) {
-          console.log('Fetching survey data for ID:', surveyId);
-          const surveyData = await getSurveyById(surveyId);
-          console.log('Fetched survey data:', surveyData);
+        if (!isFound && surveyId) {
+          const response = await getSurveyById(surveyId);
+          const surveyData = response.data;
           setFormData({
             title: surveyData.title,
             description: surveyData.description,
             content: surveyData.content,
           });
+          setIsFound(true);
         }
-
-        // Now we should have formData either from navigation state or from API
-        if (formData?.content) {
-          console.log('Creating survey with content:', formData.content);
-          try {
-            // Parse the content if it's a string
-            const surveyContent =
-              typeof formData.content === 'string'
-                ? JSON.parse(formData.content)
-                : formData.content;
-
-            console.log('Parsed survey content:', surveyContent);
-
-            // Create survey model with the content
-            const surveyModel = new Model(surveyContent);
-            console.log('Survey model created:', surveyModel);
-
-            // Add completion handler
-            surveyModel.onComplete.add((sender) => {
-              const results = sender.data;
-              console.log('Survey results:', results);
-              alert('Thank you for completing the survey!');
-            });
-
-            setSurvey(surveyModel);
-          } catch (parseError) {
-            console.error('Error creating survey:', parseError);
-            setError('Error creating survey. Please try again later.');
-          }
-        } else {
-          console.error('No survey content available');
-          setError('Survey content not found.');
-        }
-      } catch (loadError) {
-        console.error('Error loading survey:', loadError);
+      } catch (fetchError) {
+        console.error('Error loading survey:', fetchError);
         setError('Error loading survey. Please try again later.');
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadSurvey();
-  }, [surveyId, initialFormData, formData]);
+    fetchSurvey();
+  }, [surveyId, isFound]);
+
+  useEffect(() => {
+    if (!formData?.content) {
+      setError('Survey content not found.');
+      return;
+    }
+
+    try {
+      const surveyContent =
+        typeof formData.content === 'string'
+          ? JSON.parse(formData.content)
+          : formData.content;
+
+      const surveyModel = new Model(surveyContent);
+      surveyModel.onComplete.add((sender) => {
+        console.log('Survey results:', sender.data);
+        alert('Thank you for completing the survey!');
+      });
+
+      setSurvey(surveyModel);
+      setError(null);
+    } catch (error) {
+      console.error('Error creating survey:', error);
+      setError('Error creating survey. Please try again later.');
+    }
+  }, [formData?.content]);
 
   if (isLoading) {
     return (
@@ -131,11 +122,6 @@ function TakeSurveyJs() {
       <Navigation2 />
       <div className={styles.container}>
         <div className={styles.previewBox}>
-          <div className={styles.surveyInfo}>
-            <h4>{formData.title}</h4>
-            <p>{formData.description}</p>
-          </div>
-
           <div className={styles.surveyContainer}>
             <Survey model={survey} />
           </div>

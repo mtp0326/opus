@@ -1,7 +1,6 @@
-import { Request, Response } from 'express';
-import express from 'express';
-import ApiError from '../util/apiError.ts';
+import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
+import ApiError from '../util/apiError.ts';
 import Survey from '../models/survey.model.ts';
 import { IUser } from '../models/user.model.ts';
 import SurveySubmission from '../models/surveySubmission.model.ts';
@@ -476,7 +475,9 @@ export const getSurveyById = async (
     // Try to find in both collections
     const [externalSurvey, jsSurvey] = await Promise.all([
       Survey.findById(surveyId),
-      SurveyJs.findById(surveyId),
+      SurveyJs.findById(surveyId).select(
+        '_id title description content createdAt status',
+      ),
     ]);
 
     const survey = externalSurvey || jsSurvey;
@@ -486,12 +487,14 @@ export const getSurveyById = async (
     }
 
     console.log('✅ Found survey:', survey._id);
+    console.log('Survey content exists:', 'content' in survey);
     return res.json({ data: survey });
   } catch (error) {
     console.error('❌ Error fetching survey:', error);
     return res.status(500).json({
       error: {
-        message: error instanceof Error ? error.message : 'Failed to fetch survey',
+        message:
+          error instanceof Error ? error.message : 'Failed to fetch survey',
       },
     });
   }

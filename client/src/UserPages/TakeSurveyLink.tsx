@@ -30,7 +30,7 @@ function TakeSurveyLink() {
       <div className={styles.container}>
         <div className={styles.previewBox}>
           <div className={styles.surveyInfo}>
-            <h4>{formData.title}</h4>
+            <h4 style={{ textAlign: 'center' }}>{formData.title}</h4>
             <p>{formData.description}</p>
           </div>
 

@@ -24,6 +24,36 @@ interface CustomRequest extends Request {
 const router = express.Router();
 
 /**
+ * A GET route to fetch a single survey by ID
+ * Expects surveyId in URL params
+ */
+router.get(
+  '/js/:surveyId',
+  isAuthenticated,
+  getSurveyById as express.RequestHandler,
+);
+
+router.post(
+  '/js/save',
+  isAuthenticated,
+  saveSurveyJs as express.RequestHandler,
+);
+
+router.get('/js/load', isAuthenticated, loadSurveyJs as express.RequestHandler);
+
+router.get(
+  '/js/drafts',
+  isAuthenticated,
+  getDraftSurveys as express.RequestHandler,
+);
+
+router.put(
+  '/js/:surveyId/edit',
+  isAuthenticated,
+  editSurveyJs as express.RequestHandler,
+);
+
+/**
  * A GET route to fetch published surveys
  * Expects a query parameter to filter surveys by publisher
  */
@@ -85,31 +115,5 @@ router.post(
   isAuthenticated,
   submitSurveyCompletion as express.RequestHandler,
 );
-
-router.post(
-  '/js/save',
-  isAuthenticated,
-  saveSurveyJs as express.RequestHandler,
-);
-
-router.get('/js/load', isAuthenticated, loadSurveyJs as express.RequestHandler);
-
-router.get(
-  '/js/drafts',
-  isAuthenticated,
-  getDraftSurveys as express.RequestHandler,
-);
-
-router.put(
-  '/js/:surveyId/edit',
-  isAuthenticated,
-  editSurveyJs as express.RequestHandler,
-);
-
-/**
- * A GET route to fetch a single survey by ID
- * Expects surveyId in URL params
- */
-router.get('/js/:surveyId', isAuthenticated, getSurveyById as express.RequestHandler);
 
 export default router;

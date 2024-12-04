@@ -130,6 +130,28 @@ const getAllUsersFromDB = async () => {
 };
 
 /**
+ * @returns The {@link User}s in the database without their passwords.
+ */
+const getWorkerInfoFromDB = async (userEmail: string) => {
+  const worker = await User.find({ userType: 'worker', email: userEmail })
+    .select(removeSensitiveDataQuery)
+    .exec();
+  return worker;
+};
+
+const postWorkerTagsFromDB = async (id: string, tagList: string[]) => {
+  console.log(tagList);
+  console.log(id);
+
+  const worker = await User.findByIdAndUpdate(id, {
+    $set: { onboarded: true },
+  }).exec();
+
+  console.log(worker);
+  return worker;
+};
+
+/**
  * A function that upgrades a certain user to an admin.
  * @param id The id of the user to upgrade.
  * @returns The upgraded {@link User}
@@ -161,6 +183,8 @@ export {
   getUserByEmailWithPassword,
   getUserByResetPasswordToken,
   getAllUsersFromDB,
+  getWorkerInfoFromDB,
+  postWorkerTagsFromDB,
   upgradeUserToAdmin,
   deleteUserById,
 };

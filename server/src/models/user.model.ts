@@ -65,6 +65,10 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
+  onboarded: {
+    type: Boolean,
+    default: false,
+  },
   userType: {
     type: String,
     enum: ['researcher', 'worker'],
@@ -95,6 +99,7 @@ interface IUser extends mongoose.Document {
   streak: number;
   tickets: number;
   lastSurveyDate: Date | null | undefined;
+  onboarded: boolean;
   userType: 'researcher' | 'worker';
   points: number;
   surveysCompleted: number;
@@ -110,7 +115,11 @@ export const updateLeague = async (userId: string) => {
 
   // Calculate points
   const completionSpeed = 5; // Example: calculate this based on actual data
-  user.points = calculatePoints(user.streak, user.surveysCompleted, completionSpeed);
+  user.points = calculatePoints(
+    user.streak,
+    user.surveysCompleted,
+    completionSpeed,
+  );
 
   // Update league based on points
   if (user.points >= 8001) {
@@ -130,8 +139,14 @@ export const updateLeague = async (userId: string) => {
   await user.save();
 };
 
-function calculateLotteryRewards(totalBudget: number, numParticipants: number, baseFee: number, highestReward: number, decayRate: number) {
-  const lotteryPool = totalBudget - (numParticipants * baseFee);
+function calculateLotteryRewards(
+  totalBudget: number,
+  numParticipants: number,
+  baseFee: number,
+  highestReward: number,
+  decayRate: number,
+) {
+  const lotteryPool = totalBudget - numParticipants * baseFee;
   const biWeeklyJackpot = 0.1 * lotteryPool;
   const adjustedLotteryPool = lotteryPool - biWeeklyJackpot;
   const rewards = [];
@@ -155,7 +170,11 @@ function calculateProbabilities(numParticipants: number) {
   };
 }
 
-function calculatePoints(streak: number, surveysCompleted: number, completionSpeed: number): number {
+function calculatePoints(
+  streak: number,
+  surveysCompleted: number,
+  completionSpeed: number,
+): number {
   const basePoints = 10;
   const streakBonus = streak * 2; // Example: 2 points per day of streak
   const surveyBonus = surveysCompleted * 5; // Example: 5 points per survey completed
@@ -210,11 +229,22 @@ export const generateLeaderboard = async () => {
   return leaderboard;
 };
 
-export const distributeLotteryRewards = async (totalBudget: number, baseFee: number, highestReward: number, decayRate: number) => {
+export const distributeLotteryRewards = async (
+  totalBudget: number,
+  baseFee: number,
+  highestReward: number,
+  decayRate: number,
+) => {
   const users = await User.find({}).sort({ points: -1 });
   const numParticipants = users.length;
 
-  const { rewards, biWeeklyJackpot } = calculateLotteryRewards(totalBudget, numParticipants, baseFee, highestReward, decayRate);
+  const { rewards, biWeeklyJackpot } = calculateLotteryRewards(
+    totalBudget,
+    numParticipants,
+    baseFee,
+    highestReward,
+    decayRate,
+  );
 
   for (let i = 0; i < users.length; i++) {
     if (i < rewards.length) {

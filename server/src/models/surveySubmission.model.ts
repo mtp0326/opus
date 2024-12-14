@@ -52,4 +52,6 @@ surveySubmissionSchema.index(
   { unique: true },
 );
 
+surveySubmissionSchema.index({ survey: 1, worker: 1 }, { unique: true });
+
 export default mongoose.model('SurveySubmission', surveySubmissionSchema);

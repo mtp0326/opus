@@ -31,11 +31,8 @@ function RecommendationPage() {
         if (!user.email) return;
         const response = await getData(`surveys/all-surveys`);
         const allSurveys: SurveyData[] = response.data;
-        const activeSurveys: SurveyData[] = allSurveys.filter(
-          (survey) => survey.status === 'active',
-        );
-        setSurveyData(activeSurveys);
 
+        // Get surveys that the user has completed
         const filledSurveys: SurveyData[] = allSurveys.filter(
           (survey) =>
             user.email &&
@@ -43,6 +40,14 @@ function RecommendationPage() {
             survey.submitterList.includes(user.email),
         );
         setFilledSurveyData(filledSurveys);
+
+        // Get active surveys that the user hasn't completed yet
+        const activeSurveys: SurveyData[] = allSurveys.filter(
+          (survey) =>
+            survey.status === 'active' &&
+            (!survey.submitterList?.includes(user.email) || !user.email),
+        );
+        setSurveyData(activeSurveys);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -78,7 +83,7 @@ function RecommendationPage() {
             <Typography variant="h4" sx={{ mb: 4 }}>
               Recent Activity
             </Typography>
-            <ScrollBar recommendations={filledSurveyData} />
+            <ScrollBar recommendations={filledSurveyData} isRecentActivity />
           </Stack>
         </Box>
       </ScreenGrid>

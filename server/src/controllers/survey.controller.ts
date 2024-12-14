@@ -288,15 +288,34 @@ export const submitSurveyCompletion = async (
     const { surveyId } = req.params;
     const { completionCode } = req.body;
     const workerId = req.user?._id;
+    const workerEmail = req.user?.email;
 
-    if (!workerId) {
+    if (!workerId || !workerEmail) {
       return res.status(401).json({ message: 'User not authenticated' });
     }
 
-    // Check if survey exists
+    // Check if survey exists and is active
     const survey = await Survey.findById(surveyId);
     if (!survey) {
       return res.status(404).json({ message: 'Survey not found' });
+    }
+
+    if (survey.status !== 'active') {
+      return res.status(400).json({
+        message: 'This survey is no longer accepting submissions',
+      });
+    }
+
+    // Check if user has already submitted this survey
+    const existingSubmission = await SurveySubmission.findOne({
+      survey: surveyId,
+      worker: workerId,
+    });
+
+    if (existingSubmission) {
+      return res.status(400).json({
+        message: 'You have already submitted this survey',
+      });
     }
 
     // Create submission
@@ -308,7 +327,19 @@ export const submitSurveyCompletion = async (
       status: 'pending',
     });
 
-    await submission.save();
+    // Add user to submitter list and check if survey is complete
+    if (!survey.submitterList) {
+      survey.submitterList = [];
+    }
+    survey.submitterList.push(workerEmail);
+
+    // Check if we've reached the required number of respondents
+    if (survey.submitterList.length >= survey.respondents) {
+      survey.status = 'completed';
+    }
+
+    // Save both the submission and updated survey
+    await Promise.all([submission.save(), survey.save()]);
 
     res.status(201).json({
       message: 'Survey completion submitted successfully',
@@ -316,6 +347,16 @@ export const submitSurveyCompletion = async (
     });
   } catch (error) {
     console.error('Failed to submit survey completion:', error);
+    // Check if this is a duplicate key error
+    if (
+      error instanceof Error &&
+      error.name === 'MongoServerError' &&
+      (error as any).code === 11000
+    ) {
+      return res.status(400).json({
+        message: 'You have already submitted this survey',
+      });
+    }
     res.status(500).json({
       message: error instanceof Error ? error.message : 'Internal server error',
     });

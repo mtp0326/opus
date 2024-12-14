@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import Navigation2 from '../components/Navigation2';
 import styles from '../Projects/SurveyPreview.module.css';
 import { submitSurveyCompletion } from '../Projects/api';
@@ -7,6 +7,7 @@ import { submitSurveyCompletion } from '../Projects/api';
 function TakeSurveyLink() {
   const { surveyId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const { formData } = location.state || {};
   const [completionCode, setCompletionCode] = useState('');
 
@@ -17,7 +18,7 @@ function TakeSurveyLink() {
         completionCode,
       });
       alert('Survey completion submitted successfully!');
-      // You might want to navigate somewhere after successful submission
+      navigate('/whome');
     } catch (error) {
       console.error('Error submitting survey completion:', error);
       alert('Failed to submit survey completion');

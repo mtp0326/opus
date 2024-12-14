@@ -24,9 +24,10 @@ interface Recommendation {
 
 interface ScrollBarProps {
   recommendations: Recommendation[];
+  isRecentActivity?: boolean;
 }
 
-function ScrollBar({ recommendations }: ScrollBarProps) {
+function ScrollBar({ recommendations, isRecentActivity = false }: ScrollBarProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -149,28 +150,30 @@ function ScrollBar({ recommendations }: ScrollBarProps) {
                 </Typography>
               </Box>
 
-              {/* Button at Bottom Right */}
-              <Box
-                sx={{
-                  position: 'absolute',
-                  bottom: '8px',
-                  right: '8px',
-                }}
-              >
-                <Button
-                  variant="contained"
-                  color="primary"
-                  size="small"
-                  onClick={() => handleAcceptWork(item)}
+              {/* Button at Bottom Right - Only show if not in Recent Activity */}
+              {!isRecentActivity && (
+                <Box
                   sx={{
-                    padding: '2px 6px',
-                    fontSize: '0.7rem',
-                    minWidth: 'unset',
+                    position: 'absolute',
+                    bottom: '8px',
+                    right: '8px',
                   }}
                 >
-                  Accept and Work
-                </Button>
-              </Box>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                    onClick={() => handleAcceptWork(item)}
+                    sx={{
+                      padding: '2px 6px',
+                      fontSize: '0.7rem',
+                      minWidth: 'unset',
+                    }}
+                  >
+                    Accept and Work
+                  </Button>
+                </Box>
+              )}
             </Card>
           ))}
         </Box>

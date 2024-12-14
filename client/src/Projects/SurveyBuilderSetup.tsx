@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TextField, Button, Select, MenuItem, Paper, Box } from '@mui/material';
 import Navigation from '../components/Navigation';
-import styles from './SurveyLink.module.css'; // Reuse existing styles
+import styles from './SurveyLink.module.css';
+import { handleSurveyJsSave, handleSurveyJsEdit } from './api';
 
 interface FormData {
   reward: string;
@@ -65,21 +66,57 @@ function SurveyBuilderSetup() {
         const surveyId = localStorage.getItem('currentSurveyId');
         const surveyContent = savedSurvey ? JSON.parse(savedSurvey) : {};
 
+        console.log('📝 Current survey ID:', surveyId);
+        console.log('📦 Survey content:', surveyContent);
+
+        let response;
+        if (surveyId) {
+          // Edit existing survey
+          console.log('🔄 Editing existing survey...');
+          response = await handleSurveyJsEdit(surveyId, surveyContent, {
+            reward: Number(formData.reward),
+            respondents: Number(formData.respondents),
+            timeToComplete: Number(formData.timeToComplete),
+            expiresIn: Number(formData.expiresIn),
+            workerQualifications: formData.workerQualifications,
+          });
+          console.log('✅ Survey edited successfully:', response);
+        } else {
+          // Save new survey
+          console.log('✨ Creating new survey...');
+          const showAlert = (
+            message: string,
+            type: 'success' | 'error' | 'info',
+          ) => {
+            console.log(message);
+          };
+          response = await handleSurveyJsSave(
+            { current: { JSON: surveyContent } },
+            showAlert,
+          );
+          console.log('✅ Survey saved successfully:', response);
+        }
+
         // Navigate to payment review page with all necessary data
         navigate('/create-publish-test', {
           state: {
             formData: {
               ...formData,
+              reward: Number(formData.reward),
+              respondents: Number(formData.respondents),
+              timeToComplete: Number(formData.timeToComplete),
+              expiresIn: Number(formData.expiresIn),
               title: surveyContent.title || 'Untitled Survey',
               description: surveyContent.description || '',
               surveyType: 'surveyjs',
               content: surveyContent,
             },
-            surveyId, // Add the surveyId to the state
+            surveyId: response?.data?.data?._id || surveyId,
           },
         });
       } catch (error) {
         console.error('Error:', error);
+        alert('Failed to save survey. Please try again.');
       } finally {
         setIsLoading(false);
       }

@@ -5,6 +5,7 @@ import Survey from '../models/survey.model.ts';
 import { IUser } from '../models/user.model.ts';
 import SurveySubmission from '../models/surveySubmission.model.ts';
 import SurveyJs from '../models/surveyJs.model.ts';
+import SurveyJsSubmission from '../models/surveyJsSubmission.model.ts';
 
 export const publishSurvey = async (
   req: Request & { user?: IUser },
@@ -294,8 +295,13 @@ export const submitSurveyCompletion = async (
       return res.status(401).json({ message: 'User not authenticated' });
     }
 
-    // Check if survey exists and is active
-    const survey = await Survey.findById(surveyId);
+    // Check if survey exists in either collection
+    const [externalSurvey, jsSurvey] = await Promise.all([
+      Survey.findById(surveyId),
+      SurveyJs.findById(surveyId),
+    ]);
+
+    const survey = externalSurvey || jsSurvey;
     if (!survey) {
       return res.status(404).json({ message: 'Survey not found' });
     }
@@ -307,10 +313,15 @@ export const submitSurveyCompletion = async (
     }
 
     // Check if user has already submitted this survey
-    const existingSubmission = await SurveySubmission.findOne({
-      survey: surveyId,
-      worker: workerId,
-    });
+    const existingSubmission = jsSurvey
+      ? await SurveyJsSubmission.findOne({
+          survey: surveyId,
+          worker: workerId,
+        })
+      : await SurveySubmission.findOne({
+          survey: surveyId,
+          worker: workerId,
+        });
 
     if (existingSubmission) {
       return res.status(400).json({
@@ -318,14 +329,24 @@ export const submitSurveyCompletion = async (
       });
     }
 
-    // Create submission
-    const submission = new SurveySubmission({
-      survey: surveyId,
-      worker: workerId,
-      completionCode,
-      submissionUrl: survey.surveyUrl,
-      status: 'pending',
-    });
+    // Create appropriate submission type
+    let submission;
+    if (jsSurvey) {
+      submission = new SurveyJsSubmission({
+        survey: surveyId,
+        worker: workerId,
+        responseData: JSON.parse(completionCode), // Parse the JSON response data
+        status: 'pending',
+      });
+    } else {
+      submission = new SurveySubmission({
+        survey: surveyId,
+        worker: workerId,
+        completionCode,
+        submissionUrl: survey.surveyUrl || '',
+        status: 'pending',
+      });
+    }
 
     // Add user to submitter list and check if survey is complete
     if (!survey.submitterList) {
@@ -334,7 +355,7 @@ export const submitSurveyCompletion = async (
     survey.submitterList.push(workerEmail);
 
     // Check if we've reached the required number of respondents
-    if (survey.submitterList.length >= survey.respondents) {
+    if (survey.submitterList.length >= (survey.respondents || 0)) {
       survey.status = 'completed';
     }
 
@@ -479,11 +500,29 @@ export const editSurveyJs = async (
     }
 
     const { surveyId } = req.params;
-    const { title, description, content } = req.body;
+    const {
+      title,
+      description,
+      content,
+      reward,
+      respondents,
+      timeToComplete,
+      expiresIn,
+      workerQualifications,
+    } = req.body;
 
     const survey = await SurveyJs.findOneAndUpdate(
       { _id: surveyId, createdBy: req.user._id },
-      { title, description, content },
+      {
+        title,
+        description,
+        content,
+        reward,
+        respondents,
+        timeToComplete,
+        expiresIn,
+        workerQualifications,
+      },
       { new: true },
     );
 

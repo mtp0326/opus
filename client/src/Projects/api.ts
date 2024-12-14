@@ -213,6 +213,41 @@ export const getSurveyById = async (surveyId: string) => {
   return response.data;
 };
 
+export const handleSurveyJsEdit = async (
+  surveyId: string,
+  surveyContent: any,
+  setupData: {
+    reward: number;
+    respondents: number;
+    timeToComplete: number;
+    expiresIn: number;
+    workerQualifications: 'basic' | 'intermediate' | 'expert';
+  },
+) => {
+  try {
+    console.log('📤 Sending edit request for survey:', surveyId);
+    console.log('📦 Update data:', { surveyContent, setupData });
+
+    const response = await putData(`surveys/js/${surveyId}/edit`, {
+      title: surveyContent.title || 'Untitled Survey',
+      description: surveyContent.description || '',
+      content: surveyContent,
+      ...setupData,
+    });
+
+    if (response.error) {
+      console.error('❌ Edit request failed:', response.error);
+      throw new Error(response.error.message || 'Failed to edit survey');
+    }
+
+    console.log('✅ Survey edited successfully:', response.data);
+    return response;
+  } catch (error) {
+    console.error('❌ Failed to edit survey:', error);
+    throw error;
+  }
+};
+
 export {
   publishSurvey,
   getPublishedSurveys,

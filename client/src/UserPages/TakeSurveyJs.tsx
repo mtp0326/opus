@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 import 'survey-core/defaultV2.min.css';
 import Navigation2 from '../components/Navigation2';
 import styles from '../Projects/SurveyPreview.module.css';
-import { getSurveyById } from '../Projects/api';
+import { getSurveyById, submitSurveyCompletion } from '../Projects/api';
 
 function TakeSurveyJs() {
   const { surveyId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const { formData: initialFormData } = location.state || {};
   const [formData, setFormData] = useState(initialFormData);
   const [survey, setSurvey] = useState<Model | null>(null);
@@ -25,8 +26,6 @@ function TakeSurveyJs() {
           const response = await getSurveyById(surveyId);
           const surveyData = response.data;
           setFormData({
-            title: surveyData.title,
-            description: surveyData.description,
             content: surveyData.content,
           });
           setIsFound(true);
@@ -55,18 +54,27 @@ function TakeSurveyJs() {
           : formData.content;
 
       const surveyModel = new Model(surveyContent);
-      surveyModel.onComplete.add((sender) => {
-        console.log('Survey results:', sender.data);
-        alert('Thank you for completing the survey!');
+      surveyModel.onComplete.add(async (sender) => {
+        try {
+          console.log('Survey results:', sender.data);
+          await submitSurveyCompletion({
+            surveyId: surveyId!,
+            completionCode: JSON.stringify(sender.data),
+          });
+          navigate('/whome');
+        } catch (err) {
+          console.error('Error submitting survey:', err);
+          alert('Failed to submit survey. Please try again.');
+        }
       });
 
       setSurvey(surveyModel);
       setError(null);
-    } catch (error) {
-      console.error('Error creating survey:', error);
+    } catch (err) {
+      console.error('Error creating survey:', err);
       setError('Error creating survey. Please try again later.');
     }
-  }, [formData?.content]);
+  }, [formData?.content, navigate, surveyId]);
 
   if (isLoading) {
     return (

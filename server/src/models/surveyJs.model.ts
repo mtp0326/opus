@@ -14,6 +14,7 @@ interface ISurveyJs {
   expiresIn?: number;
   workerQualifications?: 'basic' | 'intermediate' | 'expert';
   status: 'active' | 'completed' | 'expired' | 'draft';
+  submitterList?: string[];
 }
 
 const surveyJsSchema = new mongoose.Schema<ISurveyJs>({
@@ -66,6 +67,10 @@ const surveyJsSchema = new mongoose.Schema<ISurveyJs>({
     type: String,
     enum: ['basic', 'intermediate', 'expert'],
     default: 'basic',
+  },
+  submitterList: {
+    type: [String],
+    default: [],
   },
   status: {
     type: String,

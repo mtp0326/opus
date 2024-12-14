@@ -512,7 +512,11 @@ export const editSurveyJs = async (
     } = req.body;
 
     const survey = await SurveyJs.findOneAndUpdate(
-      { _id: surveyId, createdBy: req.user._id },
+      {
+        _id: surveyId,
+        createdBy: req.user._id,
+        status: 'draft', // Only allow editing of draft surveys
+      },
       {
         title,
         description,
@@ -527,6 +531,13 @@ export const editSurveyJs = async (
     );
 
     if (!survey) {
+      // Check if survey exists but is not in draft status
+      const existingSurvey = await SurveyJs.findOne({ _id: surveyId });
+      if (existingSurvey && existingSurvey.status !== 'draft') {
+        return res.status(400).json({
+          error: { message: 'Only draft surveys can be edited' },
+        });
+      }
       return res.status(404).json({
         error: { message: 'Survey not found or unauthorized' },
       });

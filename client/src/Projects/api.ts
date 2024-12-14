@@ -159,7 +159,6 @@ export const handleSurveyJsSave = async (
       console.log('🔄 Updating existing survey:', savedSurveyId);
       response = await putData(`surveys/js/${savedSurveyId}/edit`, saveData);
     } else {
-      console.log('✨ Creating new survey');
       response = await postData('surveys/js/save', saveData);
       console.log('📦 Save response:', response);
       if (response.data?.data?._id) {

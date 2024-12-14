@@ -32,6 +32,11 @@ function PublishSurvey() {
       const publishedSurvey = await publishSurvey(surveyId);
       console.log('✅ Published survey:', publishedSurvey);
 
+      // Clear survey data from localStorage
+      localStorage.removeItem('currentSurvey');
+      localStorage.removeItem('currentSurveyId');
+      console.log('🗑️ Cleared survey data from localStorage');
+
       navigate('/rhome', {
         state: { message: 'Survey published successfully!' },
       });

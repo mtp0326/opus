@@ -359,14 +359,25 @@ export const submitSurveyCompletion = async (
       });
     }
 
-    // Add user to submitter list and check if survey is complete
+    // Add user to submitter list
     if (!survey.submitterList) {
       survey.submitterList = [];
     }
     survey.submitterList.push(workerEmail);
 
-    // Check if we've reached the required number of respondents
-    if (survey.submitterList.length >= (survey.respondents || 0)) {
+    // Count both pending and approved submissions
+    const validSubmissionsCount = await (jsSurvey
+      ? SurveyJsSubmission.countDocuments({
+          survey: surveyId,
+          status: { $in: ['pending', 'approved'] },
+        })
+      : SurveySubmission.countDocuments({
+          survey: surveyId,
+          status: { $in: ['pending', 'approved'] },
+        }));
+
+    // Check if we've reached the required number of valid submissions
+    if (validSubmissionsCount >= (survey.respondents || 0)) {
       survey.status = 'completed';
     }
 
@@ -627,6 +638,20 @@ export const getSurveyResults = async (
         .json({ error: { message: 'Survey not found or unauthorized' } });
     }
 
+    // Check if survey has expired, comment out for testing
+    // if (survey.status === 'active' && survey.expiresIn) {
+    //   const createdDate = new Date(survey.createdAt);
+    //   const expirationDate = new Date(
+    //     createdDate.getTime() + survey.expiresIn * 24 * 60 * 60 * 1000,
+    //   );
+
+    //   if (new Date() > expirationDate) {
+    //     // Update survey status to completed if expired
+    //     survey.status = 'completed';
+    //     await survey.save();
+    //   }
+    // }
+
     // Get submissions based on survey type
     const submissions = jsSurvey
       ? await SurveyJsSubmission.find({ survey: surveyId })
@@ -715,6 +740,23 @@ export const updateSubmissionsBatch = async (
         );
 
     const result = await updatePromise;
+
+    // Count both pending and approved submissions
+    const validSubmissionsCount = await (jsSurvey
+      ? SurveyJsSubmission.countDocuments({
+          survey: surveyId,
+          status: { $in: ['pending', 'approved'] },
+        })
+      : SurveySubmission.countDocuments({
+          survey: surveyId,
+          status: { $in: ['pending', 'approved'] },
+        }));
+
+    // Check if we've reached the required number of valid submissions
+    if (validSubmissionsCount >= (survey.respondents || 0)) {
+      survey.status = 'completed';
+      await survey.save();
+    }
 
     console.log(`✅ Updated ${result.modifiedCount} submissions to ${status}`);
     return res.json({

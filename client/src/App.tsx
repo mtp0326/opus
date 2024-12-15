@@ -40,6 +40,7 @@ import SurveyBuilderSetup from './Projects/SurveyBuilderSetup.tsx';
 import RecommendationPage from './UserPages/RecommendationPage.tsx';
 import TakeSurveyLink from './UserPages/TakeSurveyLink';
 import TakeSurveyJs from './UserPages/TakeSurveyJs';
+import SurveyResults from './Projects/SurveyResults';
 
 function App() {
   return (
@@ -91,6 +92,10 @@ function App() {
                     <Route
                       path="/survey-builder-setup"
                       element={<SurveyBuilderSetup />}
+                    />
+                    <Route
+                      path="/survey-results/:surveyId"
+                      element={<SurveyResults />}
                     />
                   </Route>
 

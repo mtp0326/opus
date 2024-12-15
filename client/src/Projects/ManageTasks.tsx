@@ -152,6 +152,28 @@ function ManageTasks() {
                               </Button>
                             </Box>
                           )}
+                          {(survey.status === 'active' ||
+                            survey.status === 'completed') && (
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                gap: 1,
+                                mt: 1,
+                                justifyContent: 'flex-end',
+                              }}
+                            >
+                              <Button
+                                variant="contained"
+                                color="primary"
+                                size="small"
+                                onClick={() =>
+                                  navigate(`/survey-results/${survey._id}`)
+                                }
+                              >
+                                Review Results
+                              </Button>
+                            </Box>
+                          )}
                         </Box>
                       </Grid>
                     </Grid>

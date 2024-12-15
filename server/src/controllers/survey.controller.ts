@@ -601,3 +601,59 @@ export const getSurveyById = async (
     });
   }
 };
+
+export const getSurveyResults = async (
+  req: Request & { user?: IUser },
+  res: Response,
+) => {
+  try {
+    const { surveyId } = req.params;
+    console.log('🔍 Fetching results for survey:', surveyId);
+
+    if (!req.user?._id) {
+      throw new Error('User not authenticated');
+    }
+
+    // Check if survey exists in either collection
+    const [externalSurvey, jsSurvey] = await Promise.all([
+      Survey.findOne({ _id: surveyId, createdBy: req.user._id }),
+      SurveyJs.findOne({ _id: surveyId, createdBy: req.user._id }),
+    ]);
+
+    const survey = externalSurvey || jsSurvey;
+    if (!survey) {
+      return res
+        .status(404)
+        .json({ error: { message: 'Survey not found or unauthorized' } });
+    }
+
+    // Get submissions based on survey type
+    const submissions = jsSurvey
+      ? await SurveyJsSubmission.find({ survey: surveyId })
+      : await SurveySubmission.find({ survey: surveyId });
+
+    console.log('✅ Found submissions:', submissions.length);
+    return res.json({
+      data: {
+        submissions,
+        surveyType: jsSurvey ? 'surveyjs' : 'external',
+        surveyDetails: {
+          title: survey.title,
+          description: survey.description,
+          respondents: survey.respondents || 0,
+          status: survey.status,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('❌ Error fetching survey results:', error);
+    return res.status(500).json({
+      error: {
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to fetch survey results',
+      },
+    });
+  }
+};

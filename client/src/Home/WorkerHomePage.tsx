@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import { NavigateFunction, useNavigate } from 'react-router-dom';
 import { Typography, Grid } from '@mui/material';
@@ -12,6 +12,7 @@ import { logout as logoutApi, selfUpgrade } from './api.tsx';
 import ScreenGrid from '../components/ScreenGrid.tsx';
 import PrimaryButton from '../components/buttons/PrimaryButton.tsx';
 import Navigation2 from '../components/Navigation2.tsx';
+import { getData } from '../util/api';
 
 interface PromoteButtonProps {
   admin: boolean | null;
@@ -61,6 +62,21 @@ function WorkerHomePage() {
   //     setAdmin(true);
   //   }
   // };
+  useEffect(() => {
+    const fetchOutcomes = async () => {
+      try {
+        if (!user.email) return;
+        const workerInfo = await getData(`worker/${user.email}`);
+        console.log(workerInfo);
+        if (workerInfo.data[0].onboarded === false) {
+          navigator('/wonboard', { replace: true });
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    fetchOutcomes();
+  }, []);
 
   const message = `Welcome to the Opus, ${user.firstName} ${user.lastName}!`;
   return (

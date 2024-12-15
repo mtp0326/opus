@@ -38,6 +38,7 @@ import SurveyCompletion from './Projects/SurveyCompletion.tsx';
 import Leaderboard from './Projects/Leaderboard.tsx';
 import SurveyBuilderSetup from './Projects/SurveyBuilderSetup.tsx';
 import RecommendationPage from './UserPages/RecommendationPage.tsx';
+import OnboardingPage from './UserPages/OnboardingPage.tsx';
 import TakeSurveyLink from './UserPages/TakeSurveyLink';
 import TakeSurveyJs from './UserPages/TakeSurveyJs';
 import SurveyResults from './Projects/SurveyResults';
@@ -107,6 +108,7 @@ function App() {
                   <Route element={<WorkerRoutesWrapper />}>
                     <Route path="/whome" element={<WorkerHomePage />} />
                     <Route path="/leaderboard" element={<Leaderboard />} />
+                    <Route path="/wonboard" element={<OnboardingPage />} />
                     <Route
                       path="/wrecommended"
                       element={<RecommendationPage />}

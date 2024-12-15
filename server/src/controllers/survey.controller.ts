@@ -287,7 +287,7 @@ export const submitSurveyCompletion = async (
 ) => {
   try {
     const { surveyId } = req.params;
-    const { completionCode } = req.body;
+    const { completionCode, responseData } = req.body;
     const workerId = req.user?._id;
     const workerEmail = req.user?.email;
 
@@ -332,13 +332,24 @@ export const submitSurveyCompletion = async (
     // Create appropriate submission type
     let submission;
     if (jsSurvey) {
+      if (!responseData) {
+        return res.status(400).json({
+          message: 'Response data is required for SurveyJS submissions',
+        });
+      }
       submission = new SurveyJsSubmission({
         survey: surveyId,
         worker: workerId,
-        responseData: JSON.parse(completionCode), // Parse the JSON response data
+        responseData,
         status: 'pending',
       });
     } else {
+      if (!completionCode) {
+        return res.status(400).json({
+          message:
+            'Completion code is required for external survey submissions',
+        });
+      }
       submission = new SurveySubmission({
         survey: surveyId,
         worker: workerId,

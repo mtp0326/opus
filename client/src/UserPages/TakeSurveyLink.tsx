@@ -16,6 +16,7 @@ function TakeSurveyLink() {
       await submitSurveyCompletion({
         surveyId: surveyId!,
         completionCode,
+        isSurveyJs: false,
       });
       alert('Survey completion submitted successfully!');
       navigate('/whome');

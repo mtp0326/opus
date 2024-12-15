@@ -106,6 +106,7 @@ function App() {
                       path="/wrecommended"
                       element={<RecommendationPage />}
                     />
+                    {/* do we even need this page? */}
                     <Route
                       path="/surveys/:surveyId/complete"
                       element={<SurveyCompletion />}

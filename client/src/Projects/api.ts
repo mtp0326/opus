@@ -22,6 +22,7 @@ interface SurveyData {
 interface SurveyCompletionData {
   surveyId: string;
   completionCode: string;
+  isSurveyJs: boolean;
 }
 
 /**
@@ -120,17 +121,28 @@ export const deleteSurvey = async (surveyId: string) => {
 };
 
 export const submitSurveyCompletion = async (data: SurveyCompletionData) => {
-  const response = await postData(`surveys/${data.surveyId}/submit`, {
-    completionCode: data.completionCode,
+  console.log('📤 Submitting survey completion:', {
+    surveyId: data.surveyId,
+    hasData: !!data.completionCode,
+    isSurveyJs: data.isSurveyJs,
   });
 
+  const payload = data.isSurveyJs
+    ? { responseData: JSON.parse(data.completionCode) }
+    : { completionCode: data.completionCode };
+
+  console.log('📦 Submission payload:', payload);
+
+  const response = await postData(`surveys/${data.surveyId}/submit`, payload);
+
   if (response.error) {
-    console.error('❌ Failed to submit completion code:', response.error);
+    console.error('❌ Failed to submit survey:', response.error);
     throw new Error(
       response.error.message || 'Failed to submit survey completion',
     );
   }
 
+  console.log('✅ Survey submitted successfully:', response.data);
   return response.data;
 };
 

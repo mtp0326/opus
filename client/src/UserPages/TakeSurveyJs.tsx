@@ -56,15 +56,29 @@ function TakeSurveyJs() {
       const surveyModel = new Model(surveyContent);
       surveyModel.onComplete.add(async (sender) => {
         try {
-          console.log('Survey results:', sender.data);
+          console.log('📝 Survey completed, preparing to submit results...');
+          const surveyData = sender.data;
+          console.log('📦 Survey response data:', surveyData);
+
           await submitSurveyCompletion({
             surveyId: surveyId!,
-            completionCode: JSON.stringify(sender.data),
+            completionCode: JSON.stringify(surveyData),
+            isSurveyJs: true
           });
+
+          console.log(
+            '✅ Survey submitted successfully, navigating to home...',
+          );
+          alert('Thank you for completing the survey!');
           navigate('/whome');
         } catch (err) {
-          console.error('Error submitting survey:', err);
-          alert('Failed to submit survey. Please try again.');
+          console.error('❌ Error submitting survey:', err);
+          const errorMessage =
+            err instanceof Error
+              ? err.message
+              : 'Failed to submit survey. Please try again.';
+          console.error('Error details:', errorMessage);
+          alert(errorMessage);
         }
       });
 

@@ -15,6 +15,7 @@ import {
   editSurveyJs,
   getSurveyById,
   getSurveyResults,
+  updateSubmissionsBatch,
 } from '../controllers/survey.controller.ts';
 import { IUser } from '../models/user.model.ts';
 
@@ -125,6 +126,16 @@ router.get(
   '/:surveyId/results',
   isAuthenticated,
   getSurveyResults as express.RequestHandler,
+);
+
+/**
+ * A PUT route to update submissions batch
+ * Expects surveyId in URL params
+ */
+router.put(
+  '/:surveyId/submissions/batch',
+  isAuthenticated,
+  updateSubmissionsBatch as express.RequestHandler,
 );
 
 export default router;

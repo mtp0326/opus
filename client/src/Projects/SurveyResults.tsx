@@ -13,9 +13,15 @@ import {
   TableHead,
   TableRow,
   LinearProgress,
+  Checkbox,
+  Button,
+  Stack,
+  Divider,
 } from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 import Navigation from '../components/Navigation';
-import { getData } from '../util/api.tsx';
+import { getData, putData } from '../util/api.tsx';
 
 interface SurveySubmission {
   _id: string;
@@ -44,6 +50,8 @@ function SurveyResults() {
   const [surveyDetails, setSurveyDetails] = useState<SurveyDetails | null>(
     null,
   );
+  const [selectedSubmissions, setSelectedSubmissions] = useState<string[]>([]);
+  const [processingAction, setProcessingAction] = useState(false);
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -66,6 +74,116 @@ function SurveyResults() {
 
     fetchResults();
   }, [surveyId]);
+
+  const pendingSubmissions = submissions.filter(s => s.status === 'pending');
+  const processedSubmissions = submissions.filter(s => s.status !== 'pending');
+
+  const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      setSelectedSubmissions(pendingSubmissions.map(s => s._id));
+    } else {
+      setSelectedSubmissions([]);
+    }
+  };
+
+  const handleSelectSubmission = (submissionId: string) => {
+    setSelectedSubmissions((prev) => {
+      if (prev.includes(submissionId)) {
+        return prev.filter((id) => id !== submissionId);
+      }
+      return [...prev, submissionId];
+    });
+  };
+
+  const handleBatchAction = async (action: 'approved' | 'rejected') => {
+    if (selectedSubmissions.length === 0) return;
+
+    setProcessingAction(true);
+    try {
+      await putData(`surveys/${surveyId}/submissions/batch`, {
+        submissionIds: selectedSubmissions,
+        status: action,
+      });
+
+      // Update local state
+      setSubmissions((prev) =>
+        prev.map((submission) =>
+          selectedSubmissions.includes(submission._id)
+            ? { ...submission, status: action }
+            : submission,
+        ),
+      );
+      setSelectedSubmissions([]);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to process submissions',
+      );
+    } finally {
+      setProcessingAction(false);
+    }
+  };
+
+  const SubmissionsTable = ({ data, showCheckboxes = false }: { data: SurveySubmission[], showCheckboxes?: boolean }) => (
+    <TableContainer component={Paper}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            {showCheckboxes && (
+              <TableCell padding="checkbox">
+                <Checkbox
+                  checked={selectedSubmissions.length === pendingSubmissions.length}
+                  indeterminate={selectedSubmissions.length > 0 && selectedSubmissions.length < pendingSubmissions.length}
+                  onChange={handleSelectAll}
+                />
+              </TableCell>
+            )}
+            <TableCell>Worker</TableCell>
+            {surveyType === 'external' ? (
+              <TableCell>Completion Code</TableCell>
+            ) : (
+              <TableCell>Response Data</TableCell>
+            )}
+            <TableCell>Status</TableCell>
+            <TableCell>Submitted At</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data.map((submission) => (
+            <TableRow
+              key={submission._id}
+              sx={{
+                backgroundColor:
+                  submission.status === 'approved'
+                    ? 'rgba(76, 175, 80, 0.1)'
+                    : submission.status === 'rejected'
+                    ? 'rgba(244, 67, 54, 0.1)'
+                    : 'inherit',
+              }}
+            >
+              {showCheckboxes && (
+                <TableCell padding="checkbox">
+                  <Checkbox
+                    checked={selectedSubmissions.includes(submission._id)}
+                    onChange={() => handleSelectSubmission(submission._id)}
+                  />
+                </TableCell>
+              )}
+              <TableCell>{submission.worker}</TableCell>
+              <TableCell>
+                {surveyType === 'external'
+                  ? submission.completionCode
+                  : JSON.stringify(submission.responseData)}
+              </TableCell>
+              <TableCell>{submission.status}</TableCell>
+              <TableCell>
+                {new Date(submission.submittedAt).toLocaleString()}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
 
   if (loading) {
     return (
@@ -147,42 +265,56 @@ function SurveyResults() {
             </>
           )}
 
-          <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
-            Submissions
-          </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mb: 2,
+            }}
+          >
+            <Typography variant="h6">Pending Submissions</Typography>
+            <Stack direction="row" spacing={2}>
+              <Button
+                variant="contained"
+                color="success"
+                startIcon={<CheckCircleIcon />}
+                disabled={selectedSubmissions.length === 0 || processingAction}
+                onClick={() => handleBatchAction('approved')}
+              >
+                Accept Selected
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                startIcon={<CancelIcon />}
+                disabled={selectedSubmissions.length === 0 || processingAction}
+                onClick={() => handleBatchAction('rejected')}
+              >
+                Deny Selected
+              </Button>
+            </Stack>
+          </Box>
 
-          <TableContainer component={Paper} sx={{ mt: 2 }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Worker</TableCell>
-                  {surveyType === 'external' ? (
-                    <TableCell>Completion Code</TableCell>
-                  ) : (
-                    <TableCell>Response Data</TableCell>
-                  )}
-                  <TableCell>Status</TableCell>
-                  <TableCell>Submitted At</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {submissions.map((submission) => (
-                  <TableRow key={submission._id}>
-                    <TableCell>{submission.worker}</TableCell>
-                    <TableCell>
-                      {surveyType === 'external'
-                        ? submission.completionCode
-                        : JSON.stringify(submission.responseData)}
-                    </TableCell>
-                    <TableCell>{submission.status}</TableCell>
-                    <TableCell>
-                      {new Date(submission.submittedAt).toLocaleString()}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          {pendingSubmissions.length > 0 ? (
+            <SubmissionsTable data={pendingSubmissions} showCheckboxes={true} />
+          ) : (
+            <Typography variant="body1" sx={{ textAlign: 'center', py: 3 }}>
+              No pending submissions
+            </Typography>
+          )}
+
+          <Box sx={{ mt: 4, mb: 2 }}>
+            <Typography variant="h6">Processed Submissions</Typography>
+          </Box>
+
+          {processedSubmissions.length > 0 ? (
+            <SubmissionsTable data={processedSubmissions} showCheckboxes={false} />
+          ) : (
+            <Typography variant="body1" sx={{ textAlign: 'center', py: 3 }}>
+              No processed submissions
+            </Typography>
+          )}
         </Paper>
       </Container>
     </>

@@ -657,3 +657,79 @@ export const getSurveyResults = async (
     });
   }
 };
+
+export const updateSubmissionsBatch = async (
+  req: Request & { user?: IUser },
+  res: Response,
+) => {
+  try {
+    const { surveyId } = req.params;
+    const { submissionIds, status } = req.body;
+
+    if (!req.user?._id) {
+      throw new Error('User not authenticated');
+    }
+
+    if (!submissionIds || !Array.isArray(submissionIds) || !status) {
+      return res.status(400).json({
+        error: { message: 'Invalid request. Missing submissionIds or status' },
+      });
+    }
+
+    if (!['approved', 'rejected'].includes(status)) {
+      return res.status(400).json({
+        error: { message: 'Invalid status. Must be "approved" or "rejected"' },
+      });
+    }
+
+    // Check if the survey exists and belongs to the user
+    const [externalSurvey, jsSurvey] = await Promise.all([
+      Survey.findOne({ _id: surveyId, createdBy: req.user._id }),
+      SurveyJs.findOne({ _id: surveyId, createdBy: req.user._id }),
+    ]);
+
+    const survey = externalSurvey || jsSurvey;
+    if (!survey) {
+      return res.status(404).json({
+        error: { message: 'Survey not found or unauthorized' },
+      });
+    }
+
+    // Update submissions based on survey type
+    const updatePromise = jsSurvey
+      ? SurveyJsSubmission.updateMany(
+          {
+            _id: { $in: submissionIds },
+            survey: surveyId,
+            status: 'pending', // Only update pending submissions
+          },
+          { $set: { status } },
+        )
+      : SurveySubmission.updateMany(
+          {
+            _id: { $in: submissionIds },
+            survey: surveyId,
+            status: 'pending', // Only update pending submissions
+          },
+          { $set: { status } },
+        );
+
+    const result = await updatePromise;
+
+    console.log(`✅ Updated ${result.modifiedCount} submissions to ${status}`);
+    return res.json({
+      message: `Successfully updated ${result.modifiedCount} submissions`,
+      modifiedCount: result.modifiedCount,
+    });
+  } catch (error) {
+    console.error('❌ Error updating submissions:', error);
+    return res.status(500).json({
+      error: {
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to update submissions',
+      },
+    });
+  }
+};

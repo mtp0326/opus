@@ -34,6 +34,12 @@ function Navigation2() {
           >
             Leaderboard
           </Button>
+          <Button
+            color="inherit"
+            onClick={() => handleNavigate('/account-info')}
+          >
+            Account Info
+          </Button>
         </Box>
       </Toolbar>
     </AppBar>

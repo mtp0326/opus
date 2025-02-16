@@ -27,7 +27,10 @@ interface ScrollBarProps {
   isRecentActivity?: boolean;
 }
 
-function ScrollBar({ recommendations, isRecentActivity = false }: ScrollBarProps) {
+function ScrollBar({
+  recommendations,
+  isRecentActivity = false,
+}: ScrollBarProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -115,11 +118,27 @@ function ScrollBar({ recommendations, isRecentActivity = false }: ScrollBarProps
                 <Typography
                   variant="h5"
                   gutterBottom
-                  sx={{ fontWeight: 'bold' }} // Make the title bold
+                  sx={{
+                    fontWeight: 'bold',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
                 >
                   {item.title}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    maxHeight: '3em',
+                  }}
+                >
                   {item.description}
                 </Typography>
               </CardContent>

@@ -8,7 +8,7 @@ import {
   toggleAdmin,
   selectUser,
 } from '../util/redux/userSlice.ts';
-import { logout as logoutApi, selfUpgrade } from './api.tsx';
+import { logout as logoutApi } from './api.tsx';
 import ScreenGrid from '../components/ScreenGrid.tsx';
 import PrimaryButton from '../components/buttons/PrimaryButton.tsx';
 import Navigation2 from '../components/Navigation2.tsx';
@@ -16,14 +16,12 @@ import { getData } from '../util/api';
 
 interface PromoteButtonProps {
   admin: boolean | null;
-  handleSelfPromote?: () => void;
   navigator: NavigateFunction;
 }
 
 /**
  * A button which, when clicked, will promote the user to admin. If the user is already admin, the button will be a link to the admin dashboard.
  * @param admin - a boolean indicating whether the user is an admin
- * @param handleSelfPromote - a function which promotes the user to admin
  * @param navigator - a function which navigates to a new page (passed in from parent function)
  */
 function PromoteButton({ admin, navigator }: PromoteButtonProps) {

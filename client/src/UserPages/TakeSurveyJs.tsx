@@ -4,7 +4,6 @@ import { Model, Serializer } from 'survey-core';
 import { Survey, ReactElementFactory } from 'survey-react-ui';
 import 'survey-core/defaultV2.min.css';
 import { Box, LinearProgress, Typography } from '@mui/material';
-import Navigation2 from '../components/Navigation2';
 import styles from '../Projects/SurveyPreview.module.css';
 import { getSurveyById, submitSurveyCompletion } from '../Projects/api';
 
@@ -13,14 +12,14 @@ interface SurveyProgressBarProps {
 }
 
 function SurveyProgressBar({ model }: SurveyProgressBarProps) {
-  const progress = Math.ceil(model.progressValue);
-  const title = model.getPropertyValue('progressTitle') || 'Survey Progress';
+  const progress = Math.ceil(model.progressValue) || 0; // Default to 0 if NaN
+  const title =
+    model.survey?.getPropertyValue('progressTitle') || 'Survey Progress';
 
   return (
     <Box sx={{ width: '100%', mb: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
         <Typography variant="body2">{title}</Typography>
-        <Typography variant="body2">{progress}% Complete</Typography>
       </Box>
       <LinearProgress
         variant="determinate"
@@ -67,16 +66,28 @@ function TakeSurveyJs() {
       try {
         setIsLoading(true);
         if (!isFound && surveyId) {
+          console.log('🔍 Attempting to fetch survey with ID:', surveyId);
+          console.log(
+            '🔗 Full URL that will be called:',
+            `surveys/js/${surveyId}`,
+          );
           const response = await getSurveyById(surveyId);
-          const surveyData = response.data;
+          console.log('📦 Survey response:', response);
+          if (!response.data) {
+            throw new Error('Survey data not found');
+          }
           setFormData({
-            content: surveyData.content,
+            content: response.data.content,
           });
           setIsFound(true);
         }
       } catch (fetchError) {
         console.error('Error loading survey:', fetchError);
-        setError('Error loading survey. Please try again later.');
+        setError(
+          fetchError instanceof Error
+            ? fetchError.message
+            : 'Error loading survey. Please try again later.',
+        );
       } finally {
         setIsLoading(false);
       }
@@ -149,7 +160,6 @@ function TakeSurveyJs() {
   if (isLoading) {
     return (
       <div className={styles.pageContainer}>
-        <Navigation2 />
         <div className={styles.container}>
           <div className={styles.previewBox}>
             <h4>Loading survey...</h4>
@@ -162,7 +172,6 @@ function TakeSurveyJs() {
   if (error) {
     return (
       <div className={styles.pageContainer}>
-        <Navigation2 />
         <div className={styles.container}>
           <div className={styles.previewBox}>
             <h4>Error</h4>
@@ -180,7 +189,6 @@ function TakeSurveyJs() {
   if (!survey) {
     return (
       <div className={styles.pageContainer}>
-        <Navigation2 />
         <div className={styles.container}>
           <div className={styles.previewBox}>
             <h4>Survey not found</h4>
@@ -197,11 +205,13 @@ function TakeSurveyJs() {
 
   return (
     <div className={styles.pageContainer}>
-      <Navigation2 />
       <div className={styles.container}>
         <div className={styles.previewBox}>
           <div className={styles.surveyContainer}>
-            <Survey model={survey} />
+            <Survey
+              model={survey}
+              css={{ root: { width: '100%', height: '100%' } }}
+            />
           </div>
         </div>
       </div>

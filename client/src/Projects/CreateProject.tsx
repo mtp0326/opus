@@ -38,13 +38,6 @@ function CreateProject() {
             >
               Survey Builder
             </Button>
-            <Button
-              variant="contained"
-              size="large"
-              onClick={() => navigate('/label-data')}
-            >
-              Label Data
-            </Button>
           </Stack>
         </Box>
       </ScreenGrid>

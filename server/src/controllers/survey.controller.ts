@@ -585,22 +585,22 @@ export const getSurveyById = async (
     const { surveyId } = req.params;
     console.log('🔍 Fetching survey by ID:', surveyId);
 
-    // Try to find in both collections
-    const [externalSurvey, jsSurvey] = await Promise.all([
-      Survey.findById(surveyId),
-      SurveyJs.findById(surveyId).select(
-        '_id title description content createdAt status',
-      ),
-    ]);
+    if (!surveyId) {
+      return res
+        .status(400)
+        .json({ error: { message: 'Survey ID is required' } });
+    }
 
-    const survey = externalSurvey || jsSurvey;
+    // Since this is called from /js/:surveyId, we only need to look in SurveyJs collection
+    const survey = await SurveyJs.findById(surveyId);
+    console.log('Found survey:', survey ? 'yes' : 'no');
 
     if (!survey) {
       return res.status(404).json({ error: { message: 'Survey not found' } });
     }
 
-    console.log('✅ Found survey:', survey._id);
-    console.log('Survey content exists:', 'content' in survey);
+    // Return the survey data
+    console.log('✅ Returning survey data');
     return res.json({ data: survey });
   } catch (error) {
     console.error('❌ Error fetching survey:', error);

@@ -8,6 +8,7 @@ module.exports = {
     'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
     'prettier/prettier': ['error', { endOfLine: 'auto' }],
     'import/extensions': [0, { tsx: 'always' }, { ts: 'always' }],
+    'no-underscore-dangle': ['error', { allow: ['_id'] }],
   },
   env: {
     browser: true,

@@ -1,11 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { Model } from 'survey-core';
-import { Survey } from 'survey-react-ui';
+import { Model, Serializer } from 'survey-core';
+import { Survey, ReactElementFactory } from 'survey-react-ui';
 import 'survey-core/defaultV2.min.css';
+import { Box, LinearProgress, Typography } from '@mui/material';
 import Navigation2 from '../components/Navigation2';
 import styles from '../Projects/SurveyPreview.module.css';
 import { getSurveyById, submitSurveyCompletion } from '../Projects/api';
+
+interface SurveyProgressBarProps {
+  model: Model;
+}
+
+function SurveyProgressBar({ model }: SurveyProgressBarProps) {
+  const progress = Math.ceil(model.progressValue);
+  const title = model.getPropertyValue('progressTitle') || 'Survey Progress';
+
+  return (
+    <Box sx={{ width: '100%', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+        <Typography variant="body2">{title}</Typography>
+        <Typography variant="body2">{progress}% Complete</Typography>
+      </Box>
+      <LinearProgress
+        variant="determinate"
+        value={progress}
+        sx={{
+          height: 10,
+          borderRadius: 5,
+          backgroundColor: '#e0e0e0',
+          '& .MuiLinearProgress-bar': {
+            backgroundColor: progress === 100 ? '#4caf50' : '#2196f3',
+          },
+        }}
+      />
+    </Box>
+  );
+}
+
+Serializer.addProperty('survey', {
+  name: 'progressTitle',
+  default: 'Survey Progress',
+  category: 'general',
+});
+
+ReactElementFactory.Instance.registerElement(
+  'survey-progress',
+  (props: { model: any }) => {
+    return <SurveyProgressBar model={props.model} />;
+  },
+);
 
 function TakeSurveyJs() {
   const { surveyId } = useParams();
@@ -54,6 +98,18 @@ function TakeSurveyJs() {
           : formData.content;
 
       const surveyModel = new Model(surveyContent);
+
+      surveyModel.showProgressBar = 'top';
+      surveyModel.progressBarType = 'questions';
+      surveyModel.setPropertyValue('progressTitle', 'Survey Progress');
+
+      surveyModel.addLayoutElement({
+        id: 'progress-bar',
+        component: 'survey-progress',
+        container: 'header',
+        data: { model: surveyModel },
+      });
+
       surveyModel.onComplete.add(async (sender) => {
         try {
           console.log('📝 Survey completed, preparing to submit results...');
@@ -63,7 +119,7 @@ function TakeSurveyJs() {
           await submitSurveyCompletion({
             surveyId: surveyId!,
             completionCode: JSON.stringify(surveyData),
-            isSurveyJs: true
+            isSurveyJs: true,
           });
 
           console.log(

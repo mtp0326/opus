@@ -65,12 +65,13 @@ function WorkerHomePage() {
   useEffect(() => {
     const fetchOutcomes = async () => {
       try {
-        if (!user.email) return;
-        const workerInfo = await getData(`worker/${user.email}`);
-        console.log(workerInfo);
-        if (workerInfo.data[0].onboarded === false) {
-          navigator('/wonboard', { replace: true });
-        }
+        // commenting out onboarding for now cause it wasn't working
+        // if (!user.email) return;
+        // const workerInfo = await getData(`worker/${user.email}`);
+        // console.log(workerInfo);
+        // if (workerInfo.data[0].onboarded === false) {
+        //   navigator('/wonboard', { replace: true });
+        // }
       } catch (error) {
         console.error('Error fetching data:', error);
       }

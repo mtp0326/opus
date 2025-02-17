@@ -117,16 +117,19 @@ function TakeSurveyJs() {
           const progressBarContainer = document.createElement('div');
           progressBarContainer.className = 'progress-bar-container';
           progressBarContainer.innerHTML = `
-            <div class="custom-progress-bar" style="height: 16px; border-radius: 8px; background-color: #e0e0e0;">
-              <div style="width: ${progress}%; height: 100%; border-radius: 8px; background-color: #89e219; transition: width 0.3s ease;"></div>
-              <div class="particles">
-                <span class="particle" style="--angle: 30deg"></span>
-                <span class="particle" style="--angle: 60deg"></span>
-                <span class="particle" style="--angle: 90deg"></span>
-                <span class="particle" style="--angle: 120deg"></span>
-                <span class="particle" style="--angle: 150deg"></span>
-                <span class="particle" style="--angle: 180deg"></span>
+            <div class="progress-wrapper">
+              <div class="custom-progress-bar" style="height: 16px; border-radius: 8px; background-color: #e0e0e0;">
+                <div style="width: ${progress}%; height: 100%; border-radius: 8px; background-color: #89e219; transition: width 0.3s ease;"></div>
+                <div class="particles">
+                  <span class="particle" style="--angle: 30deg"></span>
+                  <span class="particle" style="--angle: 60deg"></span>
+                  <span class="particle" style="--angle: 90deg"></span>
+                  <span class="particle" style="--angle: 120deg"></span>
+                  <span class="particle" style="--angle: 150deg"></span>
+                  <span class="particle" style="--angle: 180deg"></span>
+                </div>
               </div>
+              <img src="/assets/images/treasure-chest.png" class="treasure-chest" alt="treasure chest" width="24" height="24" />
             </div>
           `;
           descriptionElement.parentNode?.insertBefore(
@@ -216,10 +219,33 @@ function TakeSurveyJs() {
         }
 
         /* Progress bar container and particles positioning */
-        .custom-progress-bar {
+        .progress-bar-container {
+          margin-bottom: 16px;
+          width: 100%;
+          padding: 0 20px;
+          box-sizing: border-box;
+        }
+
+        .progress-wrapper {
           position: relative;
-          overflow: visible;
-          z-index: 1;
+          width: 100%;
+          height: 16px;
+        }
+
+        .custom-progress-bar {
+          width: calc(100% - 32px);
+          position: relative;
+        }
+
+        .treasure-chest {
+          position: absolute;
+          right: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 24px;
+          height: 24px;
+          display: block;
+          z-index: 2;
         }
 
         .particles {
@@ -303,14 +329,6 @@ function TakeSurveyJs() {
         }
 
         /* Position progress bar container */
-        .progress-bar-container {
-          margin-bottom: 16px;
-          width: calc(100% - 40px);
-          margin-left: 20px;
-          margin-right: 20px;
-        }
-
-        /* Ensure progress bar appears above title */
         .sd-root-modern {
           display: flex;
           flex-direction: column;

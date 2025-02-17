@@ -36,6 +36,14 @@ function TakeSurveyJs() {
   const [error, setError] = useState<string | null>(null);
   const [isFound, setIsFound] = useState(false);
   const [progress, setProgress] = useState(0);
+  const progressRef = React.useRef(0);
+  const progressSound = React.useRef(
+    new Audio('/assets/sounds/duolingo-correct.mp3'),
+  );
+
+  useEffect(() => {
+    progressRef.current = progress;
+  }, [progress]);
 
   useEffect(() => {
     const fetchSurvey = async () => {
@@ -145,41 +153,53 @@ function TakeSurveyJs() {
         const answeredQuestions = questions.filter((q) => q.isAnswered).length;
         const progressValue =
           Math.ceil((answeredQuestions / totalQuestions) * 100) || 0;
-        console.log('Progress calculation:', {
-          totalQuestions,
-          answeredQuestions,
-          progressValue,
-          questions: questions.map((q) => ({
-            name: q.name,
-            isAnswered: q.isAnswered,
-            value: q.value,
-          })),
-        });
-        setProgress(progressValue);
-        // Update the progress bar width with animation
-        const progressBars = document.querySelectorAll(
-          '.custom-progress-bar div',
-        );
-        progressBars.forEach((bar) => {
-          const elem = bar as HTMLElement;
-          if (elem.classList.contains('particles')) return; // Skip particles container
-          elem.style.width = `${progressValue}%`;
-          // Add animation class
-          elem.classList.add('progress-update');
-          // Remove the class after animation completes
-          setTimeout(() => elem.classList.remove('progress-update'), 300);
 
-          // Reset particle animations by removing and re-adding particles container
-          const particlesContainer =
-            elem.parentElement?.querySelector('.particles');
-          if (particlesContainer) {
-            const newParticles = particlesContainer.cloneNode(true);
-            particlesContainer.parentNode?.replaceChild(
-              newParticles,
-              particlesContainer,
-            );
-          }
-        });
+        // Only update if the progress value has changed
+        if (progressValue !== progressRef.current) {
+          console.log('Progress calculation:', {
+            totalQuestions,
+            answeredQuestions,
+            progressValue,
+            currentProgress: progressRef.current,
+            questions: questions.map((q) => ({
+              name: q.name,
+              isAnswered: q.isAnswered,
+              value: q.value,
+            })),
+          });
+
+          // Play the progress sound
+          progressSound.current.currentTime = 0.3; // Reset sound to start
+          progressSound.current
+            .play()
+            .catch((err) => console.log('Error playing sound:', err));
+
+          setProgress(progressValue);
+          // Update the progress bar width with animation
+          const progressBars = document.querySelectorAll(
+            '.custom-progress-bar div',
+          );
+          progressBars.forEach((bar) => {
+            const elem = bar as HTMLElement;
+            if (elem.classList.contains('particles')) return; // Skip particles container
+            elem.style.width = `${progressValue}%`;
+            // Add animation class
+            elem.classList.add('progress-update');
+            // Remove the class after animation completes
+            setTimeout(() => elem.classList.remove('progress-update'), 300);
+
+            // Reset particle animations by removing and re-adding particles container
+            const particlesContainer =
+              elem.parentElement?.querySelector('.particles');
+            if (particlesContainer) {
+              const newParticles = particlesContainer.cloneNode(true);
+              particlesContainer.parentNode?.replaceChild(
+                newParticles,
+                particlesContainer,
+              );
+            }
+          });
+        }
       };
 
       // Add event handler for page changes with detailed logging
@@ -203,7 +223,11 @@ function TakeSurveyJs() {
             oldPage: options.oldCurrentPage?.name,
             newPage: options.newCurrentPage?.name,
           });
-          updateProgress();
+
+          // Only update progress when moving forward to a new, unseen page
+          if (options.isGoingForward && options.newCurrentPage) {
+            updateProgress();
+          }
         },
       );
 
@@ -463,7 +487,6 @@ function TakeSurveyJs() {
           console.log(
             '✅ Survey submitted successfully, navigating to home...',
           );
-          alert('Thank you for completing the survey!');
           navigate('/whome');
         } catch (err) {
           console.error('❌ Error submitting survey:', err);

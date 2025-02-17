@@ -235,13 +235,13 @@ function TakeSurveyJs() {
 
         .particle {
           position: absolute;
-          width: 8px;
-          height: 8px;
+          width: 12px;
+          height: 12px;
           border-radius: 50%;
-          animation: particleAnimation 0.6s ease-out forwards;
+          pointer-events: none;
           opacity: 0;
-          left: 50%;
-          top: 50%;
+          transform-origin: -10px 50%;
+          animation: particleAnimation 0.6s ease-out forwards;
         }
 
         /* Individual particle colors and delays */
@@ -276,7 +276,7 @@ function TakeSurveyJs() {
             opacity: 1;
           }
           100% {
-            transform: translate(-50%, -50%) rotate(var(--angle)) translateX(20px) scale(0);
+            transform: translate(-50%, -50%) rotate(var(--angle)) translateX(30px) scale(0);
             opacity: 0;
           }
         }

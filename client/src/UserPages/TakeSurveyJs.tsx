@@ -30,7 +30,7 @@ interface SurveyProgressBarProps {
 }
 
 function SurveyProgressBar({ model }: SurveyProgressBarProps) {
-  const progress = Math.ceil(model.progressValue) || 100;
+  const progress = Math.ceil(model.progressValue) || 0;
   const title =
     model.survey?.getPropertyValue('progressTitle') || 'Survey Progress';
 
@@ -144,7 +144,59 @@ function TakeSurveyJs() {
       surveyModel.showProgressBar = 'top';
       surveyModel.progressBarType = 'questions';
       surveyModel.progressBarShowPageNumbers = false;
+      surveyModel.progressBarShowPageTitles = false;
       surveyModel.setPropertyValue('progressTitle', 'Survey Progress');
+      surveyModel.showProgressText = false;
+
+      // Add event handler for page changes
+      surveyModel.onCurrentPageChanged.add(function (
+        sender: Model,
+        options: {
+          oldCurrentPage: any;
+          newCurrentPage: any;
+          isNextPage: boolean;
+          isPrevPage: boolean;
+          isGoingForward: boolean;
+          isGoingBackward: boolean;
+          isAfterPreview: boolean;
+        },
+      ) {
+        console.log('Page Change Details:', {
+          isNextPage: options.isNextPage,
+          isPrevPage: options.isPrevPage,
+          isGoingForward: options.isGoingForward,
+          isGoingBackward: options.isGoingBackward,
+          oldPage: options.oldCurrentPage?.name,
+          newPage: options.newCurrentPage?.name,
+        });
+
+        // Update progress value for our custom progress bar
+        const totalQuestions = sender.getAllQuestions().length;
+        const answeredQuestions = sender
+          .getAllQuestions()
+          .filter((q) => q.isAnswered).length;
+        const progressValue = (answeredQuestions / totalQuestions) * 100;
+
+        console.log('Progress Calculation:', {
+          totalQuestions,
+          answeredQuestions,
+          progressValue,
+          currentProgressValue: sender.getPropertyValue('progressValue'),
+          questions: sender.getAllQuestions().map((q) => ({
+            name: q.name,
+            isAnswered: q.isAnswered,
+            value: q.value,
+          })),
+        });
+
+        sender.setPropertyValue('progressValue', progressValue);
+
+        // Log the value after setting it
+        console.log(
+          'Updated Progress Value:',
+          sender.getPropertyValue('progressValue'),
+        );
+      });
 
       // Add custom CSS for the survey
       const surveyStyles = document.createElement('style');
@@ -152,6 +204,23 @@ function TakeSurveyJs() {
         /* Set Feather Bold as default for all survey elements */
         .sv_main * {
           font-family: 'Feather Bold' !important;
+        }
+
+        /* Hide progress text */
+        .sd-progress__text {
+          display: none !important;
+        }
+        .sv-progress-buttons__text {
+          display: none !important;
+        }
+        .sd-progress__text {
+          display: none !important;
+        }
+        .sv-progress-pages {
+          display: none !important;
+        }
+        .sd-progress__text {
+          display: none !important;
         }
 
         /* Headers and Titles - Additional specific selectors for Feather Bold */

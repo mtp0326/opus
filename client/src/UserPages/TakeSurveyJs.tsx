@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { Model, Serializer } from 'survey-core';
-import { Survey, ReactElementFactory } from 'survey-react-ui';
+import { Model } from 'survey-core';
+import { Survey } from 'survey-react-ui';
 import 'survey-core/defaultV2.min.css';
 import { Box, LinearProgress, Typography } from '@mui/material';
 import styles from '../Projects/SurveyPreview.module.css';
@@ -25,51 +25,6 @@ const fontStyles = `
   }
 `;
 
-interface SurveyProgressBarProps {
-  model: Model;
-}
-
-function SurveyProgressBar({ model }: SurveyProgressBarProps) {
-  const progress = Math.ceil(model.progressValue) || 0;
-  const title =
-    model.survey?.getPropertyValue('progressTitle') || 'Survey Progress';
-
-  return (
-    <Box sx={{ width: '100%', mb: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-        <Typography variant="body2" sx={{ fontFamily: 'Feather Bold' }}>
-          {title}
-        </Typography>
-      </Box>
-      <LinearProgress
-        variant="determinate"
-        value={progress}
-        sx={{
-          height: 10,
-          borderRadius: 5,
-          backgroundColor: '#e0e0e0',
-          '& .MuiLinearProgress-bar': {
-            backgroundColor: progress === 100 ? '#89e219' : '#89e219',
-          },
-        }}
-      />
-    </Box>
-  );
-}
-
-Serializer.addProperty('survey', {
-  name: 'progressTitle',
-  default: 'Survey Progress',
-  category: 'general',
-});
-
-ReactElementFactory.Instance.registerElement(
-  'survey-progress',
-  (props: { model: any }) => {
-    return <SurveyProgressBar model={props.model} />;
-  },
-);
-
 function TakeSurveyJs() {
   const { surveyId } = useParams();
   const location = useLocation();
@@ -80,6 +35,7 @@ function TakeSurveyJs() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFound, setIsFound] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     const fetchSurvey = async () => {
@@ -145,58 +101,58 @@ function TakeSurveyJs() {
       surveyModel.progressBarType = 'questions';
       surveyModel.progressBarShowPageNumbers = false;
       surveyModel.progressBarShowPageTitles = false;
-      surveyModel.setPropertyValue('progressTitle', 'Survey Progress');
       surveyModel.showProgressText = false;
 
-      // Add event handler for page changes
-      surveyModel.onCurrentPageChanged.add(function (
-        sender: Model,
-        options: {
-          oldCurrentPage: any;
-          newCurrentPage: any;
-          isNextPage: boolean;
-          isPrevPage: boolean;
-          isGoingForward: boolean;
-          isGoingBackward: boolean;
-          isAfterPreview: boolean;
-        },
-      ) {
-        console.log('Page Change Details:', {
-          isNextPage: options.isNextPage,
-          isPrevPage: options.isPrevPage,
-          isGoingForward: options.isGoingForward,
-          isGoingBackward: options.isGoingBackward,
-          oldPage: options.oldCurrentPage?.name,
-          newPage: options.newCurrentPage?.name,
-        });
-
-        // Update progress value for our custom progress bar
-        const totalQuestions = sender.getAllQuestions().length;
-        const answeredQuestions = sender
-          .getAllQuestions()
-          .filter((q) => q.isAnswered).length;
-        const progressValue = (answeredQuestions / totalQuestions) * 100;
-
-        console.log('Progress Calculation:', {
+      const updateProgress = () => {
+        const questions = surveyModel.getAllQuestions();
+        const totalQuestions = questions.length;
+        const answeredQuestions = questions.filter((q) => q.isAnswered).length;
+        const progressValue =
+          Math.ceil((answeredQuestions / totalQuestions) * 100) || 0;
+        console.log('Progress calculation:', {
           totalQuestions,
           answeredQuestions,
           progressValue,
-          currentProgressValue: sender.getPropertyValue('progressValue'),
-          questions: sender.getAllQuestions().map((q) => ({
+          questions: questions.map((q) => ({
             name: q.name,
             isAnswered: q.isAnswered,
             value: q.value,
           })),
         });
+        setProgress(progressValue);
+      };
 
-        sender.setPropertyValue('progressValue', progressValue);
+      // Add event handler for page changes with detailed logging
+      surveyModel.onCurrentPageChanged.add(
+        (
+          sender: Model,
+          options: {
+            oldCurrentPage: any;
+            newCurrentPage: any;
+            isNextPage: boolean;
+            isPrevPage: boolean;
+            isGoingForward: boolean;
+            isGoingBackward: boolean;
+          },
+        ) => {
+          console.log('Page Change Details:', {
+            isNextPage: options.isNextPage,
+            isPrevPage: options.isPrevPage,
+            isGoingForward: options.isGoingForward,
+            isGoingBackward: options.isGoingBackward,
+            oldPage: options.oldCurrentPage?.name,
+            newPage: options.newCurrentPage?.name,
+          });
+          updateProgress();
+        },
+      );
 
-        // Log the value after setting it
-        console.log(
-          'Updated Progress Value:',
-          sender.getPropertyValue('progressValue'),
-        );
-      });
+      // Set up other event handlers
+      surveyModel.onValueChanged.add(updateProgress);
+      surveyModel.onQuestionAdded.add(updateProgress);
+
+      // Initial progress calculation
+      updateProgress();
 
       // Add custom CSS for the survey
       const surveyStyles = document.createElement('style');
@@ -204,6 +160,26 @@ function TakeSurveyJs() {
         /* Set Feather Bold as default for all survey elements */
         .sv_main * {
           font-family: 'Feather Bold' !important;
+        }
+
+        /* Position progress bar container */
+        .progress-bar-container {
+          margin-bottom: 16px;
+          width: 100%;
+        }
+
+        /* Ensure progress bar appears above title */
+        .sd-root-modern {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .sd-root-modern .progress-bar-container {
+          order: 1;
+        }
+
+        .sd-root-modern .sd-page__title {
+          order: 2;
         }
 
         /* Hide progress text */
@@ -293,13 +269,6 @@ function TakeSurveyJs() {
       `;
       document.head.appendChild(surveyStyles);
 
-      surveyModel.addLayoutElement({
-        id: 'progress-bar',
-        component: 'survey-progress',
-        container: 'header',
-        data: { model: surveyModel },
-      });
-
       surveyModel.onComplete.add(async (sender) => {
         try {
           console.log('📝 Survey completed, preparing to submit results...');
@@ -333,6 +302,9 @@ function TakeSurveyJs() {
 
       return () => {
         document.head.removeChild(surveyStyles);
+        surveyModel.onValueChanged.remove(updateProgress);
+        surveyModel.onCurrentPageChanged.remove(updateProgress);
+        surveyModel.onQuestionAdded.remove(updateProgress);
       };
     } catch (err) {
       console.error('Error creating survey:', err);
@@ -391,6 +363,27 @@ function TakeSurveyJs() {
       <div className={styles.container}>
         <div className={styles.previewBox}>
           <div className={styles.surveyContainer}>
+            <Box className="progress-bar-container">
+              <Box
+                sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}
+              >
+                <Typography variant="body2" sx={{ fontFamily: 'Feather Bold' }}>
+                  Survey Progress
+                </Typography>
+              </Box>
+              <LinearProgress
+                variant="determinate"
+                value={progress}
+                sx={{
+                  height: 10,
+                  borderRadius: 5,
+                  backgroundColor: '#e0e0e0',
+                  '& .MuiLinearProgress-bar': {
+                    backgroundColor: progress === 100 ? '#89e219' : '#89e219',
+                  },
+                }}
+              />
+            </Box>
             <Survey
               model={survey}
               css={{ root: { width: '100%', height: '100%' } }}

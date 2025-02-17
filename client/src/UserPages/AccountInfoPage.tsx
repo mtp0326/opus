@@ -3,16 +3,13 @@ import { Typography, Grid, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../util/redux/hooks.ts';
 import { selectUser } from '../util/redux/userSlice.ts';
-import ScreenGrid from '../components/ScreenGrid.tsx';
 import Navigation2 from '../components/Navigation2.tsx';
-import IUser from '../util/types/user.ts';
 
 function AccountInfoPage() {
   useEffect(() => {
     console.log('=== AccountInfoPage Mount ===');
   }, []);
 
-  // Add this line to debug the Redux import
   console.log('Redux hooks imported:', { useAppSelector, selectUser });
 
   const user = useAppSelector((state) => {
@@ -27,13 +24,13 @@ function AccountInfoPage() {
   if (!user || !user.email) {
     console.log('No user data found or user not logged in');
     return (
-      <ScreenGrid>
+      <div style={{ margin: 0, padding: 0 }}>
         <Navigation2 />
         <Typography variant="h6" align="center">
           Please log in to view account information
         </Typography>
         <Button onClick={() => navigate('/wlogin')}>Go to Login</Button>
-      </ScreenGrid>
+      </div>
     );
   }
 
@@ -42,7 +39,7 @@ function AccountInfoPage() {
   };
 
   return (
-    <ScreenGrid>
+    <div style={{ margin: 0, padding: 0 }}>
       <Navigation2 />
       <Grid container spacing={3} justifyContent="center">
         <Grid item xs={12}>
@@ -75,7 +72,7 @@ function AccountInfoPage() {
           </Button>
         </Grid>
       </Grid>
-    </ScreenGrid>
+    </div>
   );
 }
 

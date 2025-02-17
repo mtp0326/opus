@@ -13,9 +13,10 @@ interface IUser {
   resetPasswordTokenExpiryDate: Date | null | undefined;
   admin: boolean;
   league: string;
-  streak: number;
-  tickets: number;
-  lastSurveyDate: Date | null | undefined;
+  cashBalance: number;
+  streak?: number;
+  tickets?: number;
+  lastSurveyDate?: Date | null | undefined;
   userType: 'researcher' | 'worker';
   points: number;
   surveysCompleted: number;

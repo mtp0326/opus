@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { getLeaderboard } from 'client/src/Projects/api.ts';
-import { IUser } from 'server/src/models/user.model.ts';
+import { getLeaderboard } from './api';
+import IUser from '../util/types/user';
 import styles from './Leaderboard.module.css';
 import Navigation from '../components/Navigation2';
+import { useAppSelector } from '../util/redux/hooks';
+import { selectUser } from '../util/redux/userSlice';
 // import { getData } from '../util/api';
 // import IUser from '../util/types/user'; // Ensure this import is correct
 
 function Leaderboard() {
   // const [users, setUsers] = useState([]);
   const [users, setUsers] = useState<IUser[]>([]); // Use IUser type for users
+  const currentUser = useAppSelector(selectUser);
 
   useEffect(() => {
     // Fetch leaderboard data from the server
@@ -42,7 +45,12 @@ function Leaderboard() {
           </thead>
           <tbody>
             {users.map((user, index) => (
-              <tr key={user._id}>
+              <tr
+                key={user._id}
+                className={
+                  user.email === currentUser.email ? styles.highlightedRow : ''
+                }
+              >
                 <td>{index + 1}</td>
                 <td>
                   {user.firstName} {user.lastName}

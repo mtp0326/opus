@@ -1,15 +1,41 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Typography, Grid, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../util/redux/hooks.ts';
 import { selectUser } from '../util/redux/userSlice.ts';
 import ScreenGrid from '../components/ScreenGrid.tsx';
 import Navigation2 from '../components/Navigation2.tsx';
-import { IUser } from 'server/src/models/user.model.ts';
+import IUser from '../util/types/user.ts';
 
 function AccountInfoPage() {
-  const user = useAppSelector(selectUser);
+  useEffect(() => {
+    console.log('=== AccountInfoPage Mount ===');
+  }, []);
+
+  // Add this line to debug the Redux import
+  console.log('Redux hooks imported:', { useAppSelector, selectUser });
+
+  const user = useAppSelector((state) => {
+    console.log('Redux state:', state);
+    return selectUser(state);
+  });
+
+  console.log('User from Redux:', user);
+
   const navigate = useNavigate();
+  
+  if (!user || !user.email) {
+    console.log('No user data found or user not logged in');
+    return (
+      <ScreenGrid>
+        <Navigation2 />
+        <Typography variant="h6" align="center">
+          Please log in to view account information
+        </Typography>
+        <Button onClick={() => navigate('/wlogin')}>Go to Login</Button>
+      </ScreenGrid>
+    );
+  }
 
   const handleResetPassword = () => {
     navigate('/email-reset');
@@ -25,12 +51,18 @@ function AccountInfoPage() {
           </Typography>
         </Grid>
         <Grid item xs={12} sm={6}>
-          <Typography variant="h6">Name: {user.firstName} {user.lastName}</Typography>
-          <Typography variant="h6">Email: {user.email}</Typography>
-          <Typography variant="h6">League: {user.league}</Typography>
-          <Typography variant="h6">Points: {user.points}</Typography>
-          <Typography variant="h6">Cash Balance: ${user.cashBalance}</Typography>
-          <Typography variant="h6">Surveys Completed: {user.surveysCompleted}</Typography>
+          <Typography variant="h6">
+            Name: {user.firstName || 'N/A'} {user.lastName || 'N/A'}
+          </Typography>
+          <Typography variant="h6">Email: {user.email || 'N/A'}</Typography>
+          <Typography variant="h6">League: {user.league || 'N/A'}</Typography>
+          <Typography variant="h6">Points: {user.points ?? 0}</Typography>
+          <Typography variant="h6">
+            Cash Balance: ${user.cashBalance ?? 0}
+          </Typography>
+          <Typography variant="h6">
+            Surveys Completed: {user.surveysCompleted ?? 0}
+          </Typography>
         </Grid>
         <Grid item xs={12} sm={6}>
           <Button
@@ -47,4 +79,4 @@ function AccountInfoPage() {
   );
 }
 
-export default AccountInfoPage; 
+export default AccountInfoPage;

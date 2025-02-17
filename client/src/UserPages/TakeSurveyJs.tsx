@@ -97,11 +97,44 @@ function TakeSurveyJs() {
 
       const surveyModel = new Model(surveyContent);
 
-      surveyModel.showProgressBar = 'top';
+      surveyModel.showProgressBar = 'off';
       surveyModel.progressBarType = 'questions';
       surveyModel.progressBarShowPageNumbers = false;
       surveyModel.progressBarShowPageTitles = false;
       surveyModel.showProgressText = false;
+
+      // Add custom rendering
+      surveyModel.onAfterRenderSurvey.add((sender, options) => {
+        const descriptionElement =
+          options.htmlElement.querySelector('.sd-description');
+        if (descriptionElement) {
+          // Remove any existing progress bars first
+          const existingProgressBars = options.htmlElement.querySelectorAll(
+            '.progress-bar-container',
+          );
+          existingProgressBars.forEach((bar) => bar.remove());
+
+          const progressBarContainer = document.createElement('div');
+          progressBarContainer.className = 'progress-bar-container';
+          progressBarContainer.innerHTML = `
+            <div class="custom-progress-bar" style="height: 16px; border-radius: 8px; background-color: #e0e0e0;">
+              <div style="width: ${progress}%; height: 100%; border-radius: 8px; background-color: #89e219; transition: width 0.3s ease;"></div>
+              <div class="particles">
+                <span class="particle" style="--angle: 30deg"></span>
+                <span class="particle" style="--angle: 60deg"></span>
+                <span class="particle" style="--angle: 90deg"></span>
+                <span class="particle" style="--angle: 120deg"></span>
+                <span class="particle" style="--angle: 150deg"></span>
+                <span class="particle" style="--angle: 180deg"></span>
+              </div>
+            </div>
+          `;
+          descriptionElement.parentNode?.insertBefore(
+            progressBarContainer,
+            descriptionElement.nextSibling,
+          );
+        }
+      });
 
       const updateProgress = () => {
         const questions = surveyModel.getAllQuestions();
@@ -120,6 +153,30 @@ function TakeSurveyJs() {
           })),
         });
         setProgress(progressValue);
+        // Update the progress bar width with animation
+        const progressBars = document.querySelectorAll(
+          '.custom-progress-bar div',
+        );
+        progressBars.forEach((bar) => {
+          const elem = bar as HTMLElement;
+          if (elem.classList.contains('particles')) return; // Skip particles container
+          elem.style.width = `${progressValue}%`;
+          // Add animation class
+          elem.classList.add('progress-update');
+          // Remove the class after animation completes
+          setTimeout(() => elem.classList.remove('progress-update'), 300);
+
+          // Reset particle animations by removing and re-adding particles container
+          const particlesContainer =
+            elem.parentElement?.querySelector('.particles');
+          if (particlesContainer) {
+            const newParticles = particlesContainer.cloneNode(true);
+            particlesContainer.parentNode?.replaceChild(
+              newParticles,
+              particlesContainer,
+            );
+          }
+        });
       };
 
       // Add event handler for page changes with detailed logging
@@ -147,10 +204,6 @@ function TakeSurveyJs() {
         },
       );
 
-      // Set up other event handlers
-      surveyModel.onValueChanged.add(updateProgress);
-      surveyModel.onQuestionAdded.add(updateProgress);
-
       // Initial progress calculation
       updateProgress();
 
@@ -162,10 +215,99 @@ function TakeSurveyJs() {
           font-family: 'Feather Bold' !important;
         }
 
+        /* Progress bar container and particles positioning */
+        .custom-progress-bar {
+          position: relative;
+          overflow: visible;
+          z-index: 1;
+        }
+
+        .particles {
+          position: absolute;
+          right: -10px;
+          top: 50%;
+          transform: translateY(-50%);
+          pointer-events: none;
+          width: 20px;
+          height: 20px;
+          z-index: 2;
+        }
+
+        .particle {
+          position: absolute;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          animation: particleAnimation 0.6s ease-out forwards;
+          opacity: 0;
+          left: 50%;
+          top: 50%;
+        }
+
+        /* Individual particle colors and delays */
+        .particle:nth-child(1) {
+          background-color: #58CC02;
+          animation-delay: 0s;
+        }
+        .particle:nth-child(2) {
+          background-color: #89e219;
+          animation-delay: 0.1s;
+        }
+        .particle:nth-child(3) {
+          background-color: #9cf134;
+          animation-delay: 0.15s;
+        }
+        .particle:nth-child(4) {
+          background-color: #ffd900;
+          animation-delay: 0.05s;
+        }
+        .particle:nth-child(5) {
+          background-color: #ff9600;
+          animation-delay: 0.2s;
+        }
+        .particle:nth-child(6) {
+          background-color: #58CC02;
+          animation-delay: 0.25s;
+        }
+
+        @keyframes particleAnimation {
+          0% {
+            transform: translate(-50%, -50%) rotate(0deg) translateX(0) scale(1);
+            opacity: 1;
+          }
+          100% {
+            transform: translate(-50%, -50%) rotate(var(--angle)) translateX(20px) scale(0);
+            opacity: 0;
+          }
+        }
+
+        /* Progress bar animation */
+        @keyframes progressPulse {
+          0% { 
+            transform: scaleY(1);
+            background-color: #89e219;
+          }
+          50% { 
+            transform: scaleY(1.15);
+            background-color: #9cf134;
+          }
+          100% { 
+            transform: scaleY(1);
+            background-color: #89e219;
+          }
+        }
+
+        .progress-update {
+          animation: progressPulse 0.3s ease;
+          transform-origin: center;
+        }
+
         /* Position progress bar container */
         .progress-bar-container {
           margin-bottom: 16px;
-          width: 100%;
+          width: calc(100% - 40px);
+          margin-left: 20px;
+          margin-right: 20px;
         }
 
         /* Ensure progress bar appears above title */
@@ -221,6 +363,25 @@ function TakeSurveyJs() {
         .sd-navigation__start-btn {
           font-family: 'Feather Bold' !important;
         }
+
+        /* Title styling */
+        .sd-title {
+          color: #58CC02 !important;
+        }
+
+        /* Next button styling */
+        .sd-btn.sd-navigation__next-btn {
+          background-color: #58CC02 !important;
+          color: white !important;
+          border: none !important;
+        }
+
+        /* Complete button styling */
+        .sd-btn.sd-btn--action.sd-navigation__complete-btn {
+          background-color: #58CC02 !important;
+          color: white !important;
+          border: none !important;
+        }
         
         /* Explicitly set these elements to DIN Next Rounded */
         .sd-question__description,
@@ -243,15 +404,15 @@ function TakeSurveyJs() {
         /* Progress bar styles */
         .sv_progress_bar {
           background-color: #89e219 !important;
-          height: 8px !important;
-          border-radius: 4px !important;
+          height: 16px !important;
+          border-radius: 8px !important;
           transition: width 0.3s ease !important;
         }
         .sv_progress {
           background-color: #e0e0e0 !important;
-          height: 8px !important;
+          height: 16px !important;
           margin: 16px 20px !important;
-          border-radius: 4px !important;
+          border-radius: 8px !important;
           width: calc(100% - 40px) !important;
         }
         .sv_progress_text {
@@ -302,9 +463,7 @@ function TakeSurveyJs() {
 
       return () => {
         document.head.removeChild(surveyStyles);
-        surveyModel.onValueChanged.remove(updateProgress);
         surveyModel.onCurrentPageChanged.remove(updateProgress);
-        surveyModel.onQuestionAdded.remove(updateProgress);
       };
     } catch (err) {
       console.error('Error creating survey:', err);
@@ -363,27 +522,6 @@ function TakeSurveyJs() {
       <div className={styles.container}>
         <div className={styles.previewBox}>
           <div className={styles.surveyContainer}>
-            <Box className="progress-bar-container">
-              <Box
-                sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}
-              >
-                <Typography variant="body2" sx={{ fontFamily: 'Feather Bold' }}>
-                  Survey Progress
-                </Typography>
-              </Box>
-              <LinearProgress
-                variant="determinate"
-                value={progress}
-                sx={{
-                  height: 10,
-                  borderRadius: 5,
-                  backgroundColor: '#e0e0e0',
-                  '& .MuiLinearProgress-bar': {
-                    backgroundColor: progress === 100 ? '#89e219' : '#89e219',
-                  },
-                }}
-              />
-            </Box>
             <Survey
               model={survey}
               css={{ root: { width: '100%', height: '100%' } }}

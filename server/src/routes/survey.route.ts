@@ -18,12 +18,17 @@ import {
   updateSubmissionsBatch,
 } from '../controllers/survey.controller.ts';
 import { IUser } from '../models/user.model.ts';
+import Stripe from 'stripe';
 
 interface CustomRequest extends Request {
   user?: IUser;
 }
 
 const router = express.Router();
+
+const stripe = new Stripe('your_secret_key_here', {
+  apiVersion: '2023-10-16',
+});
 
 /**
  * A GET route to fetch a single survey by ID
@@ -137,5 +142,24 @@ router.put(
   isAuthenticated,
   updateSubmissionsBatch as express.RequestHandler,
 );
+
+router.post('/create-payment-intent', async (req, res) => {
+  try {
+    const { amount, surveyId } = req.body;
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount * 100, // Convert to cents
+      currency: 'usd',
+      metadata: {
+        surveyId,
+      },
+    });
+
+    res.json({ clientSecret: paymentIntent.client_secret });
+  } catch (error) {
+    console.error('Error creating payment intent:', error);
+    res.status(500).json({ error: 'Failed to create payment intent' });
+  }
+});
 
 export default router;

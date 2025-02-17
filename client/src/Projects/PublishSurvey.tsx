@@ -3,13 +3,21 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './PublishSurvey.module.css';
 import { publishSurvey } from './api';
 import Navigation from '../components/Navigation';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import StripePaymentPage from './StripePaymentPage';
 
 const FEE_PERCENTAGE = 0.2; // 20% fee
+
+// Initialize Stripe (replace with your publishable key)
+const stripePromise = loadStripe('your_publishable_key_here');
 
 function PublishSurvey() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
 
   // Get surveyId from location state
   const { formData, surveyId } = location.state || {};
@@ -29,6 +37,31 @@ function PublishSurvey() {
         throw new Error('Survey ID is required');
       }
 
+      // Create payment intent on the server
+      const response = await fetch('/api/create-payment-intent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: totalCost,
+          surveyId: surveyId,
+        }),
+      });
+
+      const data = await response.json();
+      setClientSecret(data.clientSecret);
+      setShowPayment(true);
+    } catch (error) {
+      console.error('Error creating payment intent:', error);
+      // Handle error appropriately
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePaymentSuccess = async () => {
+    try {
       const publishedSurvey = await publishSurvey(surveyId);
       console.log('✅ Published survey:', publishedSurvey);
 
@@ -43,10 +76,25 @@ function PublishSurvey() {
     } catch (error) {
       console.error('❌ Error publishing survey:', error);
       // Add error handling UI feedback here
-    } finally {
-      setIsLoading(false);
     }
+    setShowPayment(false);
   };
+
+  const handlePaymentCancel = () => {
+    setShowPayment(false);
+  };
+
+  if (showPayment && clientSecret) {
+    return (
+      <Elements stripe={stripePromise} options={{ clientSecret }}>
+        <StripePaymentPage
+          amount={totalCost}
+          onSuccess={handlePaymentSuccess}
+          onCancel={handlePaymentCancel}
+        />
+      </Elements>
+    );
+  }
 
   return (
     <>

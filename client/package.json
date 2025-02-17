@@ -51,6 +51,7 @@
     "react-scripts": "^5.0.1",
     "redux": "^4.1.2",
     "redux-persist": "^6.0.0",
+    "stripe": "^17.6.0",
     "styled-components": "^5.3.5",
     "survey-core": "1.9.116",
     "survey-creator-core": "1.9.116",

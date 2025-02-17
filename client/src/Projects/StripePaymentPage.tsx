@@ -35,7 +35,7 @@ const StripePaymentPage: React.FC<StripePaymentPageProps> = ({
 
     setProcessing(true);
 
-    const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
+    const { error: stripeError } = await stripe.confirmPayment({
       elements,
       confirmParams: {
         return_url: `${window.location.origin}/payment-success`,

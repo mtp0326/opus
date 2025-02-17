@@ -90,11 +90,11 @@ function SurveyBuilderSetup() {
           ) => {
             console.log(message);
           };
-          response = await handleSurveyJsSave(
-            { current: { JSON: surveyContent } },
-            showAlert,
-          );
-          console.log('✅ Survey saved successfully:', response);
+          // response = await handleSurveyJsSave(
+          //   { creatorRef: { JSON: surveyContent } },
+          //   showAlert,
+          // );
+          // console.log('✅ Survey saved successfully:', response);
         }
 
         // Navigate to payment review page with all necessary data

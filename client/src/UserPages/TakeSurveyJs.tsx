@@ -40,6 +40,9 @@ function TakeSurveyJs() {
   const progressSound = React.useRef(
     new Audio('/assets/sounds/duolingo-correct.mp3'),
   );
+  const completionSound = React.useRef(
+    new Audio('/assets/sounds/duolingo-completed-lesson.mp3'),
+  );
 
   useEffect(() => {
     progressRef.current = progress;
@@ -478,16 +481,116 @@ function TakeSurveyJs() {
           const surveyData = sender.data;
           console.log('📦 Survey response data:', surveyData);
 
+          // Play completion sound
+          completionSound.current.currentTime = 0;
+          completionSound.current.play().catch((err) => {
+            console.log('Error playing completion sound:', err);
+            completionSound.current.load();
+          });
+
           await submitSurveyCompletion({
             surveyId: surveyId!,
             completionCode: JSON.stringify(surveyData),
             isSurveyJs: true,
           });
 
-          console.log(
-            '✅ Survey submitted successfully, navigating to home...',
-          );
-          navigate('/whome');
+          // Customize the completion page
+          const completionPage = document.querySelector('.sd-completedpage');
+          if (completionPage) {
+            // Clear existing content
+            completionPage.innerHTML = '';
+
+            // Create completion message
+            const message = document.createElement('h2');
+            message.style.color = '#58CC02';
+            message.style.marginBottom = '1rem';
+            message.textContent = 'Survey Completed!';
+            completionPage.appendChild(message);
+
+            // Create thank you text
+            const thankYou = document.createElement('p');
+            thankYou.style.marginBottom = '2rem';
+            thankYou.textContent =
+              'Check payments page within a couple of days for your reward!';
+            completionPage.appendChild(thankYou);
+
+            // Create stats container
+            const statsContainer = document.createElement('div');
+            statsContainer.style.display = 'flex';
+            statsContainer.style.justifyContent = 'center';
+            statsContainer.style.gap = '2rem';
+            statsContainer.style.marginBottom = '2rem';
+            completionPage.appendChild(statsContainer);
+
+            // Create stat boxes with ring design
+            const createStatBox = (
+              label: string,
+              value: string,
+              color: string,
+            ) => {
+              const box = document.createElement('div');
+              box.style.padding = '1.5rem';
+              box.style.borderRadius = '12px';
+              box.style.backgroundColor = 'white';
+              box.style.border = `3px solid ${color}`;
+              box.style.textAlign = 'center';
+              box.style.width = '160px';
+              box.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+
+              const labelElement = document.createElement('div');
+              labelElement.style.fontSize = '0.9rem';
+              labelElement.style.marginBottom = '0.5rem';
+              labelElement.style.color = color;
+              labelElement.style.fontWeight = 'bold';
+              labelElement.textContent = label;
+
+              const valueElement = document.createElement('div');
+              valueElement.style.fontSize = '1.4rem';
+              valueElement.style.fontWeight = 'bold';
+              valueElement.style.color = color;
+              valueElement.textContent = value;
+
+              box.appendChild(labelElement);
+              box.appendChild(valueElement);
+              return box;
+            };
+
+            // Add stat boxes with the specified colors
+            statsContainer.appendChild(
+              createStatBox('Points Gained', '+25 XP', '#1cb0f6'),
+            );
+            statsContainer.appendChild(
+              createStatBox('Attention Score', '2/2', '#ff9600'),
+            );
+            statsContainer.appendChild(
+              createStatBox('Time Spent', '1m 30s', '#ce82ff'),
+            );
+
+            // Create return to home button
+            const button = document.createElement('button');
+            button.style.backgroundColor = '#58CC02';
+            button.style.color = 'white';
+            button.style.padding = '12px 24px';
+            button.style.border = 'none';
+            button.style.borderRadius = '8px';
+            button.style.cursor = 'pointer';
+            button.style.fontSize = '1rem';
+            button.style.fontWeight = 'bold';
+            button.style.transition = 'background-color 0.2s ease';
+            button.textContent = 'Return to Home';
+            button.addEventListener('mouseover', (e) => {
+              const btn = e.target as HTMLButtonElement;
+              btn.style.backgroundColor = '#45a501';
+            });
+            button.addEventListener('mouseout', (e) => {
+              const btn = e.target as HTMLButtonElement;
+              btn.style.backgroundColor = '#58CC02';
+            });
+            button.onclick = () => navigate('/whome');
+            completionPage.appendChild(button);
+          }
+
+          console.log('✅ Survey submitted successfully');
         } catch (err) {
           console.error('❌ Error submitting survey:', err);
           const errorMessage =
@@ -510,6 +613,7 @@ function TakeSurveyJs() {
       console.error('Error creating survey:', err);
       setError('Error creating survey. Please try again later.');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData?.content, navigate, surveyId]);
 
   if (isLoading) {

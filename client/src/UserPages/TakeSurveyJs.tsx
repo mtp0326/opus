@@ -7,19 +7,39 @@ import { Box, LinearProgress, Typography } from '@mui/material';
 import styles from '../Projects/SurveyPreview.module.css';
 import { getSurveyById, submitSurveyCompletion } from '../Projects/api';
 
+// Add font styles
+const fontStyles = `
+  @font-face {
+    font-family: 'Feather Bold';
+    src: url('/fonts/Feather-Bold.woff2') format('woff2'),
+         url('/fonts/Feather-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'DIN Next Rounded LT W01 Regular';
+    src: url('/fonts/DINNextRoundedLTW01-Regular.woff2') format('woff2'),
+         url('/fonts/DINNextRoundedLTW01-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+`;
+
 interface SurveyProgressBarProps {
   model: Model;
 }
 
 function SurveyProgressBar({ model }: SurveyProgressBarProps) {
-  const progress = Math.ceil(model.progressValue) || 0; // Default to 0 if NaN
+  const progress = Math.ceil(model.progressValue) || 100;
   const title =
     model.survey?.getPropertyValue('progressTitle') || 'Survey Progress';
 
   return (
     <Box sx={{ width: '100%', mb: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-        <Typography variant="body2">{title}</Typography>
+        <Typography variant="body2" sx={{ fontFamily: 'Feather Bold' }}>
+          {title}
+        </Typography>
       </Box>
       <LinearProgress
         variant="determinate"
@@ -29,7 +49,7 @@ function SurveyProgressBar({ model }: SurveyProgressBarProps) {
           borderRadius: 5,
           backgroundColor: '#e0e0e0',
           '& .MuiLinearProgress-bar': {
-            backgroundColor: progress === 100 ? '#4caf50' : '#2196f3',
+            backgroundColor: progress === 100 ? '#89e219' : '#89e219',
           },
         }}
       />
@@ -97,6 +117,17 @@ function TakeSurveyJs() {
   }, [surveyId, isFound]);
 
   useEffect(() => {
+    // Add font styles to document head
+    const styleElement = document.createElement('style');
+    styleElement.textContent = fontStyles;
+    document.head.appendChild(styleElement);
+
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!formData?.content) {
       setError('Survey content not found.');
       return;
@@ -112,7 +143,86 @@ function TakeSurveyJs() {
 
       surveyModel.showProgressBar = 'top';
       surveyModel.progressBarType = 'questions';
+      surveyModel.progressBarShowPageNumbers = false;
       surveyModel.setPropertyValue('progressTitle', 'Survey Progress');
+
+      // Add custom CSS for the survey
+      const surveyStyles = document.createElement('style');
+      surveyStyles.textContent = `
+        /* Set Feather Bold as default for all survey elements */
+        .sv_main * {
+          font-family: 'Feather Bold' !important;
+        }
+
+        /* Headers and Titles - Additional specific selectors for Feather Bold */
+        .sd-root-modern,
+        .sd-container-modern,
+        .sd-root-modern h3,
+        .sd-root-modern h4,
+        .sd-root-modern h5,
+        .sd-element__title,
+        .sd-header__text,
+        .sd-page__title,
+        .sd-question__title,
+        .sd-title,
+        .sd-header__title,
+        .sd-container-modern__title,
+        .sd-title-actions__title,
+        .sd-btn,
+        .sd-navigation__complete-btn,
+        .sd-navigation__prev-btn,
+        .sd-navigation__next-btn,
+        .sd-navigation__preview-btn,
+        .sd-navigation__start-btn {
+          font-family: 'Feather Bold' !important;
+        }
+        
+        /* Explicitly set these elements to DIN Next Rounded */
+        .sd-question__description,
+        .sd-selectbase__item,
+        .sd-item__control-label,
+        .sd-radio__label span,
+        .sd-checkbox__label span,
+        .sd-item__string-viewer,
+        .sd-rating__item-text,
+        .sd-dropdown__value-container,
+        .sd-input,
+        .sd-comment,
+        .sv-ranking-item__text,
+        input, 
+        select, 
+        textarea {
+          font-family: 'DIN Next Rounded LT W01 Regular' !important;
+        }
+
+        /* Progress bar styles */
+        .sv_progress_bar {
+          background-color: #89e219 !important;
+          height: 8px !important;
+          border-radius: 4px !important;
+          transition: width 0.3s ease !important;
+        }
+        .sv_progress {
+          background-color: #e0e0e0 !important;
+          height: 8px !important;
+          margin: 16px 20px !important;
+          border-radius: 4px !important;
+          width: calc(100% - 40px) !important;
+        }
+        .sv_progress_text {
+          color: #666 !important;
+          font-size: 14px !important;
+          font-weight: 500 !important;
+          margin: 8px 20px !important;
+          text-align: center !important;
+          width: calc(100% - 40px) !important;
+          font-family: 'Feather Bold' !important;
+        }
+        .sv_container {
+          width: 100% !important;
+        }
+      `;
+      document.head.appendChild(surveyStyles);
 
       surveyModel.addLayoutElement({
         id: 'progress-bar',
@@ -151,6 +261,10 @@ function TakeSurveyJs() {
 
       setSurvey(surveyModel);
       setError(null);
+
+      return () => {
+        document.head.removeChild(surveyStyles);
+      };
     } catch (err) {
       console.error('Error creating survey:', err);
       setError('Error creating survey. Please try again later.');

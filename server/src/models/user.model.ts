@@ -1,283 +1,226 @@
-/**
- * Defines the User model for the database and also the interface to
- * access the model in TypeScript.
- */
 import mongoose from 'mongoose';
 
-const UserSchema = new mongoose.Schema({
-  firstName: {
-    type: String,
-    required: true,
-  },
-  lastName: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    match:
-      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/g,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  verified: {
-    type: Boolean,
-    required: true,
-    default: false,
-  },
-  verificationToken: {
-    type: String,
-    required: false,
-    unique: true,
-    sparse: true,
-  },
-  resetPasswordToken: {
-    type: String,
-    required: false,
-    unique: true,
-    sparse: true,
-  },
-  resetPasswordTokenExpiryDate: {
-    type: Date,
-    required: false,
-  },
-  admin: {
-    type: Boolean,
-    required: true,
-    default: false,
-  },
-  league: {
-    type: String,
-    enum: ['Wood', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'],
-    default: 'Wood',
-  },
-  streak: {
-    type: Number,
-    default: 0,
-  },
-  tickets: {
-    type: Number,
-    default: 0,
-  },
-  lastSurveyDate: {
-    type: Date,
-    default: null,
-  },
-  onboarded: {
-    type: Boolean,
-    default: false,
-  },
-  userType: {
-    type: String,
-    enum: ['researcher', 'worker'],
-    required: true,
-  },
-  points: {
-    type: Number,
-    default: 0,
-  },
-  surveysCompleted: {
-    type: Number,
-    default: 0,
-  },
-});
-
-interface IUser extends mongoose.Document {
-  _id: string;
+// -----------------------------
+// User Schema & Interface
+// -----------------------------
+export interface IUser extends mongoose.Document {
   firstName: string;
   lastName: string;
   email: string;
   password: string;
   verified: boolean;
-  verificationToken: string | null | undefined;
-  resetPasswordToken: string | null | undefined;
-  resetPasswordTokenExpiryDate: Date | null | undefined;
+  verificationToken?: string;
+  resetPasswordToken?: string;
+  resetPasswordTokenExpiryDate?: Date;
   admin: boolean;
-  league: string;
-  streak: number;
-  tickets: number;
-  lastSurveyDate: Date | null | undefined;
+  league: 'Wood' | 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond';
+  cashBalance: number; // New: user's total cash/account value
   onboarded: boolean;
   userType: 'researcher' | 'worker';
   points: number;
   surveysCompleted: number;
 }
 
+const UserSchema = new mongoose.Schema<IUser>({
+  firstName: { type: String, required: true },
+  lastName:  { type: String, required: true },
+  email: {
+    type: String,
+    required: true,
+    // Simple email regex
+    match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  },
+  password: { type: String, required: true },
+  verified: { type: Boolean, required: true, default: false },
+  verificationToken: { type: String, unique: true, sparse: true },
+  resetPasswordToken: { type: String, unique: true, sparse: true },
+  resetPasswordTokenExpiryDate: Date,
+  admin: { type: Boolean, required: true, default: false },
+  league: {
+    type: String,
+    enum: ['Wood', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'],
+    default: 'Wood',
+  },
+  cashBalance: { type: Number, default: 0 },
+  onboarded: { type: Boolean, default: false },
+  userType: { type: String, enum: ['researcher', 'worker'], required: true },
+  points: { type: Number, default: 0 },
+  surveysCompleted: { type: Number, default: 0 },
+});
+
 const User = mongoose.model<IUser>('User', UserSchema);
 
-export { IUser, User };
+// -----------------------------
+// Constants & Helper Functions
+// -----------------------------
+const BASE_POINTS = 10;      // Starting points for survey completion.
+const SURVEY_BONUS = 5;      // Additional points per survey.
+const BASE_FEE = 10;         // Base fee (cash payout) upon survey completion.
 
-export const updateLeague = async (userId: string) => {
-  const user = await User.findById(userId);
-  if (!user) return;
+// Bonus based on how fast the survey is completed (in minutes).
+const getSpeedBonus = (completionSpeed: number): number => {
+  return Math.max(0, 10 - completionSpeed);
+};
 
-  // Calculate points
-  const completionSpeed = 5; // Example: calculate this based on actual data
-  user.points = calculatePoints(
-    user.streak,
-    user.surveysCompleted,
-    completionSpeed,
-  );
+// Calculate new points when a survey is completed.
+export const calculatePoints = (
+  surveysCompleted: number,
+  completionSpeed: number,
+): number => {
+  return BASE_POINTS + surveysCompleted * SURVEY_BONUS + getSpeedBonus(completionSpeed);
+};
 
-  // Update league based on points
-  if (user.points >= 8001) {
-    user.league = 'Diamond';
-  } else if (user.points >= 5001) {
-    user.league = 'Platinum';
-  } else if (user.points >= 3001) {
-    user.league = 'Gold';
-  } else if (user.points >= 2001) {
-    user.league = 'Silver';
-  } else if (user.points >= 1001) {
-    user.league = 'Bronze';
-  } else {
-    user.league = 'Wood';
-  }
-
+// Update the user's league based on points.
+export const updateLeague = async (user: IUser) => {
+  if (user.points >= 8000) user.league = 'Diamond';
+  else if (user.points >= 5000) user.league = 'Platinum';
+  else if (user.points >= 3000) user.league = 'Gold';
+  else if (user.points >= 2000) user.league = 'Silver';
+  else if (user.points >= 1000) user.league = 'Bronze';
+  else user.league = 'Wood';
   await user.save();
 };
 
-function calculateLotteryRewards(
-  totalBudget: number,
-  numParticipants: number,
-  baseFee: number,
-  highestReward: number,
-  decayRate: number,
-) {
-  const lotteryPool = totalBudget - numParticipants * baseFee;
-  const biWeeklyJackpot = 0.1 * lotteryPool;
-  const adjustedLotteryPool = lotteryPool - biWeeklyJackpot;
-  const rewards = [];
-  let remainingPool = adjustedLotteryPool;
+// -----------------------------
+// Payout Functions
+// -----------------------------
 
-  for (let i = 0; i < numParticipants; i++) {
-    const reward = highestReward * Math.pow(1 - decayRate, i);
-    rewards.push(reward);
-    remainingPool -= reward;
-    if (remainingPool <= 0) break;
+/**
+ * Award the base fee to a user upon survey completion.
+ * The payout comes from the survey's remainingBudget.
+ */
+export const awardBaseFee = async (user: IUser, survey: any) => {
+  const payout = Math.min(BASE_FEE, survey.remainingBudget);
+  if (payout > 0) {
+    user.cashBalance += payout;
+    survey.remainingBudget -= payout;
   }
-
-  return { rewards, biWeeklyJackpot };
-}
-
-function calculateProbabilities(numParticipants: number) {
-  return {
-    topReward: 1 / (2 * numParticipants),
-    midReward: 1 / numParticipants,
-    smallReward: 2 / numParticipants,
-  };
-}
-
-function calculatePoints(
-  streak: number,
-  surveysCompleted: number,
-  completionSpeed: number,
-): number {
-  const basePoints = 10;
-  const streakBonus = streak * 2; // Example: 2 points per day of streak
-  const surveyBonus = surveysCompleted * 5; // Example: 5 points per survey completed
-  const speedBonus = Math.max(0, 10 - completionSpeed); // Example: faster completion gets more points
-
-  return basePoints + streakBonus + surveyBonus + speedBonus;
-}
-
-function applyBoosters(userId: string, boosterType: string) {
-  // Logic to apply boosters to a user's account
-  // This could involve increasing points or chances to win
-}
-
-export const generateLeaderboard = async () => {
-  const users = await User.find({}).sort({ points: -1 });
-  const leaderboard = users.map((user, index) => {
-    let leagueMultiplier = 1;
-
-    // Assign multiplier based on league
-    switch (user.league) {
-      case 'Wood':
-        leagueMultiplier = 0.8;
-        break;
-      case 'Bronze':
-        leagueMultiplier = 1;
-        break;
-      case 'Silver':
-        leagueMultiplier = 1.2;
-        break;
-      case 'Gold':
-        leagueMultiplier = 1.5;
-        break;
-      case 'Platinum':
-        leagueMultiplier = 2;
-        break;
-      case 'Diamond':
-        leagueMultiplier = 2.5;
-        break;
-    }
-
-    // Rank the user with league multipliers taken into account
-    return {
-      rank: index + 1,
-      userId: user._id,
-      name: `${user.firstName} ${user.lastName}`,
-      points: user.points,
-      adjustedPoints: user.points * leagueMultiplier,
-      league: user.league,
-    };
-  });
-
-  return leaderboard;
+  await user.save();
+  await survey.save();
 };
 
-export const distributeLotteryRewards = async (
-  totalBudget: number,
-  baseFee: number,
-  highestReward: number,
-  decayRate: number,
-) => {
-  const users = await User.find({}).sort({ points: -1 });
+/**
+ * Distribute lottery payouts for a specific survey.
+ * This bonus payout is awarded from the survey's remainingBudget to its participants.
+ */
+export const distributeSurveyLottery = async (surveyId: string, highestReward: number) => {
+  const Survey = (await import('./survey.model')).default;
+  const survey = await Survey.findById(surveyId);
+  if (!survey) throw new Error('Survey not found');
+
+  const participantIds = survey.submitterList;
+  if (!participantIds.length) return;
+
+  const users = await User.find({ _id: { $in: participantIds } });
   const numParticipants = users.length;
 
-  const { rewards, biWeeklyJackpot } = calculateLotteryRewards(
-    totalBudget,
-    numParticipants,
-    baseFee,
-    highestReward,
-    decayRate,
-  );
+  // Define probability tiers.
+  const topProb = Math.min(0.05, 1 / (2 * numParticipants));
+  const midProb = Math.min(0.10, 1 / numParticipants);
+  const smallProb = Math.min(0.20, 2 / numParticipants);
 
-  for (let i = 0; i < users.length; i++) {
-    if (i < rewards.length) {
-      users[i].tickets += rewards[i];
-      await users[i].save();
+  for (const user of users) {
+    const roll = Math.random();
+    let bonus = 0;
+    if (roll < topProb) bonus = highestReward;
+    else if (roll < topProb + midProb) bonus = highestReward / 2;
+    else if (roll < topProb + midProb + smallProb) bonus = highestReward / 5;
+
+    // Ensure payout does not exceed the survey's remaining budget.
+    bonus = Math.min(bonus, survey.remainingBudget);
+    if (bonus > 0) {
+      user.cashBalance += bonus;
+      survey.remainingBudget -= bonus;
+      await user.save();
     }
+    if (survey.remainingBudget <= 0) break;
+  }
+  await survey.save();
+};
+
+/**
+ * BiWeekly Payout:
+ *
+ * For each survey created in the past two weeks, reserve 2.5% of its reward (or what remains
+ * in its budget) for the biWeekly pool. Then distribute this pool across all users in proportion
+ * to their points (i.e. the user with the highest points receives the largest share).
+ */
+export const distributeBiWeeklyPayout = async () => {
+  const Survey = (await import('./survey.model')).default;
+  const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+
+  // Find surveys created in the past two weeks.
+  const surveys = await Survey.find({ createdAt: { $gte: twoWeeksAgo } });
+  let biWeeklyPool = 0;
+
+  // For each survey, reserve 2.5% of its reward (or up to its remainingBudget).
+  for (const survey of surveys) {
+    const contribution = Math.min(0.025 * survey.reward, survey.remainingBudget);
+    biWeeklyPool += contribution;
+    survey.remainingBudget -= contribution;
+    await survey.save();
   }
 
-  await distributeBiWeeklyJackpot(biWeeklyJackpot);
-};
+  if (biWeeklyPool <= 0) return; // Nothing to distribute.
 
-export const distributeBiWeeklyJackpot = async (biWeeklyJackpot: number) => {
-  const leagues = ['Wood', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
+  // Get all users and calculate the sum of their points.
+  const users = await User.find({});
+  const totalPoints = users.reduce((sum, user) => sum + user.points, 0);
+  if (totalPoints <= 0) return; // Prevent division by zero.
 
-  for (const league of leagues) {
-    const usersInLeague = await User.find({ league });
-    if (usersInLeague.length > 0) {
-      const randomIndex = Math.floor(Math.random() * usersInLeague.length);
-      const winningUser = usersInLeague[randomIndex];
-      winningUser.tickets += biWeeklyJackpot / leagues.length;
-      await winningUser.save();
-    }
+  // Distribute the biWeekly pool proportionally to each user's points.
+  for (const user of users) {
+    const bonus = (user.points / totalPoints) * biWeeklyPool;
+    user.cashBalance += bonus;
+    await user.save();
   }
 };
 
-export const rewardTopPerformers = async () => {
-  const leaderboard = await generateLeaderboard();
-  leaderboard.forEach(async (user, index) => {
-    const additionalTickets = Math.max(0, 10 - index); // Example: reward top users with decreasing tickets based on rank
-    const foundUser = await User.findById(user.userId);
-    if (foundUser && additionalTickets > 0) {
-      foundUser.tickets += additionalTickets;
-      await foundUser.save();
-    }
-  });
+/**
+ * Leaderboard generator.
+ * Optionally filter by league. Returns ranking, points, cashBalance, etc.
+ */
+export const generateLeaderboard = async (league?: IUser['league']) => {
+  const filter = league ? { league } : {};
+  const users = await User.find(filter).sort({ points: -1 });
+  return users.map((user, idx) => ({
+    rank: idx + 1,
+    userId: user._id,
+    name: `${user.firstName} ${user.lastName}`,
+    points: user.points,
+    cashBalance: user.cashBalance,
+    league: user.league,
+  }));
 };
+
+/**
+ * Handle survey completion.
+ * Updates user's stats and awards the base fee (from the survey's budget),
+ * while adding the user to the survey's participant list.
+ */
+export const onSurveyCompletion = async (
+  userId: string,
+  surveyId: string,
+  completionSpeed: number, // in minutes
+) => {
+  const Survey = (await import('./survey.model')).default;
+  const user = await User.findById(userId);
+  if (!user) throw new Error('User not found');
+
+  const survey = await Survey.findById(surveyId);
+  if (!survey) throw new Error('Survey not found');
+
+  // Add user to the survey's submitterList if not already present.
+  if (!survey.submitterList.includes(userId)) {
+    survey.submitterList.push(userId);
+  }
+
+  user.surveysCompleted += 1;
+  user.points = calculatePoints(user.surveysCompleted, completionSpeed);
+  await updateLeague(user);
+
+  // Award the base fee (subject to survey remainingBudget).
+  await awardBaseFee(user, survey);
+};
+
+export { User };

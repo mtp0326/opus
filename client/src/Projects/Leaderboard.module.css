@@ -25,4 +25,13 @@
 .leaderboardTable th {
   background-color: #f4f4f4;
   font-weight: bold;
+}
+
+.highlightedRow {
+  background-color: #e3f2fd;
+  font-weight: bold;
+}
+
+.highlightedRow td {
+  border-color: #90caf9;
 } 

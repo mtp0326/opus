@@ -36,7 +36,7 @@ const initialState: UserState = {
   lastName: null,
   admin: null,
   userType: null,
-  league: 'Wood',       // default league
+  league: 'Wood', // default league
   cashBalance: 0,
   points: 0,
   surveysCompleted: 0,

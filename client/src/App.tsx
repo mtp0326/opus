@@ -152,7 +152,6 @@ function App() {
                     }
                   />
 
-
                   {/* Route which is accessed if no other route is matched */}
                   <Route path="*" element={<NotFoundPage />} />
                 </Routes>

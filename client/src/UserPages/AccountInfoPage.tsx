@@ -20,7 +20,7 @@ function AccountInfoPage() {
   console.log('User from Redux:', user);
 
   const navigate = useNavigate();
-  
+
   if (!user || !user.email) {
     console.log('No user data found or user not logged in');
     return (

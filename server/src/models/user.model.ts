@@ -23,7 +23,7 @@ export interface IUser extends mongoose.Document {
 
 const UserSchema = new mongoose.Schema<IUser>({
   firstName: { type: String, required: true },
-  lastName:  { type: String, required: true },
+  lastName: { type: String, required: true },
   email: {
     type: String,
     required: true,
@@ -53,9 +53,9 @@ const User = mongoose.model<IUser>('User', UserSchema);
 // -----------------------------
 // Constants & Helper Functions
 // -----------------------------
-const BASE_POINTS = 10;      // Starting points for survey completion.
-const SURVEY_BONUS = 5;      // Additional points per survey.
-const BASE_FEE = 10;         // Base fee (cash payout) upon survey completion.
+const BASE_POINTS = 10; // Starting points for survey completion.
+const SURVEY_BONUS = 5; // Additional points per survey.
+const BASE_FEE = 10; // Base fee (cash payout) upon survey completion.
 
 // Bonus based on how fast the survey is completed (in minutes).
 const getSpeedBonus = (completionSpeed: number): number => {
@@ -67,7 +67,11 @@ export const calculatePoints = (
   surveysCompleted: number,
   completionSpeed: number,
 ): number => {
-  return BASE_POINTS + surveysCompleted * SURVEY_BONUS + getSpeedBonus(completionSpeed);
+  return (
+    BASE_POINTS +
+    surveysCompleted * SURVEY_BONUS +
+    getSpeedBonus(completionSpeed)
+  );
 };
 
 // Update the user's league based on points.
@@ -103,7 +107,10 @@ export const awardBaseFee = async (user: IUser, survey: any) => {
  * Distribute lottery payouts for a specific survey.
  * This bonus payout is awarded from the survey's remainingBudget to its participants.
  */
-export const distributeSurveyLottery = async (surveyId: string, highestReward: number) => {
+export const distributeSurveyLottery = async (
+  surveyId: string,
+  highestReward: number,
+) => {
   const Survey = (await import('./survey.model')).default;
   const survey = await Survey.findById(surveyId);
   if (!survey) throw new Error('Survey not found');
@@ -116,8 +123,8 @@ export const distributeSurveyLottery = async (surveyId: string, highestReward: n
 
   // Define probability tiers.
   const topProb = Math.min(0.05, 1 / (2 * numParticipants));
-  const midProb = Math.min(0.10, 1 / numParticipants);
-  const smallProb = Math.min(0.20, 2 / numParticipants);
+  const midProb = Math.min(0.1, 1 / numParticipants);
+  const smallProb = Math.min(0.2, 2 / numParticipants);
 
   for (const user of users) {
     const roll = Math.random();
@@ -155,7 +162,10 @@ export const distributeBiWeeklyPayout = async () => {
 
   // For each survey, reserve 2.5% of its reward (or up to its remainingBudget).
   for (const survey of surveys) {
-    const contribution = Math.min(0.025 * survey.reward, survey.remainingBudget);
+    const contribution = Math.min(
+      0.025 * survey.reward,
+      survey.remainingBudget,
+    );
     biWeeklyPool += contribution;
     survey.remainingBudget -= contribution;
     await survey.save();

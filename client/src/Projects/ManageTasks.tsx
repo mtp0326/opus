@@ -10,12 +10,13 @@ import {
   Box,
   Button,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Navigation from '../components/Navigation';
 import { getPublishedSurveys, type SurveyData } from './api';
 import { deleteSurvey } from './api';
+import styles from './ManageTasks.module.css';
 
 interface Survey extends SurveyData {
   createdAt: string;
@@ -26,8 +27,10 @@ interface Survey extends SurveyData {
 
 function ManageTasks() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
 
   useEffect(() => {
     console.log('🎯 ManageTasks component mounted - fetching surveys...');
@@ -45,6 +48,14 @@ function ManageTasks() {
 
     fetchSurveys();
   }, []);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get('payment') === 'success') {
+      setShowPaymentSuccess(true);
+      setTimeout(() => setShowPaymentSuccess(false), 3000);
+    }
+  }, [location]);
 
   const handleEdit = async (survey: Survey) => {
     if (survey.surveyType === 'surveyjs') {
@@ -84,6 +95,13 @@ function ManageTasks() {
 
   return (
     <>
+      {showPaymentSuccess && (
+        <div className={styles.popup}>
+          <div className={styles.popupContent}>
+            <p>✅ Payment completed successfully!</p>
+          </div>
+        </div>
+      )}
       <Navigation />
       <Container maxWidth="lg">
         <Paper sx={{ p: 2, mt: 2 }}>
@@ -92,8 +110,8 @@ function ManageTasks() {
           </Typography>
 
           <Grid container spacing={2}>
-            {surveys.map((survey, index) => (
-              <Grid item xs={12} key={index}>
+            {surveys.map((survey) => (
+              <Grid item xs={12} key={survey._id}>
                 <Card>
                   <CardContent>
                     <Grid

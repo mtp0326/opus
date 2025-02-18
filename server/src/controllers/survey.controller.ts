@@ -6,6 +6,9 @@ import { IUser } from '../models/user.model.ts';
 import SurveySubmission from '../models/surveySubmission.model.ts';
 import SurveyJs from '../models/surveyJs.model.ts';
 import SurveyJsSubmission from '../models/surveyJsSubmission.model.ts';
+import Stripe from 'stripe';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 export const publishSurvey = async (
   req: Request & { user?: IUser },
@@ -771,6 +774,45 @@ export const updateSubmissionsBatch = async (
           error instanceof Error
             ? error.message
             : 'Failed to update submissions',
+      },
+    });
+  }
+};
+
+export const getStripePayment = async (req: Request, res: Response) => {
+  try {
+    const { amount, surveyId, title } = req.body;
+    const stripeSession = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'payment',
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: `Survey Payment For ${title}`,
+            },
+            unit_amount: Math.round(amount * 100), // Convert to cents
+          },
+          quantity: 1,
+        },
+      ],
+      success_url: `${process.env.CLIENT_URL}/manage-tasks?payment=success`, // Add payment status
+      cancel_url: `${process.env.CLIENT_URL}/create-publish-test?payment=failure`,
+    });
+
+    res.status(201).json({
+      message: 'Checkout session created successfully',
+      url: stripeSession.url,
+    });
+  } catch (error) {
+    console.error('❌ Error creating Stripe session:', error);
+    return res.status(500).json({
+      error: {
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to create checkout session',
       },
     });
   }

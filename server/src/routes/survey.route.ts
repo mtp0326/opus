@@ -16,6 +16,7 @@ import {
   getSurveyById,
   getSurveyResults,
   updateSubmissionsBatch,
+  getStripePayment,
 } from '../controllers/survey.controller.ts';
 import { IUser } from '../models/user.model.ts';
 
@@ -136,6 +137,12 @@ router.put(
   '/:surveyId/submissions/batch',
   isAuthenticated,
   updateSubmissionsBatch as express.RequestHandler,
+);
+
+router.post(
+  '/create-checkout-session',
+  isAuthenticated,
+  getStripePayment as express.RequestHandler,
 );
 
 export default router;

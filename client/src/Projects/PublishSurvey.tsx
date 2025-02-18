@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './PublishSurvey.module.css';
 import { publishSurvey } from './api';
 import Navigation from '../components/Navigation';
+import { postData } from '../util/api';
 
 const FEE_PERCENTAGE = 0.2; // 20% fee
 
@@ -13,6 +14,19 @@ function PublishSurvey() {
 
   // Get surveyId from location state
   const { formData, surveyId } = location.state || {};
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get('payment') === 'failure') {
+      // Refresh the page on payment failure
+      window.location.href = window.location.pathname;
+    }
+  }, [location]);
+
+  if (!formData || !surveyId) {
+    navigate('/rhome');
+    return null;
+  }
 
   console.log('📝 Survey data:', { formData, surveyId }); // Debug log
 
@@ -29,20 +43,27 @@ function PublishSurvey() {
         throw new Error('Survey ID is required');
       }
 
+      const response = await postData('surveys/create-checkout-session', {
+        amount: totalCost,
+        surveyId,
+        title: formData.title,
+      });
+
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      console.log('💰 Payment session created:', response.data.data);
+      window.location.href = response.data.url;
+
       const publishedSurvey = await publishSurvey(surveyId);
       console.log('✅ Published survey:', publishedSurvey);
 
-      // Clear survey data from localStorage
       localStorage.removeItem('currentSurvey');
       localStorage.removeItem('currentSurveyId');
-      console.log('🗑️ Cleared survey data from localStorage');
-
-      navigate('/rhome', {
-        state: { message: 'Survey published successfully!' },
-      });
     } catch (error) {
-      console.error('❌ Error publishing survey:', error);
-      // Add error handling UI feedback here
+      console.error('❌ Error:', error);
+      alert('Failed to create checkout session');
     } finally {
       setIsLoading(false);
     }
@@ -125,7 +146,27 @@ function PublishSurvey() {
             }}
             disabled={isLoading}
           >
-            {isLoading ? 'Publishing...' : 'Publish Survey'}
+            {isLoading ? (
+              'Processing...'
+            ) : (
+              <span className={styles.stripeButton}>
+                {/* Stripe logo */}
+                <svg
+                  className={styles.stripeLogo}
+                  width="14"
+                  height="16"
+                  viewBox="0 0 14 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M7 16L14 12V4L7 8V16ZM6.5 7.25L13.5 3.25L7 0L0 4L6.5 7.25Z"
+                    fill="currentColor"
+                  />
+                </svg>
+                Publish & Pay with Stripe
+              </span>
+            )}
           </button>
         </div>
       </div>

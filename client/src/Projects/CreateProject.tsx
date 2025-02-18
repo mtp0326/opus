@@ -20,7 +20,13 @@ function CreateProject() {
             minHeight: 'calc(100vh - 64px)', // 64px is default MUI AppBar height
           }}
         >
-          <Typography variant="h2" sx={{ mb: 4 }}>
+          <Typography
+            variant="h2"
+            sx={{
+              mb: 4,
+              color: '#58CC02',
+            }}
+          >
             Create New Project
           </Typography>
           <Stack spacing={3} direction="row" justifyContent="center">
@@ -28,6 +34,10 @@ function CreateProject() {
               variant="contained"
               size="large"
               onClick={() => navigate('/survey-link')}
+              sx={{
+                backgroundColor: '#58CC02',
+                '&:hover': { backgroundColor: '#45a501' },
+              }}
             >
               Survey Link
             </Button>
@@ -35,6 +45,10 @@ function CreateProject() {
               variant="contained"
               size="large"
               onClick={() => navigate('/survey-builder')}
+              sx={{
+                backgroundColor: '#58CC02',
+                '&:hover': { backgroundColor: '#45a501' },
+              }}
             >
               Survey Builder
             </Button>

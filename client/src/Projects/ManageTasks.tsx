@@ -87,14 +87,20 @@ function ManageTasks() {
       <Navigation />
       <Container maxWidth="lg">
         <Paper sx={{ p: 2, mt: 2 }}>
-          <Typography variant="h4" gutterBottom>
+          <Typography
+            variant="h4"
+            gutterBottom
+            sx={{
+              color: '#58CC02',
+            }}
+          >
             Manage Tasks
           </Typography>
 
           <Grid container spacing={2}>
             {surveys.map((survey, index) => (
               <Grid item xs={12} key={index}>
-                <Card>
+                <Card sx={{ '&:hover': { borderColor: '#58CC02' } }}>
                   <CardContent>
                     <Grid
                       container
@@ -164,8 +170,10 @@ function ManageTasks() {
                             >
                               <Button
                                 variant="contained"
-                                color="primary"
-                                size="small"
+                                sx={{
+                                  backgroundColor: '#58CC02',
+                                  '&:hover': { backgroundColor: '#45a501' },
+                                }}
                                 onClick={() =>
                                   navigate(`/survey-results/${survey._id}`)
                                 }

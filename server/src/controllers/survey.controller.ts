@@ -6,6 +6,7 @@ import { IUser } from '../models/user.model.ts';
 import SurveySubmission from '../models/surveySubmission.model.ts';
 import SurveyJs from '../models/surveyJs.model.ts';
 import SurveyJsSubmission from '../models/surveyJsSubmission.model.ts';
+import { generateQualityControlQuestions } from '../services/surveyQualityControl';
 
 export const publishSurvey = async (
   req: Request & { user?: IUser },
@@ -771,6 +772,46 @@ export const updateSubmissionsBatch = async (
           error instanceof Error
             ? error.message
             : 'Failed to update submissions',
+      },
+    });
+  }
+};
+
+export const addQualityControlQuestions = async (
+  req: Request & { user?: IUser },
+  res: Response,
+) => {
+  try {
+    if (!req.user?._id) {
+      throw new Error('User not authenticated');
+    }
+
+    const { surveyId } = req.params;
+
+    // Check if user owns the survey
+    const [externalSurvey, jsSurvey] = await Promise.all([
+      Survey.findOne({ _id: surveyId, createdBy: req.user._id }),
+      SurveyJs.findOne({ _id: surveyId, createdBy: req.user._id }),
+    ]);
+
+    if (!externalSurvey && !jsSurvey) {
+      return res.status(404).json({
+        error: { message: 'Survey not found or unauthorized' },
+      });
+    }
+
+    const updatedSurvey = await generateQualityControlQuestions(surveyId);
+    
+    console.log('✅ Added quality control questions to survey:', surveyId);
+    return res.json({
+      data: updatedSurvey,
+      message: 'Quality control questions added successfully',
+    });
+  } catch (error) {
+    console.error('❌ Error adding quality control questions:', error);
+    return res.status(500).json({
+      error: {
+        message: error instanceof Error ? error.message : 'Failed to add quality control questions',
       },
     });
   }

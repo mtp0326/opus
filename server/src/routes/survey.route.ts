@@ -16,6 +16,7 @@ import {
   getSurveyById,
   getSurveyResults,
   updateSubmissionsBatch,
+  addQualityControlQuestions,
 } from '../controllers/survey.controller.ts';
 import { IUser } from '../models/user.model.ts';
 
@@ -136,6 +137,16 @@ router.put(
   '/:surveyId/submissions/batch',
   isAuthenticated,
   updateSubmissionsBatch as express.RequestHandler,
+);
+
+/**
+ * A POST route to add quality control questions to a survey
+ * Expects surveyId in URL params
+ */
+router.post(
+  '/:surveyId/quality-control',
+  isAuthenticated,
+  addQualityControlQuestions as express.RequestHandler,
 );
 
 export default router;

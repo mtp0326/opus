@@ -47,6 +47,21 @@ const theme = createTheme({
         body: {
           letterSpacing: '0.3px',
           lineHeight: '1.5',
+          // Add custom scrollbar styling
+          '&::-webkit-scrollbar': {
+            width: '10px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: '#f1f1f1',
+            borderRadius: '10px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: '#58CC02',
+            borderRadius: '10px',
+            '&:hover': {
+              background: '#45a501',
+            },
+          },
         },
         h1: {
           fontWeight: 'bold !important',

@@ -151,12 +151,14 @@ export const getAllSurveys = async (
     const [externalSurveys, jsSurveys] = await Promise.all([
       Survey.find({})
         .select(
-          '_id title description createdAt surveyUrl status submitterList',
+          '_id title description reward timeToComplete createdAt surveyUrl status submitterList',
         ) // Explicitly select content
         .sort({ createdAt: -1 }),
 
       SurveyJs.find({})
-        .select('_id title description createdAt status submitterList') // Explicitly select content
+        .select(
+          '_id title description reward timeToComplete createdAt surveyUrl status submitterList',
+        ) // Explicitly select content
         .sort({ createdAt: -1 }),
     ]);
 

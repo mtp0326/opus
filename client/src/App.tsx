@@ -42,6 +42,7 @@ import OnboardingPage from './UserPages/OnboardingPage.tsx';
 import TakeSurveyLink from './UserPages/TakeSurveyLink';
 import TakeSurveyJs from './UserPages/TakeSurveyJs';
 import SurveyResults from './Projects/SurveyResults';
+import AccountInfoPage from './UserPages/AccountInfoPage.tsx';
 
 function App() {
   return (
@@ -126,6 +127,7 @@ function App() {
                       path="/take-survey-js/:surveyId"
                       element={<TakeSurveyJs />}
                     />
+                    <Route path="/account-info" element={<AccountInfoPage />} />
                   </Route>
 
                   {/* Route which redirects to a different page depending on if the user is authenticated or not */}

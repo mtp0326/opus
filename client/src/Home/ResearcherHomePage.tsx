@@ -71,16 +71,27 @@ function WorkerHomePage() {
     <>
       <Navigation />
       <ScreenGrid>
-        <Typography variant="h2">{message}</Typography>
+        <Typography
+          variant="h2"
+          sx={{
+            color: '#58CC02',
+          }}
+        >
+          {message}
+        </Typography>
         <Grid item container justifyContent="center">
-          <PromoteButton
-            admin={admin}
-            // handleSelfPromote={handleSelfPromote}
-            navigator={navigator}
-          />
+          <PromoteButton admin={admin} navigator={navigator} />
         </Grid>
         <Grid item container justifyContent="center">
-          <Button onClick={handleLogout}>Logout</Button>
+          <Button
+            onClick={handleLogout}
+            sx={{
+              color: '#58CC02',
+              '&:hover': { backgroundColor: '#f0f9f0' },
+            }}
+          >
+            Logout
+          </Button>
         </Grid>
       </ScreenGrid>
     </>

@@ -74,6 +74,12 @@ function WorkerLoginPage() {
     lastName: string,
     admin: boolean,
     userType: string,
+    league: 'Wood' | 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond',
+    cashBalance: number,
+    points: number,
+    surveysCompleted: number,
+    verified: boolean,
+    onboarded: boolean,
   ) {
     dispatch(
       loginRedux({
@@ -82,6 +88,12 @@ function WorkerLoginPage() {
         lastName,
         admin,
         userType: 'worker',
+        league,
+        cashBalance,
+        points,
+        surveysCompleted,
+        verified,
+        onboarded,
       }),
     );
   }
@@ -133,6 +145,12 @@ function WorkerLoginPage() {
             user.lastName!,
             user.admin!,
             user.userType!,
+            user.league!,
+            user.cashBalance!,
+            user.points!,
+            user.surveysCompleted!,
+            user.verified!,
+            user.onboarded!,
           );
           navigate('/whome');
         })

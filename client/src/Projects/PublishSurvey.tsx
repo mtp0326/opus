@@ -1,15 +1,25 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, PaymentElement } from '@stripe/react-stripe-js';
 import styles from './PublishSurvey.module.css';
 import { publishSurvey } from './api';
 import Navigation from '../components/Navigation';
+import StripePaymentPage from './StripePaymentPage';
 
 const FEE_PERCENTAGE = 0.2; // 20% fee
+
+// Initialize Stripe (replace with your publishable key)
+const stripePromise = loadStripe(
+  'pk_test_51QtYHnIHTStKHWzZs15W04R6zkKhZgo1gLvLaU3HW3MKdOvK2BvKJ81HYsMhmTHQaPJnXuGSP4gL6eebW3lAkA8300PUP85evs',
+);
 
 function PublishSurvey() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
 
   // Get surveyId from location state
   const { formData, surveyId } = location.state || {};
@@ -29,6 +39,40 @@ function PublishSurvey() {
         throw new Error('Survey ID is required');
       }
 
+      console.log('Creating payment intent for amount:', totalCost);
+
+      // Create payment intent on the server
+      const response = await fetch('/api/surveys/create-payment-intent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: totalCost,
+          surveyId,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Payment intent failed: ${errorData.error}`);
+      }
+
+      const data = await response.json();
+      console.log('Payment intent created:', data);
+
+      setClientSecret(data.clientSecret);
+      setShowPayment(true);
+    } catch (error) {
+      console.error('Error in handlePublish:', error);
+      alert('Failed to initiate payment. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePaymentSuccess = async () => {
+    try {
       const publishedSurvey = await publishSurvey(surveyId);
       console.log('✅ Published survey:', publishedSurvey);
 
@@ -43,10 +87,25 @@ function PublishSurvey() {
     } catch (error) {
       console.error('❌ Error publishing survey:', error);
       // Add error handling UI feedback here
-    } finally {
-      setIsLoading(false);
     }
+    setShowPayment(false);
   };
+
+  const handlePaymentCancel = () => {
+    setShowPayment(false);
+  };
+
+  if (showPayment && clientSecret) {
+    return (
+      <Elements stripe={stripePromise} options={{ clientSecret }}>
+        <StripePaymentPage
+          amount={totalCost}
+          onSuccess={handlePaymentSuccess}
+          onCancel={handlePaymentCancel}
+        />
+      </Elements>
+    );
+  }
 
   return (
     <>
@@ -116,17 +175,20 @@ function PublishSurvey() {
         </div>
 
         <div className={styles.actions}>
-          <button
-            className={styles.publishButton}
-            type="button"
-            onClick={() => {
-              console.log('Button clicked via inline handler');
-              handlePublish();
-            }}
-            disabled={isLoading}
-          >
-            {isLoading ? 'Publishing...' : 'Publish Survey'}
-          </button>
+          <form>
+            <PaymentElement />
+            <button
+              className={styles.publishButton}
+              type="button"
+              onClick={() => {
+                console.log('Button clicked via inline handler');
+                handlePublish();
+              }}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Publishing...' : 'Publish Survey'}
+            </button>
+          </form>
         </div>
       </div>
     </>

@@ -1,7 +1,7 @@
 import { OpenAI } from 'openai';
+import { Document } from 'mongoose';
 import SurveyJs from '../models/surveyJs.model';
 import Survey from '../models/survey.model';
-import { Document } from 'mongoose';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -9,6 +9,10 @@ const openai = new OpenAI({
 });
 
 async function generateQualityControlQuestions(surveyId: string) {
+  if (!surveyId) {
+    throw new Error('Survey ID is required');
+  }
+
   try {
     // Try to find survey in both collections
     const [externalSurvey, jsSurvey] = await Promise.all([
@@ -42,7 +46,8 @@ async function generateQualityControlQuestions(surveyId: string) {
       messages: [
         {
           role: 'system',
-          content: 'You are a survey expert. Generate 2-3 quality control questions based on the existing survey questions. These should help verify the respondent is paying attention and giving consistent answers. Format the response as a SurveyJS compatible JSON object.',
+          content:
+            'You are a survey expert. Generate 2-3 quality control questions based on the existing survey questions. These should help verify the respondent is paying attention and giving consistent answers. Format the response as a SurveyJS compatible JSON object.',
         },
         {
           role: 'user',
@@ -64,7 +69,12 @@ async function generateQualityControlQuestions(surveyId: string) {
     });
 
     // Parse the generated questions
-    const generatedQuestions = JSON.parse(completion.choices[0].message.content);
+    const { content } = completion.choices[0].message;
+    if (!content) {
+      throw new Error('No content received from OpenAI');
+    }
+
+    const generatedQuestions = JSON.parse(content);
 
     // Update the survey based on its type
     if (jsSurvey) {
@@ -80,19 +90,20 @@ async function generateQualityControlQuestions(surveyId: string) {
       const updatedSurvey = await SurveyJs.findByIdAndUpdate(
         surveyId,
         { content: updatedContent },
-        { new: true }
+        { new: true },
       );
 
       return updatedSurvey;
-    } else {
-      // For external surveys, we might want to store QC questions separately
-      // or handle differently
-      throw new Error('Quality control questions for external surveys not yet implemented');
     }
+    // For external surveys, we might want to store QC questions separately
+    // or handle differently
+    throw new Error(
+      'Quality control questions for external surveys not yet implemented',
+    );
   } catch (error) {
     console.error('Error generating quality control questions:', error);
     throw error;
   }
 }
 
-export { generateQualityControlQuestions }; 
+export { generateQualityControlQuestions };

@@ -43,6 +43,7 @@
     "cross-env": "^7.0.3",
     "dd-trace": "5.22.0",
     "jsonwebtoken": "9.0.2",
+    "label-studio": "0.7.5",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

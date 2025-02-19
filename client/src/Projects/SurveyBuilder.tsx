@@ -107,6 +107,52 @@ function SurveyBuilder() {
     }
   }, []);
 
+  // const handleGenerateQC = useCallback(async () => {
+  //   try {
+  //     // const response = await postData('surveys/js/generate-qc', {
+  //     //   surveyJson: creatorRef.current?.JSON
+  //     // });
+
+  //     const response = await postData('surveys/${surveyId}/quality-control`, { 
+  //       surveyJson: creatorRef.current?.JSON 
+  //     });
+      
+  //     if (response.data) {
+  //       // Update the survey creator with the new JSON that includes QC questions
+  //       creatorRef.current!.JSON = response.data;
+  //       showAlert('QC questions generated successfully', 'success');
+  //     } else {
+  //       showAlert('Failed to generate QC questions', 'error');
+  //     }
+  //   } catch (error) {
+  //     console.error('Generate QC failed:', error);
+  //     showAlert('Failed to generate QC questions', 'error');
+  //   }
+  // }, []);
+
+  const handleGenerateQC = useCallback(async () => {
+    try {
+      console.log('🟢 Sending request to generate QC questions...');
+      const response = await postData(`surveys/${surveyId}/quality-control`, {
+        surveyJson: creatorRef.current?.JSON,
+      });
+  
+      console.log('🔵 Response from backend:', response);
+      
+      if (response.data) {
+        creatorRef.current!.JSON = response.data;
+        showAlert('QC questions generated successfully', 'success');
+      } else {
+        console.error('🔴 Backend returned no data:', response);
+        showAlert('Failed to generate QC questions', 'error');
+      }
+    } catch (error) {
+      console.error('❌ Generate QC failed:', error);
+      showAlert('Failed to generate QC questions', 'error');
+    }
+  }, []);
+
+
   // Fetch available draft surveys
   useEffect(() => {
     const fetchSurveys = async () => {
@@ -137,6 +183,9 @@ function SurveyBuilder() {
             justifyContent: 'flex-end',
           }}
         >
+          <Button onClick={handleGenerateQC} color="primary">
+            Generate QC Questions
+          </Button>
           <Button onClick={handleSave} color="primary">
             Save Survey
           </Button>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Typography, Button } from '@mui/material';
 import styles from './SurveyLink.module.css';
 import { saveSurvey, editSurvey } from './api';
 import Navigation from '../components/Navigation';
@@ -23,6 +24,16 @@ interface FormData {
 interface FormErrors {
   [key: string]: string;
 }
+
+// Add font styles
+const fontStyles = `
+  @font-face {
+    font-family: 'DIN Next Rounded';
+    src: url('/fonts/DINNextRoundedLTW01-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+`;
 
 function SurveyLink() {
   const navigate = useNavigate();
@@ -186,14 +197,42 @@ function SurveyLink() {
     e.currentTarget.blur();
   };
 
+  React.useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = fontStyles;
+    document.head.appendChild(styleElement);
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
+
   return (
     <div className={styles.pageContainer}>
       <Navigation />
       <div className={styles.container}>
-        <h2>Add External Survey Link</h2>
+        <Typography
+          variant="h4"
+          sx={{
+            color: '#1f1f1f',
+            fontFamily: 'DIN Next Rounded',
+            textAlign: 'center',
+            mb: 4,
+            fontWeight: 'bold',
+            letterSpacing: '0.5px',
+          }}
+        >
+          Add External Survey Link
+        </Typography>
+
         <form onSubmit={handlePreviewAndSave}>
           <div className={styles.formGroup}>
-            <label className={styles.label} htmlFor="surveyUrl">
+            <label
+              className={styles.label}
+              style={{
+                fontFamily: 'DIN Next Rounded',
+                fontWeight: 'bold',
+              }}
+            >
               Survey URL:
             </label>
             <input
@@ -205,9 +244,15 @@ function SurveyLink() {
               onChange={handleChange}
               placeholder="https://your-survey-url.com"
               disabled={isLoading}
+              style={{ fontFamily: 'DIN Next Rounded' }}
             />
             {errors.surveyUrl && (
-              <div className={styles.error}>{errors.surveyUrl}</div>
+              <div
+                className={styles.error}
+                style={{ fontFamily: 'DIN Next Rounded' }}
+              >
+                {errors.surveyUrl}
+              </div>
             )}
           </div>
 
@@ -364,14 +409,40 @@ function SurveyLink() {
             )}
           </div>
 
-          <div className={styles.buttonGroup}>
-            <button
-              className={`${styles.button} ${isLoading ? styles.loading : ''}`}
+          <div className={styles.buttonGroup} style={{ textAlign: 'center' }}>
+            <Button
               type="submit"
               disabled={isLoading}
+              variant="contained"
+              sx={{
+                backgroundColor: '#58CC02',
+                fontFamily: 'DIN Next Rounded',
+                padding: '14px 28px',
+                fontSize: '1.1rem',
+                borderRadius: '8px',
+                boxShadow: '0 3px 0 #45a501',
+                letterSpacing: '0.3px',
+                fontWeight: 'bold',
+                border: '1px solid #45a501',
+                minWidth: '220px',
+                textTransform: 'none',
+                transition: 'all 0.2s ease',
+                margin: '0 auto',
+                display: 'inline-block',
+                '&:hover': {
+                  backgroundColor: '#45a501',
+                  transform: 'translateY(1px)',
+                  boxShadow: '0 2px 0 #45a501',
+                },
+                '&:disabled': {
+                  backgroundColor: '#E5E5E5',
+                  boxShadow: '0 3px 0 #cccccc',
+                  border: '1px solid #cccccc',
+                },
+              }}
             >
               Save and Preview Survey
-            </button>
+            </Button>
           </div>
         </form>
       </div>

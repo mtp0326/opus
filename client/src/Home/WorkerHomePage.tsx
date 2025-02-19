@@ -14,6 +14,24 @@ import PrimaryButton from '../components/buttons/PrimaryButton.tsx';
 import Navigation2 from '../components/Navigation2.tsx';
 import { getData } from '../util/api';
 
+// Add font styles
+const fontStyles = `
+  @font-face {
+    font-family: 'Feather Bold';
+    src: url('/fonts/Feather-Bold.woff2') format('woff2'),
+         url('/fonts/Feather-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'DIN Next Rounded LT W01 Regular';
+    src: url('/fonts/DINNextRoundedLTW01-Regular.woff2') format('woff2'),
+         url('/fonts/DINNextRoundedLTW01-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+`;
+
 interface PromoteButtonProps {
   admin: boolean | null;
   navigator: NavigateFunction;
@@ -32,6 +50,11 @@ function PromoteButton({ admin, navigator }: PromoteButtonProps) {
     <PrimaryButton
       variant="contained"
       onClick={() => navigator('/users', { replace: true })}
+      sx={{
+        backgroundColor: '#58CC02',
+        '&:hover': { backgroundColor: '#45a501' },
+        fontFamily: 'Feather Bold',
+      }}
     >
       View all users
     </PrimaryButton>
@@ -61,6 +84,10 @@ function WorkerHomePage() {
   //   }
   // };
   useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = fontStyles;
+    document.head.appendChild(styleElement);
+
     const fetchOutcomes = async () => {
       try {
         // commenting out onboarding for now cause it wasn't working
@@ -75,6 +102,10 @@ function WorkerHomePage() {
       }
     };
     fetchOutcomes();
+
+    return () => {
+      document.head.removeChild(styleElement);
+    };
   }, []);
 
   const message = `Welcome to the Opus, ${user.firstName} ${user.lastName}!`;
@@ -82,7 +113,17 @@ function WorkerHomePage() {
     <>
       <Navigation2 />
       <ScreenGrid>
-        <Typography variant="h2">{message}</Typography>
+        <Typography
+          variant="h2"
+          sx={{
+            color: '#58CC02',
+            fontFamily: 'Feather Bold',
+            textAlign: 'center',
+            mb: 4,
+          }}
+        >
+          {message}
+        </Typography>
         <Grid item container justifyContent="center">
           <PromoteButton
             admin={admin}
@@ -91,7 +132,16 @@ function WorkerHomePage() {
           />
         </Grid>
         <Grid item container justifyContent="center">
-          <Button onClick={handleLogout}>Logout</Button>
+          <Button
+            onClick={handleLogout}
+            sx={{
+              color: '#58CC02',
+              fontFamily: 'DIN Next Rounded LT W01 Regular',
+              '&:hover': { backgroundColor: '#f0f9f0' },
+            }}
+          >
+            Logout
+          </Button>
         </Grid>
       </ScreenGrid>
     </>

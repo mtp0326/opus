@@ -240,16 +240,42 @@ function SurveyBuilderSetup() {
                 </select>
               </div>
 
-              <div className={styles.buttonGroup}>
-                <button
-                  className={`${styles.button} ${
-                    isLoading ? styles.loading : ''
-                  }`}
+              <div
+                className={styles.buttonGroup}
+                style={{ textAlign: 'center' }}
+              >
+                <Button
                   type="submit"
                   disabled={isLoading}
+                  variant="contained"
+                  sx={{
+                    backgroundColor: '#58CC02',
+                    padding: '14px 28px',
+                    fontSize: '1.1rem',
+                    borderRadius: '8px',
+                    boxShadow: '0 3px 0 #45a501',
+                    letterSpacing: '0.3px',
+                    fontWeight: 'bold',
+                    border: '1px solid #45a501',
+                    minWidth: '220px',
+                    textTransform: 'none',
+                    transition: 'all 0.2s ease',
+                    margin: '0 auto',
+                    display: 'inline-block',
+                    '&:hover': {
+                      backgroundColor: '#45a501',
+                      transform: 'translateY(1px)',
+                      boxShadow: '0 2px 0 #45a501',
+                    },
+                    '&:disabled': {
+                      backgroundColor: '#E5E5E5',
+                      boxShadow: '0 3px 0 #cccccc',
+                      border: '1px solid #cccccc',
+                    },
+                  }}
                 >
                   Continue to Payment
-                </button>
+                </Button>
               </div>
             </Box>
           </form>

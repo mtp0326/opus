@@ -65,7 +65,7 @@ async function generateQualityControlQuestions(surveyId: string) {
           }`,
         },
       ],
-      temperature: 0.7,
+      temperature: 0.0,
     });
 
     // Parse the generated questions

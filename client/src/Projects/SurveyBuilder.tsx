@@ -113,10 +113,10 @@ function SurveyBuilder() {
   //     //   surveyJson: creatorRef.current?.JSON
   //     // });
 
-  //     const response = await postData('surveys/${surveyId}/quality-control`, { 
-  //       surveyJson: creatorRef.current?.JSON 
+  //     const response = await postData('surveys/${surveyId}/quality-control`, {
+  //       surveyJson: creatorRef.current?.JSON
   //     });
-      
+
   //     if (response.data) {
   //       // Update the survey creator with the new JSON that includes QC questions
   //       creatorRef.current!.JSON = response.data;
@@ -136,9 +136,9 @@ function SurveyBuilder() {
       const response = await postData(`surveys/${surveyId}/quality-control`, {
         surveyJson: creatorRef.current?.JSON,
       });
-  
+
       console.log('🔵 Response from backend:', response);
-      
+
       if (response.data) {
         creatorRef.current!.JSON = response.data;
         showAlert('QC questions generated successfully', 'success');
@@ -151,7 +151,6 @@ function SurveyBuilder() {
       showAlert('Failed to generate QC questions', 'error');
     }
   }, []);
-
 
   // Fetch available draft surveys
   useEffect(() => {

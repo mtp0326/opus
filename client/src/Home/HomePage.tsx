@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import './home.css';
 import Navbar from './Navbar';
 
 function HomePage() {
@@ -16,13 +17,15 @@ function HomePage() {
   };
 
   return (
-    <div style={{ textAlign: 'center'}}>
+    <div className="home-page">
       <Navbar />
 
       <h1>Gamifying Data Collection</h1>
-      <p>Opus aims to revolutionize crowdsourcing by allowing greater rewards 
-        for respondents and by providing requesters with higher response rates 
-        and higher quality responses.</p>
+      <p>
+        Opus aims to revolutionize crowdsourcing by allowing greater rewards for
+        respondents and by providing requesters with higher response rates and
+        higher quality responses.
+      </p>
       <button
         type="button"
         onClick={handleWorkerLogin}

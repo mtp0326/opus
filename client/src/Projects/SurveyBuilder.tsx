@@ -109,8 +109,12 @@ function SurveyBuilder() {
 
   const handleGenerateQC = useCallback(async () => {
     try {
-      const response = await postData('surveys/js/generate-qc', {
-        surveyJson: creatorRef.current?.JSON
+      // const response = await postData('surveys/js/generate-qc', {
+      //   surveyJson: creatorRef.current?.JSON
+      // });
+
+      const response = await postData('surveys/${surveyId}/quality-control`, { 
+        surveyJson: creatorRef.current?.JSON 
       });
       
       if (response.data) {

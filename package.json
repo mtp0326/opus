@@ -39,6 +39,7 @@
     "label-studio": "^0.7.5",
     "label-studio-frontend": "^1.7.1",
     "nouislider": "^15.8.1",
+    "openai": "^4.85.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.2.2",

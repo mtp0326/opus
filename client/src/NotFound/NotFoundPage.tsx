@@ -18,7 +18,7 @@ function NotFoundPage() {
         </Typography>
       </Grid>
       <Grid item>
-        <Button href="/home" variant="text">
+        <Button href="/" variant="text">
           Go to home page
         </Button>
       </Grid>

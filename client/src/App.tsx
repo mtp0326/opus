@@ -1,9 +1,13 @@
 import React from 'react';
-import { ThemeProvider } from '@mui/material/styles';
+import {
+  ThemeProvider,
+  ThemeProvider as MuiThemeProvider,
+} from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
+import { ThemeProvider as StyledThemeProvider } from 'styled-components';
 import theme from './assets/theme.ts';
 import { store, persistor } from './util/redux/store.ts';
 import NotFoundPage from './NotFound/NotFoundPage.tsx';
@@ -43,6 +47,7 @@ import TakeSurveyLink from './UserPages/TakeSurveyLink';
 import TakeSurveyJs from './UserPages/TakeSurveyJs';
 import SurveyResults from './Projects/SurveyResults';
 import AccountInfoPage from './UserPages/AccountInfoPage.tsx';
+import { ThemeProvider as CustomThemeProvider } from './context/ThemeContext';
 
 function App() {
   return (
@@ -51,111 +56,128 @@ function App() {
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
             <ThemeProvider theme={theme}>
-              <CssBaseline>
-                <AlertPopup />
-                <Routes>
-                  {/* Other unauthenticated routes */}
-                  <Route element={<UnauthenticatedRoutesWrapper />}>
-                    <Route path="/wregister" element={<WorkerRegisterPage />} />
-                    <Route
-                      path="/rregister"
-                      element={<ResearcherRegisterPage />}
-                    />
-
-                    <Route
-                      path="/verify-account/:token"
-                      element={<VerifyAccountPage />}
-                    />
-                    <Route
-                      path="/email-reset"
-                      element={<EmailResetPasswordPage />}
-                    />
-                    <Route
-                      path="/reset-password/:token"
-                      element={<ResetPasswordPage />}
-                    />
-                  </Route>
-                  <Route
-                    path="/invite/:token"
-                    element={<InviteRegisterPage />}
-                  />
-                  {/* Routes accessed only if user is authenticated and researcher */}
-                  <Route element={<ResearcherRoutesWrapper />}>
-                    <Route path="/rhome" element={<ResearcherHomePage />} />
-                    <Route path="/create-project" element={<CreateProject />} />
-                    <Route path="/survey-link" element={<SurveyLink />} />
-                    <Route path="/survey-builder" element={<SurveyBuilder />} />
-                    <Route path="/manage-tasks" element={<ManageTasks />} />
-                    <Route path="/survey-preview" element={<SurveyPreview />} />
-                    <Route
-                      path="/create-publish-test"
-                      element={<PublishSurvey />}
-                    />
-                    <Route
-                      path="/survey-builder-setup"
-                      element={<SurveyBuilderSetup />}
-                    />
-                    <Route
-                      path="/survey-results/:surveyId"
-                      element={<SurveyResults />}
-                    />
-                  </Route>
-
-                  <Route element={<AdminRoutesWrapper />}>
-                    <Route path="/users" element={<AdminDashboardPage />} />
-                  </Route>
-
-                  {/* Routes accessed only if user is authenticated and worker */}
-                  <Route element={<WorkerRoutesWrapper />}>
-                    <Route path="/whome" element={<WorkerHomePage />} />
-                    <Route path="/leaderboard" element={<Leaderboard />} />
-                    <Route path="/wonboard" element={<OnboardingPage />} />
-                    <Route
-                      path="/wrecommended"
-                      element={<RecommendationPage />}
-                    />
-                    {/* do we even need this page? */}
-                    <Route
-                      path="/surveys/:surveyId/complete"
-                      element={<SurveyCompletion />}
-                    />
-                    <Route
-                      path="/take-survey-link/:surveyId"
-                      element={<TakeSurveyLink />}
-                    />
-                    <Route
-                      path="/take-survey-js/:surveyId"
-                      element={<TakeSurveyJs />}
-                    />
-                    <Route path="/account-info" element={<AccountInfoPage />} />
-                  </Route>
-
-                  {/* Route which redirects to a different page depending on if the user is authenticated or not */}
-                  <Route path="/" element={<HomePage />} />
-                  <Route
-                    path="/wlogin"
-                    element={
-                      <DynamicRedirect
-                        unAuthElement={<WorkerLoginPage />}
-                        authPath="/whome"
+              <CustomThemeProvider>
+                <CssBaseline>
+                  <AlertPopup />
+                  <Routes>
+                    {/* Other unauthenticated routes */}
+                    <Route element={<UnauthenticatedRoutesWrapper />}>
+                      <Route
+                        path="/wregister"
+                        element={<WorkerRegisterPage />}
                       />
-                    }
-                  />
-
-                  <Route
-                    path="/rlogin"
-                    element={
-                      <DynamicRedirect
-                        unAuthElement={<ResearcherLoginPage />}
-                        authPath="/rhome"
+                      <Route
+                        path="/rregister"
+                        element={<ResearcherRegisterPage />}
                       />
-                    }
-                  />
 
-                  {/* Route which is accessed if no other route is matched */}
-                  <Route path="*" element={<NotFoundPage />} />
-                </Routes>
-              </CssBaseline>
+                      <Route
+                        path="/verify-account/:token"
+                        element={<VerifyAccountPage />}
+                      />
+                      <Route
+                        path="/email-reset"
+                        element={<EmailResetPasswordPage />}
+                      />
+                      <Route
+                        path="/reset-password/:token"
+                        element={<ResetPasswordPage />}
+                      />
+                    </Route>
+                    <Route
+                      path="/invite/:token"
+                      element={<InviteRegisterPage />}
+                    />
+                    {/* Routes accessed only if user is authenticated and researcher */}
+                    <Route element={<ResearcherRoutesWrapper />}>
+                      <Route path="/rhome" element={<ResearcherHomePage />} />
+                      <Route
+                        path="/create-project"
+                        element={<CreateProject />}
+                      />
+                      <Route path="/survey-link" element={<SurveyLink />} />
+                      <Route
+                        path="/survey-builder"
+                        element={<SurveyBuilder />}
+                      />
+                      <Route path="/manage-tasks" element={<ManageTasks />} />
+                      <Route
+                        path="/survey-preview"
+                        element={<SurveyPreview />}
+                      />
+                      <Route
+                        path="/create-publish-test"
+                        element={<PublishSurvey />}
+                      />
+                      <Route
+                        path="/survey-builder-setup"
+                        element={<SurveyBuilderSetup />}
+                      />
+                      <Route
+                        path="/survey-results/:surveyId"
+                        element={<SurveyResults />}
+                      />
+                    </Route>
+
+                    <Route element={<AdminRoutesWrapper />}>
+                      <Route path="/users" element={<AdminDashboardPage />} />
+                    </Route>
+
+                    {/* Routes accessed only if user is authenticated and worker */}
+                    <Route element={<WorkerRoutesWrapper />}>
+                      <Route path="/whome" element={<WorkerHomePage />} />
+                      <Route path="/leaderboard" element={<Leaderboard />} />
+                      <Route path="/wonboard" element={<OnboardingPage />} />
+                      <Route
+                        path="/wrecommended"
+                        element={<RecommendationPage />}
+                      />
+                      {/* do we even need this page? */}
+                      <Route
+                        path="/surveys/:surveyId/complete"
+                        element={<SurveyCompletion />}
+                      />
+                      <Route
+                        path="/take-survey-link/:surveyId"
+                        element={<TakeSurveyLink />}
+                      />
+                      <Route
+                        path="/take-survey-js/:surveyId"
+                        element={<TakeSurveyJs />}
+                      />
+                      <Route
+                        path="/account-info"
+                        element={<AccountInfoPage />}
+                      />
+                    </Route>
+
+                    {/* Route which redirects to a different page depending on if the user is authenticated or not */}
+                    <Route path="/" element={<HomePage />} />
+                    <Route
+                      path="/wlogin"
+                      element={
+                        <DynamicRedirect
+                          unAuthElement={<WorkerLoginPage />}
+                          authPath="/whome"
+                        />
+                      }
+                    />
+
+                    <Route
+                      path="/rlogin"
+                      element={
+                        <DynamicRedirect
+                          unAuthElement={<ResearcherLoginPage />}
+                          authPath="/rhome"
+                        />
+                      }
+                    />
+
+                    {/* Route which is accessed if no other route is matched */}
+                    <Route path="*" element={<NotFoundPage />} />
+                  </Routes>
+                </CssBaseline>
+              </CustomThemeProvider>
             </ThemeProvider>
           </PersistGate>
         </Provider>

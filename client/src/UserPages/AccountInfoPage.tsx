@@ -1,9 +1,17 @@
 import React, { useEffect } from 'react';
-import { Grid, Box, Paper } from '@mui/material';
+import {
+  Grid,
+  Box,
+  Paper,
+  Switch,
+  FormControlLabel,
+  Typography,
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../util/redux/hooks.ts';
 import { selectUser } from '../util/redux/userSlice.ts';
 import Navigation2 from '../components/Navigation2.tsx';
+import { useTheme } from '../context/ThemeContext';
 
 // Add font styles
 const fontStyles = `
@@ -26,6 +34,7 @@ const fontStyles = `
 function AccountInfoPage() {
   const user = useAppSelector(selectUser);
   const navigate = useNavigate();
+  const { isDarkMode, toggleDarkMode } = useTheme();
 
   useEffect(() => {
     // Add font styles to document head
@@ -38,16 +47,26 @@ function AccountInfoPage() {
     };
   }, []);
 
+  const themeColors = {
+    background: isDarkMode ? '#141F25' : '#ffffff',
+    text: isDarkMode ? '#ffffff' : '#141F25',
+    primary: '#58CC02',
+    secondary: '#1cb0f6',
+    accent: '#ce82ff',
+  };
+
   if (!user || !user.email) {
     return (
-      <Box sx={{ margin: 0, padding: 0 }}>
+      <Box
+        sx={{ margin: 0, padding: 0, backgroundColor: themeColors.background }}
+      >
         <Navigation2 />
         <Box
           sx={{
             textAlign: 'center',
             mt: 4,
             fontFamily: 'Feather Bold',
-            color: '#4b4b4b',
+            color: themeColors.text,
           }}
         >
           <h2>Please log in to view account information</h2>
@@ -55,7 +74,7 @@ function AccountInfoPage() {
             onClick={() => navigate('/wlogin')}
             style={{
               fontFamily: 'Feather Bold',
-              backgroundColor: '#58CC02',
+              backgroundColor: themeColors.primary,
               color: 'white',
               padding: '12px 24px',
               border: 'none',
@@ -101,7 +120,7 @@ function AccountInfoPage() {
       >
         <div
           style={{
-            color: '#4b4b4b',
+            color: themeColors.text,
             fontFamily: 'DIN Next Rounded LT W01 Regular',
             marginBottom: '8px',
             fontSize: '1rem',
@@ -111,7 +130,7 @@ function AccountInfoPage() {
         </div>
         <div
           style={{
-            color: '#58CC02',
+            color: themeColors.primary,
             fontFamily: 'Feather Bold',
             fontSize: '1.5rem',
           }}
@@ -123,13 +142,36 @@ function AccountInfoPage() {
   }
 
   return (
-    <Box sx={{ margin: 0, padding: 0 }}>
+    <Box
+      sx={{ margin: 0, padding: 0, backgroundColor: themeColors.background }}
+    >
       <Navigation2 />
       <Box sx={{ maxWidth: '1200px', margin: '0 auto', p: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={isDarkMode}
+                onChange={toggleDarkMode}
+                sx={{
+                  '& .MuiSwitch-switchBase.Mui-checked': {
+                    color: themeColors.primary,
+                  },
+                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                    backgroundColor: themeColors.primary,
+                  },
+                }}
+              />
+            }
+            label="Dark Mode"
+            sx={{ color: themeColors.text }}
+          />
+        </Box>
+
         <h1
           style={{
             fontFamily: 'Feather Bold',
-            color: '#58CC02',
+            color: themeColors.primary,
             textAlign: 'center',
             marginBottom: '2rem',
             fontSize: '2.5rem',
@@ -144,7 +186,7 @@ function AccountInfoPage() {
               sx={{
                 p: 4,
                 borderRadius: '16px',
-                backgroundColor: '#fff',
+                backgroundColor: isDarkMode ? '#141F25' : '#fff',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
               }}
             >
@@ -154,7 +196,7 @@ function AccountInfoPage() {
                     <h2
                       style={{
                         fontFamily: 'Feather Bold',
-                        color: '#4b4b4b',
+                        color: themeColors.text,
                         marginBottom: '1rem',
                       }}
                     >
@@ -164,7 +206,7 @@ function AccountInfoPage() {
                       style={{
                         fontFamily: 'DIN Next Rounded LT W01 Regular',
                         fontSize: '1.1rem',
-                        color: '#4b4b4b',
+                        color: themeColors.text,
                         lineHeight: '1.8',
                       }}
                     >
@@ -181,7 +223,7 @@ function AccountInfoPage() {
                     onClick={() => navigate('/email-reset')}
                     style={{
                       fontFamily: 'Feather Bold',
-                      backgroundColor: '#58CC02',
+                      backgroundColor: themeColors.primary,
                       color: 'white',
                       padding: '12px 24px',
                       border: 'none',

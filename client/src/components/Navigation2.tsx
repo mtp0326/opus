@@ -1,6 +1,7 @@
 import React from 'react';
-import { AppBar, Toolbar, Box } from '@mui/material';
+import { AppBar, Toolbar, Button, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 
 // Add font styles
 const fontStyles = `
@@ -15,6 +16,7 @@ const fontStyles = `
 
 function Navigation2() {
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
 
   React.useEffect(() => {
     const styleElement = document.createElement('style');
@@ -35,52 +37,64 @@ function Navigation2() {
     navigate(path);
   };
 
-  function NavButton({
-    path,
-    children,
-  }: {
-    path: string;
-    children: React.ReactNode;
-  }) {
-    return (
-      <button
-        onClick={() => handleNavigate(path)}
-        style={{
-          fontFamily: 'Feather Bold',
-          backgroundColor: 'transparent',
-          color: 'white',
-          border: 'none',
-          padding: '12px 20px',
-          borderRadius: '12px',
-          fontSize: '1.1rem',
-          cursor: 'pointer',
-          transition: 'all 0.2s ease',
-          margin: '0 4px',
-          '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            transform: 'translateY(-1px)',
-          },
-        }}
-      >
-        {children}
-      </button>
-    );
-  }
-
   return (
     <AppBar
       position="static"
       sx={{
-        backgroundColor: '#58CC02',
-        boxShadow: '0 4px 0 #58cc02',
+        backgroundColor: isDarkMode ? '#141F25' : '#fff',
+        boxShadow: 'none'
       }}
     >
       <Toolbar>
         <Box sx={{ flexGrow: 1, display: 'flex', gap: 2 }}>
-          <NavButton path="/whome">Home</NavButton>
-          <NavButton path="/wrecommended">Recommended</NavButton>
-          <NavButton path="/leaderboard">Leagues</NavButton>
-          <NavButton path="/account-info">Account Info</NavButton>
+          <Button 
+            onClick={() => handleNavigate('/whome')}
+            sx={{ 
+              color: isDarkMode ? '#fff' : '#4b4b4b',
+              fontFamily: 'Feather Bold',
+              '&:hover': { 
+                backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)' 
+              }
+            }}
+          >
+            Home
+          </Button>
+          <Button 
+            onClick={() => handleNavigate('/wrecommended')}
+            sx={{ 
+              color: isDarkMode ? '#fff' : '#4b4b4b',
+              fontFamily: 'Feather Bold',
+              '&:hover': { 
+                backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)' 
+              }
+            }}
+          >
+            Recommended
+          </Button>
+          <Button 
+            onClick={() => handleNavigate('/leaderboard')}
+            sx={{ 
+              color: isDarkMode ? '#fff' : '#4b4b4b',
+              fontFamily: 'Feather Bold',
+              '&:hover': { 
+                backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)' 
+              }
+            }}
+          >
+            Leagues
+          </Button>
+          <Button 
+            onClick={() => handleNavigate('/account-info')}
+            sx={{ 
+              color: isDarkMode ? '#fff' : '#4b4b4b',
+              fontFamily: 'Feather Bold',
+              '&:hover': { 
+                backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)' 
+              }
+            }}
+          >
+            Account Info
+          </Button>
         </Box>
       </Toolbar>
     </AppBar>

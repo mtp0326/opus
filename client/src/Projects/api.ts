@@ -27,6 +27,17 @@ interface SurveyCompletionData {
   isSurveyJs: boolean;
 }
 
+interface IUser {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  points: number;
+  surveysCompleted: number;
+  cashBalance: number;
+  league: string;
+}
+
 /**
  * Sends a request to the server to publish a survey
  * @param surveyId The ID of the survey to publish
@@ -277,6 +288,28 @@ export const getRandomSurvey = async (): Promise<SurveyData> => {
   }
 
   console.log('✅ Random survey fetched successfully:', response.data);
+  return response.data;
+};
+
+/**
+ * Fetches worker information from the server using the worker's email
+ * @param email The email of the worker
+ * @returns A promise that resolves to the worker's information
+ * @throws An {@link Error} with a `message` field describing any issues in fetching
+ */
+export const getWorkerByEmail = async (email: string): Promise<IUser> => {
+  console.log('🔍 Fetching worker information for email:', email);
+
+  const response = await getData(`worker/${email}`);
+
+  if (response.error) {
+    console.error('❌ Failed to fetch worker information:', response.error);
+    throw new Error(
+      response.error.message || 'Failed to fetch worker information',
+    );
+  }
+
+  console.log('✅ Worker information fetched successfully:', response.data);
   return response.data;
 };
 

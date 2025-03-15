@@ -5,6 +5,7 @@ import IUser from '../util/types/user';
 import Navigation2 from '../components/Navigation2';
 import { useAppSelector } from '../util/redux/hooks';
 import { selectUser } from '../util/redux/userSlice';
+import { getWorkerByEmail } from '../Projects/api';
 
 // Add font styles
 const fontStyles = `
@@ -26,7 +27,27 @@ const fontStyles = `
 
 function Leaderboard() {
   const [users, setUsers] = useState<IUser[]>([]);
-  const currentUser = useAppSelector(selectUser);
+  const user = useAppSelector(selectUser);
+  const [userInfo, setUserInfo] = useState<IUser | undefined>(undefined);
+
+  useEffect(() => {
+    // Add font styles to document head
+    const styleElement = document.createElement('style');
+    styleElement.textContent = fontStyles;
+    document.head.appendChild(styleElement);
+
+    // Fetch user info from the server
+    if (user && user.email) {
+      getWorkerByEmail(user.email).then((data) => {
+        console.log('🔍 User info:', data);
+        setUserInfo(data[0]);
+      });
+    }
+
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, [user]);
 
   useEffect(() => {
     const styleElement = document.createElement('style');
@@ -38,7 +59,7 @@ function Leaderboard() {
         const data = await getLeaderboard();
         // Filter users to only show those in the same league as current user
         const sameLeagueUsers = data.filter(
-          (user: IUser) => user.league === currentUser.league,
+          (user: IUser) => user.league === userInfo?.league,
         );
         // Sort by points in descending order
         const sortedUsers = sameLeagueUsers.sort((a, b) => b.points - a.points);
@@ -53,7 +74,7 @@ function Leaderboard() {
     return () => {
       document.head.removeChild(styleElement);
     };
-  }, [currentUser.league]);
+  }, [userInfo?.league]);
 
   const getPositionStyle = (position: number) => {
     switch (position) {
@@ -82,7 +103,7 @@ function Leaderboard() {
             fontSize: '2.5rem',
           }}
         >
-          {currentUser.league} League
+          {userInfo?.league} League
         </Typography>
 
         <Typography
@@ -113,7 +134,7 @@ function Leaderboard() {
                 padding: '1rem 2rem',
                 borderBottom: '1px solid #E5E5E5',
                 backgroundColor:
-                  user.email === currentUser.email ? '#f0f9f0' : 'white',
+                  user.email === userInfo?.email ? '#f0f9f0' : 'white',
                 transition: 'transform 0.2s ease',
                 '&:hover': {
                   transform: 'scale(1.002)',

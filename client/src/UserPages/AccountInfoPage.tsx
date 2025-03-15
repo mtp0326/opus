@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Grid,
   Box,
@@ -12,6 +12,8 @@ import { useAppSelector } from '../util/redux/hooks.ts';
 import { selectUser } from '../util/redux/userSlice.ts';
 import Navigation2 from '../components/Navigation2.tsx';
 import { useTheme } from '../context/ThemeContext';
+import { getWorkerByEmail } from '../Projects/api';
+import IUser from '../util/types/user';
 
 // Add font styles
 const fontStyles = `
@@ -35,6 +37,7 @@ function AccountInfoPage() {
   const user = useAppSelector(selectUser);
   const navigate = useNavigate();
   const { isDarkMode, toggleDarkMode } = useTheme();
+  const [userInfo, setUserInfo] = useState<IUser | undefined>(undefined);
 
   useEffect(() => {
     // Add font styles to document head
@@ -42,10 +45,17 @@ function AccountInfoPage() {
     styleElement.textContent = fontStyles;
     document.head.appendChild(styleElement);
 
+    // Fetch user info from the server
+    if (user && user.email) {
+      getWorkerByEmail(user.email).then((data) => {
+        setUserInfo(data[0]);
+      });
+    }
+
     return () => {
       document.head.removeChild(styleElement);
     };
-  }, []);
+  }, [user]);
 
   const themeColors = {
     background: isDarkMode ? '#141F25' : '#ffffff',
@@ -211,9 +221,10 @@ function AccountInfoPage() {
                       }}
                     >
                       <div>
-                        Name: {user.firstName || 'N/A'} {user.lastName || 'N/A'}
+                        Name: {user?.firstName || 'N/A'}{' '}
+                        {user?.lastName || 'N/A'}
                       </div>
-                      <div>Email: {user.email || 'N/A'}</div>
+                      <div>Email: {user?.email || 'N/A'}</div>
                     </div>
                   </Box>
                 </Grid>
@@ -250,21 +261,21 @@ function AccountInfoPage() {
           <Grid item xs={12}>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6} md={3}>
-                <StatBox label="League" value={user.league || 'Wood'} />
+                <StatBox label="League" value={userInfo?.league || 'Wood'} />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
-                <StatBox label="Points" value={user.points ?? 0} />
+                <StatBox label="Points" value={userInfo?.points ?? 0} />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <StatBox
                   label="Cash Balance"
-                  value={`$${user.cashBalance ?? 0}`}
+                  value={`$${userInfo?.cashBalance ?? 0}`}
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <StatBox
                   label="Surveys Completed"
-                  value={user.surveysCompleted ?? 0}
+                  value={userInfo?.surveysCompleted ?? 0}
                 />
               </Grid>
             </Grid>

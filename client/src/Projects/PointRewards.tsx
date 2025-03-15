@@ -1,15 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../util/redux/hooks.ts';
 import { selectUser } from '../util/redux/userSlice.ts';
 import Navigation2 from '../components/Navigation2.tsx';
+import { getWorkerByEmail } from '../Projects/api';
 import { useTheme } from '../context/ThemeContext';
+import IUser from '../util/types/user';
+
+// Add font styles
+const fontStyles = `
+  @font-face {
+    font-family: 'Feather Bold';
+    src: url('/fonts/Feather-Bold.woff2') format('woff2'),
+         url('/fonts/Feather-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'DIN Next Rounded LT W01 Regular';
+    src: url('/fonts/DINNextRoundedLTW01-Regular.woff2') format('woff2'),
+         url('/fonts/DINNextRoundedLTW01-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+`;
 
 function PointRewards() {
   const user = useAppSelector(selectUser);
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
+  const [userInfo, setUserInfo] = useState<IUser | undefined>(undefined);
 
   const themeColors = {
     background: isDarkMode ? '#141F25' : '#ffffff',
@@ -18,6 +39,24 @@ function PointRewards() {
     secondary: '#1cb0f6',
     accent: '#ce82ff',
   };
+
+  useEffect(() => {
+    // Fetch user info from the server
+    // Add font styles to document head
+    const styleElement = document.createElement('style');
+    styleElement.textContent = fontStyles;
+    document.head.appendChild(styleElement);
+
+    if (user && user.email) {
+      getWorkerByEmail(user.email).then((data) => {
+        setUserInfo(data[0]);
+      });
+    }
+
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, [user]);
 
   if (!user || !user.email) {
     return (
@@ -65,10 +104,12 @@ function PointRewards() {
   return (
     <Box sx={{ backgroundColor: themeColors.background, minHeight: '100vh' }}>
       <Navigation2 />
-      <Box sx={{ padding: 3, color: themeColors.text }}>
+      <Box
+        sx={{ padding: 3, color: themeColors.text, fontFamily: 'Feather Bold' }}
+      >
         <h1>Point Rewards</h1>
-        {user.points !== null ? (
-          <p>Your current points: {user.points ?? 0}</p>
+        {userInfo?.points !== null ? (
+          <p>Your current points: {userInfo?.points ?? 0}</p>
         ) : (
           <p>Loading points...</p>
         )}

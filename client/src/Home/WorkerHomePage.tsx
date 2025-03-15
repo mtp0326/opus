@@ -4,8 +4,13 @@ import { Box, Typography, Grid, Button } from '@mui/material';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 import 'survey-core/defaultV2.min.css';
+import IUser from '../util/types/user';
 import styles from '../Projects/SurveyPreview.module.css';
-import { getRandomSurvey, submitSurveyCompletion } from '../Projects/api';
+import {
+  getRandomSurvey,
+  submitSurveyCompletion,
+  getWorkerByEmail,
+} from '../Projects/api';
 import { useAppDispatch, useAppSelector } from '../util/redux/hooks.ts';
 import {
   logout as logoutAction,
@@ -136,6 +141,7 @@ function WorkerHomePage() {
     const today = new Date().toISOString().split('T')[0];
     return storedData.date === today ? storedData.points : 0;
   });
+  const [userInfo, setUserInfo] = useState<IUser | undefined>(undefined);
 
   // Idt we need selfpromote for a worker account/nonadmin account
   // const handleSelfPromote = async () => {
@@ -175,6 +181,25 @@ function WorkerHomePage() {
   useEffect(() => {
     progressRef.current = progress;
   }, [progress]);
+
+  useEffect(() => {
+    // Add font styles to document head
+    const styleElement = document.createElement('style');
+    styleElement.textContent = fontStyles;
+    document.head.appendChild(styleElement);
+
+    // Fetch user info from the server
+    if (user && user.email) {
+      getWorkerByEmail(user.email).then((data) => {
+        console.log('🔍 User info:', data);
+        setUserInfo(data[0]);
+      });
+    }
+
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, [user]);
 
   // get survey in random from surveyJs
   useEffect(() => {
@@ -1178,11 +1203,11 @@ function WorkerHomePage() {
               sx={{
                 fontSize: '2rem',
                 fontWeight: 'bold',
-                color: getLeagueColor(user?.league || ''),
+                color: getLeagueColor(userInfo?.league || ''),
                 fontFamily: 'Feather Bold',
               }}
             >
-              {user.league}
+              {userInfo?.league}
             </Typography>
           </Box>
           <Box

@@ -1,6 +1,8 @@
 import React from 'react';
-import { AppBar, Toolbar, Button, Box } from '@mui/material';
+import { AppBar, Toolbar, Button, Box, Avatar } from '@mui/material';
+import { selectUser } from '../util/redux/userSlice.ts';
 import { useNavigate } from 'react-router-dom';
+import { useAppSelector } from '../util/redux/hooks.ts';
 import { useTheme } from '../context/ThemeContext';
 
 // Add font styles
@@ -15,6 +17,7 @@ const fontStyles = `
 `;
 
 function Navigation2() {
+  const user = useAppSelector(selectUser);
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
 
@@ -90,20 +93,6 @@ function Navigation2() {
             Leagues
           </Button>
           <Button
-            onClick={() => handleNavigate('/account-info')}
-            sx={{
-              color: isDarkMode ? '#fff' : '#4b4b4b',
-              fontFamily: 'Feather Bold',
-              '&:hover': {
-                backgroundColor: isDarkMode
-                  ? 'rgba(255, 255, 255, 0.1)'
-                  : 'rgba(0, 0, 0, 0.04)',
-              },
-            }}
-          >
-            Account Info
-          </Button>
-          <Button
             onClick={() => handleNavigate('/point-rewards')}
             sx={{
               color: isDarkMode ? '#fff' : '#4b4b4b',
@@ -117,6 +106,18 @@ function Navigation2() {
           >
             Point Rewards
           </Button>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Avatar
+            onClick={() => handleNavigate('/account-info')}
+            sx={{
+              cursor: 'pointer',
+              bgcolor: isDarkMode ? '#fff' : '#4b4b4b',
+              color: isDarkMode ? '#4b4b4b' : '#fff',
+            }}
+          >
+            {user?.email ? user.email.charAt(0) : 'U'}
+          </Avatar>
         </Box>
       </Toolbar>
     </AppBar>

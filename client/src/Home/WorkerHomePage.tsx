@@ -17,6 +17,7 @@ import ScreenGrid from '../components/ScreenGrid.tsx';
 import PrimaryButton from '../components/buttons/PrimaryButton.tsx';
 import Navigation2 from '../components/Navigation2.tsx';
 import { getData } from '../util/api';
+import fireImage from '../assets/images/fire.png';
 
 // Add font styles
 const fontStyles = `
@@ -98,6 +99,22 @@ function WorkerHomePage() {
     new Audio('/assets/sounds/duolingo-completed-lesson.mp3'),
   );
   const [dailyQuestions, setDailyQuestions] = useState(0);
+  const userGoalPoints = 30; // THIS SHOULD CHANGE BY USER
+  const [dailyProgress, setDailyProgress] = useState(() => {
+    const stored = localStorage.getItem('dailyQuestions');
+    const storedData = stored ? JSON.parse(stored) : { date: '', count: 0 };
+    const today = new Date().toISOString().split('T')[0];
+    const currentCount = storedData.date === today ? storedData.count : 0;
+    return currentCount <= userGoalPoints
+      ? Math.ceil((currentCount / userGoalPoints) * 100) || 0
+      : 100;
+  });
+  const [points, setPoints] = useState(() => {
+    const stored = localStorage.getItem('dailyPoints');
+    const storedData = stored ? JSON.parse(stored) : { date: '', points: 0 };
+    const today = new Date().toISOString().split('T')[0];
+    return storedData.date === today ? storedData.points : 0;
+  });
 
   // Idt we need selfpromote for a worker account/nonadmin account
   // const handleSelfPromote = async () => {
@@ -348,14 +365,6 @@ function WorkerHomePage() {
           // Only update progress and daily questions when moving forward
           if (options.isGoingForward && options.newCurrentPage) {
             updateProgress();
-            // Increment daily questions when moving to next page
-            const today = new Date().toISOString().split('T')[0];
-            const newCount = dailyQuestions + 1;
-            localStorage.setItem(
-              'dailyQuestions',
-              JSON.stringify({ date: today, count: newCount }),
-            );
-            setDailyQuestions(newCount);
           }
         },
       );
@@ -775,6 +784,9 @@ function WorkerHomePage() {
 
                     // Force a re-render of the current page
                     navigate('/whome', { replace: true });
+                    ///////
+                    updatePoints(); // Increment points when the button is clicked
+                    updateCount(); // Increment survey count
                   };
                   completionPage.appendChild(button);
                 }
@@ -844,6 +856,48 @@ function WorkerHomePage() {
     setDailyQuestions(newCount);
   };
 
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    const stored = localStorage.getItem('dailyPoints');
+    const storedData = stored ? JSON.parse(stored) : { date: '', points: 0 };
+
+    if (storedData.date !== today) {
+      localStorage.setItem(
+        'dailyPoints',
+        JSON.stringify({ date: today, points: 0 }),
+      );
+      setPoints(0);
+    } else {
+      setPoints(storedData.points);
+    }
+  }, []);
+
+  const updatePoints = () => {
+    const today = new Date().toISOString().split('T')[0];
+    const newPoints = points + 25;
+    localStorage.setItem(
+      'dailyPoints',
+      JSON.stringify({ date: today, points: newPoints }),
+    );
+    setPoints(newPoints);
+  };
+
+  const updateCount = () => {
+    // Increment daily questions when moving to next page
+    const today = new Date().toISOString().split('T')[0];
+    const newCount = dailyQuestions + 1;
+    localStorage.setItem(
+      'dailyQuestions',
+      JSON.stringify({ date: today, count: newCount }),
+    );
+    const newCountP =
+      newCount <= userGoalPoints
+        ? Math.ceil((newCount / userGoalPoints) * 100) || 0
+        : 100;
+    setDailyQuestions(newCount);
+    setDailyProgress(newCountP);
+  };
+
   if (isLoading) {
     return (
       <>
@@ -902,7 +956,151 @@ function WorkerHomePage() {
   return (
     <>
       <Navigation2 />
-      <Box sx={{ display: 'flex', height: 'calc(100vh - 64px)' }}>
+      <Box sx={{ width: '100%', padding: '0 20px', marginBottom: '16px' }}>
+        <Typography
+          sx={{
+            color: '#58CC02',
+            fontFamily: 'Feather Bold',
+            textAlign: 'center',
+            mb: 1,
+          }}
+        >
+          Daily Progress ({dailyQuestions}/{userGoalPoints})
+        </Typography>
+        <Box
+          sx={{
+            height: '8px',
+            backgroundColor: '#e0e0e0',
+            borderRadius: '4px',
+            overflow: 'visible',
+            position: 'relative',
+          }}
+        >
+          <Box
+            sx={{
+              width: `${dailyProgress}%`,
+              height: '100%',
+              backgroundColor: '#58CC02',
+              transition: 'width 0.3s ease',
+              position: 'relative',
+            }}
+          >
+            <img
+              src={fireImage}
+              alt="fire"
+              style={{
+                position: 'absolute',
+                right: '-12px',
+                top: '-13px',
+                width: '30px',
+                height: '30px',
+                transition: 'right 0.3s ease',
+              }}
+            />
+          </Box>
+          {/* Vertical markers inside the progress bar */}
+          <Box
+            sx={{
+              position: 'absolute',
+              left: '50%',
+              top: 0,
+              width: '2px',
+              height: '100%',
+              backgroundColor: '#1f1f1f',
+            }}
+          />
+          <Box
+            sx={{
+              position: 'absolute',
+              left: '75%',
+              top: 0,
+              width: '2px',
+              height: '100%',
+              backgroundColor: '#1f1f1f',
+            }}
+          />
+          <Box
+            sx={{
+              position: 'absolute',
+              left: '96%',
+              top: 0,
+              width: '2px',
+              height: '100%',
+              backgroundColor: '#1f1f1f',
+            }}
+          />
+
+          {/* Point labels below */}
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '100%',
+              left: '0',
+              width: '100%',
+              display: 'flex',
+              mt: 1,
+            }}
+          >
+            {/* Container for +10p at 50% */}
+            <Box
+              sx={{
+                position: 'absolute',
+                left: '50%',
+                transform: 'translateX(-50%)',
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: '0.8rem',
+                  color: '#58CC02',
+                  fontFamily: 'Feather Bold',
+                }}
+              >
+                +10 xp
+              </Typography>
+            </Box>
+
+            {/* Container for +15p at 75% */}
+            <Box
+              sx={{
+                position: 'absolute',
+                left: '75%',
+                transform: 'translateX(-50%)',
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: '0.8rem',
+                  color: '#58CC02',
+                  fontFamily: 'Feather Bold',
+                }}
+              >
+                +15 xp
+              </Typography>
+            </Box>
+
+            {/* Container for +20p at 100% */}
+            <Box
+              sx={{
+                position: 'absolute',
+                left: '96%',
+                transform: 'translateX(-50%)',
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: '0.8rem',
+                  color: '#58CC02',
+                  fontFamily: 'Feather Bold',
+                }}
+              >
+                +20 xp
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+      <Box sx={{ display: 'flex', height: 'calc(100vh - 100px)' }}>
         {/* Main content */}
         <Box sx={{ flex: 1 }}>
           <div className={styles.pageContainer}>
@@ -923,14 +1121,43 @@ function WorkerHomePage() {
         <Box
           sx={{
             width: '240px',
-            backgroundColor: '#f5f5f5',
+            backgroundColor: '#ffffff',
             padding: '20px',
-            borderLeft: '1px solid #e0e0e0',
             display: 'flex',
             flexDirection: 'column',
             gap: '16px',
           }}
         >
+          <Box
+            sx={{
+              backgroundColor: 'white',
+              padding: '16px',
+              borderRadius: '12px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: '3px solid #ff9600',
+            }}
+          >
+            <Typography
+              sx={{
+                color: '#ff9600',
+                fontSize: '1rem',
+                marginBottom: '8px',
+                fontFamily: 'Feather Bold',
+              }}
+            >
+              Current League
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: '2rem',
+                fontWeight: 'bold',
+                color: '#ff9600',
+                fontFamily: 'Feather Bold',
+              }}
+            >
+              {user.league}
+            </Typography>
+          </Box>
           <Box
             sx={{
               backgroundColor: 'white',
@@ -943,7 +1170,7 @@ function WorkerHomePage() {
             <Typography
               sx={{
                 color: '#58CC02',
-                fontSize: '0.9rem',
+                fontSize: '1rem',
                 marginBottom: '8px',
                 fontFamily: 'Feather Bold',
               }}
@@ -964,10 +1191,40 @@ function WorkerHomePage() {
               sx={{
                 fontSize: '0.9rem',
                 color: '#666',
-                fontFamily: 'DIN Next Rounded LT W01 Regular',
+                fontFamily: 'Feather Bold',
               }}
             >
-              questions completed
+              surveys completed
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              backgroundColor: 'white',
+              padding: '16px',
+              borderRadius: '12px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: '3px solid #1cb0f6',
+            }}
+          >
+            <Typography
+              sx={{
+                color: '#1cb0f6',
+                fontSize: '1rem',
+                marginBottom: '8px',
+                fontFamily: 'Feather Bold',
+              }}
+            >
+              Points Gained Today
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: '2rem',
+                fontWeight: 'bold',
+                color: '#1cb0f6',
+                fontFamily: 'Feather Bold',
+              }}
+            >
+              +{points} XP
             </Typography>
           </Box>
         </Box>

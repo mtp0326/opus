@@ -5,6 +5,7 @@ import IUser from '../util/types/user';
 import Navigation2 from '../components/Navigation2';
 import { useAppSelector } from '../util/redux/hooks';
 import { selectUser } from '../util/redux/userSlice';
+import { useTheme } from '../context/ThemeContext';
 import { getWorkerByEmail } from '../Projects/api';
 
 // Add font styles
@@ -29,6 +30,15 @@ function Leaderboard() {
   const [users, setUsers] = useState<IUser[]>([]);
   const user = useAppSelector(selectUser);
   const [userInfo, setUserInfo] = useState<IUser | undefined>(undefined);
+  const { isDarkMode } = useTheme();
+
+  const themeColors = {
+    background: isDarkMode ? '#141F25' : '#ffffff',
+    text: isDarkMode ? '#ffffff' : '#141F25',
+    primary: '#58CC02',
+    secondary: '#1cb0f6',
+    accent: '#ce82ff',
+  };
 
   useEffect(() => {
     // Add font styles to document head
@@ -90,7 +100,7 @@ function Leaderboard() {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
+    <Box sx={{ minHeight: '100vh', backgroundColor: themeColors.background }}>
       <Navigation2 />
       <Box sx={{ maxWidth: '800px', margin: '0 auto', p: 4 }}>
         <Typography

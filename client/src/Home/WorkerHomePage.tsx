@@ -23,7 +23,7 @@ import PrimaryButton from '../components/buttons/PrimaryButton.tsx';
 import Navigation2 from '../components/Navigation2.tsx';
 import { getData } from '../util/api';
 import fireImage from '../assets/images/fire.png';
-
+import { useTheme } from '../context/ThemeContext';
 // Add font styles
 const fontStyles = `
   @font-face {
@@ -142,6 +142,7 @@ function WorkerHomePage() {
     return storedData.date === today ? storedData.points : 0;
   });
   const [userInfo, setUserInfo] = useState<IUser | undefined>(undefined);
+  const { isDarkMode } = useTheme();
 
   // Idt we need selfpromote for a worker account/nonadmin account
   // const handleSelfPromote = async () => {
@@ -176,6 +177,14 @@ function WorkerHomePage() {
   //     document.head.removeChild(styleElement);
   //   };
   // }, []);
+
+  const themeColors = {
+    background: isDarkMode ? '#141F25' : '#ffffff',
+    text: isDarkMode ? '#ffffff' : '#141F25',
+    primary: '#58CC02',
+    secondary: '#1cb0f6',
+    accent: '#ce82ff',
+  };
 
   // const message = `Welcome to the Opus, ${user.firstName} ${user.lastName}!`;
   useEffect(() => {
@@ -1173,7 +1182,7 @@ function WorkerHomePage() {
         <Box
           sx={{
             width: '240px',
-            backgroundColor: '#ffffff',
+            backgroundColor: themeColors.background,
             padding: '20px',
             display: 'flex',
             flexDirection: 'column',

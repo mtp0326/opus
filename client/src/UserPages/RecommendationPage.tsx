@@ -15,7 +15,7 @@ import Navigation2 from '../components/Navigation2';
 import { useAppSelector } from '../util/redux/hooks';
 import { selectUser } from '../util/redux/userSlice';
 import { getData } from '../util/api';
-
+import { useTheme } from '../context/ThemeContext';
 // Add font styles
 const fontStyles = `
   @font-face {
@@ -54,6 +54,14 @@ function RecommendationPage() {
   const [recentSurveys, setRecentSurveys] = useState<SurveyData[]>([]);
   const user = useAppSelector(selectUser);
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
+  const themeColors = {
+    background: isDarkMode ? '#141F25' : '#ffffff',
+    text: isDarkMode ? '#ffffff' : '#141F25',
+    primary: '#58CC02',
+    secondary: '#1cb0f6',
+    accent: '#ce82ff',
+  };
 
   useEffect(() => {
     const styleElement = document.createElement('style');
@@ -292,14 +300,14 @@ function RecommendationPage() {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
+    <Box sx={{ minHeight: '100vh', backgroundColor: themeColors.background }}>
       <Navigation2 />
       <Box sx={{ maxWidth: '1200px', margin: '0 auto', p: 4 }}>
         <Typography
           variant="h1"
           sx={{
             fontFamily: 'Feather Bold',
-            color: '#58CC02',
+            color: themeColors.primary,
             textAlign: 'center',
             mb: 4,
             fontSize: '2.5rem',
@@ -314,7 +322,7 @@ function RecommendationPage() {
           variant="h2"
           sx={{
             fontFamily: 'Feather Bold',
-            color: '#58CC02',
+            color: themeColors.primary,
             textAlign: 'center',
             mb: 4,
             mt: 6,

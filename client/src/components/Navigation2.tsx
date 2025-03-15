@@ -116,7 +116,7 @@ function Navigation2() {
               color: isDarkMode ? '#4b4b4b' : '#fff',
             }}
           >
-            {user?.email ? user.email.charAt(0) : 'U'}
+            {user?.firstName ? user.firstName.charAt(0) : 'U'}
           </Avatar>
         </Box>
       </Toolbar>

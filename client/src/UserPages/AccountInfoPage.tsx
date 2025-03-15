@@ -250,7 +250,7 @@ function AccountInfoPage() {
           <Grid item xs={12}>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6} md={3}>
-                <StatBox label="League" value={user.league || 'Bronze'} />
+                <StatBox label="League" value={user.league || 'Wood'} />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <StatBox label="Points" value={user.points ?? 0} />

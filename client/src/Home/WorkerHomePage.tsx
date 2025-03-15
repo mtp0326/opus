@@ -65,6 +65,27 @@ function PromoteButton({ admin, navigator }: PromoteButtonProps) {
     </PrimaryButton>
   ) : null;
 }
+
+// Function to get color based on league name
+const getLeagueColor = (league: string) => {
+  switch (league.toLowerCase()) {
+    case 'wood':
+      return '#8B4513'; // Brown color for wood
+    case 'bronze':
+      return '#CD7F32'; // Bronze color
+    case 'silver':
+      return '#C0C0C0'; // Silver color
+    case 'gold':
+      return '#FFD700'; // Gold color
+    case 'platinum':
+      return '#E5E4E2'; // Platinum color
+    case 'diamond':
+      return '#B9F2FF'; // Diamond color
+    default:
+      return '#000000'; // Default to black if no match
+  }
+};
+
 /**
  * The HomePage of the user dashboard. Displays a welcome message, a logout button and a button to promote the user to admin if they are not already an admin. If the user is an admin, the button will navigate them to the admin dashboard. This utilizes redux to access the current user's information.
  */
@@ -204,6 +225,7 @@ function WorkerHomePage() {
           // }
           setFormData({
             content: response.data.content,
+            reward: response.data.reward,
           });
           console.log('Survey ID:', response.data._id);
           setSurveyId(response.data._id);
@@ -285,6 +307,7 @@ function WorkerHomePage() {
         }
       });
 
+      // Each question is answered
       const updateProgress = () => {
         const questions = surveyModel.getAllQuestions();
         const totalQuestions = questions.length;
@@ -730,7 +753,11 @@ function WorkerHomePage() {
 
                   // Add stat boxes with the specified colors
                   statsContainer.appendChild(
-                    createStatBox('Points Gained', '+25 XP', '#1cb0f6'),
+                    createStatBox(
+                      'Points Gained',
+                      `+${formData?.reward || 0} XP`,
+                      '#1cb0f6',
+                    ),
                   );
                   statsContainer.appendChild(
                     createStatBox('Attention Score', '2/2', '#ff9600'),
@@ -874,7 +901,7 @@ function WorkerHomePage() {
 
   const updatePoints = () => {
     const today = new Date().toISOString().split('T')[0];
-    const newPoints = points + 25;
+    const newPoints = points + (formData?.reward || 0);
     localStorage.setItem(
       'dailyPoints',
       JSON.stringify({ date: today, points: newPoints }),
@@ -1151,7 +1178,7 @@ function WorkerHomePage() {
               sx={{
                 fontSize: '2rem',
                 fontWeight: 'bold',
-                color: '#ff9600',
+                color: getLeagueColor(user?.league || ''),
                 fontFamily: 'Feather Bold',
               }}
             >

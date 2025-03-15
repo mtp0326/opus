@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import ApiError from '../util/apiError.ts';
 import Survey from '../models/survey.model.ts';
-import { IUser } from '../models/user.model.ts';
+import { User, IUser } from '../models/user.model.ts';
 import SurveySubmission from '../models/surveySubmission.model.ts';
 import SurveyJs from '../models/surveyJs.model.ts';
 import SurveyJsSubmission from '../models/surveyJsSubmission.model.ts';
@@ -297,8 +297,10 @@ export const submitSurveyCompletion = async (
     const workerId = req.user?._id;
     const workerEmail = req.user?.email;
 
-    if (!workerId || !workerEmail) {
-      return res.status(401).json({ message: 'User not authenticated' });
+    const worker = await User.findById(workerId);
+
+    if (!workerId || !workerEmail || !worker) {
+      return res.status(404).json({ message: 'Worker not found' });
     }
 
     // Check if survey exists in either collection
@@ -387,8 +389,15 @@ export const submitSurveyCompletion = async (
       survey.status = 'completed';
     }
 
+    // Add survey points to the user's total points
+    if (survey.reward) {
+      worker.points = (worker.points || 0) + survey.reward;
+    }
+
+    worker.surveysCompleted = (worker.surveysCompleted || 0) + 1;
+
     // Save both the submission and updated survey
-    await Promise.all([submission.save(), survey.save()]);
+    await Promise.all([submission.save(), survey.save(), worker.save()]);
 
     res.status(201).json({
       message: 'Survey completion submitted successfully',

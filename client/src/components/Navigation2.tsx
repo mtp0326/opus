@@ -42,58 +42,80 @@ function Navigation2() {
       position="static"
       sx={{
         backgroundColor: isDarkMode ? '#141F25' : '#fff',
-        boxShadow: 'none'
+        boxShadow: 'none',
       }}
     >
       <Toolbar>
         <Box sx={{ flexGrow: 1, display: 'flex', gap: 2 }}>
-          <Button 
+          <Button
             onClick={() => handleNavigate('/whome')}
-            sx={{ 
+            sx={{
               color: isDarkMode ? '#fff' : '#4b4b4b',
               fontFamily: 'Feather Bold',
-              '&:hover': { 
-                backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)' 
-              }
+              '&:hover': {
+                backgroundColor: isDarkMode
+                  ? 'rgba(255, 255, 255, 0.1)'
+                  : 'rgba(0, 0, 0, 0.04)',
+              },
             }}
           >
             Home
           </Button>
-          <Button 
+          <Button
             onClick={() => handleNavigate('/wrecommended')}
-            sx={{ 
+            sx={{
               color: isDarkMode ? '#fff' : '#4b4b4b',
               fontFamily: 'Feather Bold',
-              '&:hover': { 
-                backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)' 
-              }
+              '&:hover': {
+                backgroundColor: isDarkMode
+                  ? 'rgba(255, 255, 255, 0.1)'
+                  : 'rgba(0, 0, 0, 0.04)',
+              },
             }}
           >
             Recommended
           </Button>
-          <Button 
+          <Button
             onClick={() => handleNavigate('/leaderboard')}
-            sx={{ 
+            sx={{
               color: isDarkMode ? '#fff' : '#4b4b4b',
               fontFamily: 'Feather Bold',
-              '&:hover': { 
-                backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)' 
-              }
+              '&:hover': {
+                backgroundColor: isDarkMode
+                  ? 'rgba(255, 255, 255, 0.1)'
+                  : 'rgba(0, 0, 0, 0.04)',
+              },
             }}
           >
             Leagues
           </Button>
-          <Button 
+          <Button
             onClick={() => handleNavigate('/account-info')}
-            sx={{ 
+            sx={{
               color: isDarkMode ? '#fff' : '#4b4b4b',
               fontFamily: 'Feather Bold',
-              '&:hover': { 
-                backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.04)' 
-              }
+              '&:hover': {
+                backgroundColor: isDarkMode
+                  ? 'rgba(255, 255, 255, 0.1)'
+                  : 'rgba(0, 0, 0, 0.04)',
+              },
             }}
           >
             Account Info
+          </Button>
+          <Button
+            onClick={() => handleNavigate('/point-rewards')}
+            sx={{
+              color: isDarkMode ? '#fff' : '#4b4b4b',
+              fontFamily: 'Feather Bold',
+              '&:hover': {
+                backgroundColor: isDarkMode
+                  ? 'rgba(255, 255, 255, 0.1)'
+                  : 'rgba(0, 0, 0, 0.04)',
+              },
+            }}
+          >
+            Point Rewards
           </Button>
         </Box>
       </Toolbar>

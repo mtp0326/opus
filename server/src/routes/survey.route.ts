@@ -18,6 +18,7 @@ import {
   updateSubmissionsBatch,
   addQualityControlQuestions,
   getStripePayment,
+  getRandomSurvey,
 } from '../controllers/survey.controller.ts';
 import { IUser } from '../models/user.model.ts';
 
@@ -154,6 +155,12 @@ router.post(
   '/create-checkout-session',
   isAuthenticated,
   getStripePayment as express.RequestHandler,
+);
+
+router.get(
+  '/random-survey',
+  isAuthenticated,
+  getRandomSurvey as express.RequestHandler,
 );
 
 export default router;

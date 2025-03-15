@@ -806,7 +806,7 @@ export const addQualityControlQuestions = async (
     }
 
     const updatedSurvey = await generateQualityControlQuestions(surveyId);
-    
+
     console.log('✅ Added quality control questions to survey:', surveyId);
     return res.json({
       data: updatedSurvey,
@@ -816,7 +816,10 @@ export const addQualityControlQuestions = async (
     console.error('❌ Error adding quality control questions:', error);
     return res.status(500).json({
       error: {
-        message: error instanceof Error ? error.message : 'Failed to add quality control questions',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to add quality control questions',
       },
     });
   }
@@ -856,6 +859,50 @@ export const getStripePayment = async (req: Request, res: Response) => {
           error instanceof Error
             ? error.message
             : 'Failed to create checkout session',
+      },
+    });
+  }
+};
+
+export const getRandomSurvey = async (
+  req: Request & { user?: IUser },
+  res: Response,
+) => {
+  try {
+    console.log('🎲 Fetching random active survey');
+
+    // Get all active surveys that the user hasn't submitted yet and have non-empty content
+    const activeSurveys = await SurveyJs.aggregate([
+      {
+        $match: {
+          status: 'active',
+          // Exclude surveys where user's email is in submitterList
+          submitterList: {
+            $not: { $in: [req.user?.email] },
+          },
+          // Ensure content is not an empty object
+          content: { $ne: {} },
+        },
+      },
+      { $sample: { size: 1 } }, // Get random document
+    ]);
+
+    if (!activeSurveys.length) {
+      return res.json({ data: 0 });
+    }
+
+    const randomSurvey = activeSurveys[0];
+    console.log('✅ Found random survey:', randomSurvey._id);
+
+    return res.json({ data: randomSurvey });
+  } catch (error) {
+    console.error('❌ Error fetching random survey:', error);
+    return res.status(500).json({
+      error: {
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to fetch random survey',
       },
     });
   }

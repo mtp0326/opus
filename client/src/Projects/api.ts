@@ -4,14 +4,16 @@
  */
 import { SurveyCreator } from 'survey-creator-react';
 import { postData, getData, putData } from '../util/api.tsx';
-import { IUser } from 'server/src/models/user.model.ts';
 
 interface SurveyData {
+  _id: string;
   title: string;
   description: string;
   surveyUrl: string;
   reward: number;
   respondents: number;
+  data?: any;
+  content?: any;
   timeToComplete: number;
   expiresIn: number;
   workerQualifications: 'basic' | 'intermediate' | 'expert';
@@ -257,6 +259,25 @@ export const handleSurveyJsEdit = async (
     console.error('❌ Failed to edit survey:', error);
     throw error;
   }
+};
+
+/**
+ * Fetches a random survey from the server
+ * @returns A promise that resolves to a random survey
+ * @throws An {@link Error} with a `message` field describing any issues in fetching
+ */
+export const getRandomSurvey = async (): Promise<SurveyData> => {
+  console.log('🎲 Fetching random survey');
+
+  const response = await getData('surveys/random-survey');
+
+  if (response.error) {
+    console.error('❌ Failed to fetch random survey:', response.error);
+    throw new Error(response.error.message || 'Failed to fetch random survey');
+  }
+
+  console.log('✅ Random survey fetched successfully:', response.data);
+  return response.data;
 };
 
 export {

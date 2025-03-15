@@ -48,6 +48,7 @@ import TakeSurveyJs from './UserPages/TakeSurveyJs';
 import SurveyResults from './Projects/SurveyResults';
 import AccountInfoPage from './UserPages/AccountInfoPage.tsx';
 import { ThemeProvider as CustomThemeProvider } from './context/ThemeContext';
+import PointRewards from './Projects/PointRewards';
 
 function App() {
   return (
@@ -172,6 +173,8 @@ function App() {
                         />
                       }
                     />
+
+                    <Route path="/point-rewards" element={<PointRewards />} />
 
                     {/* Route which is accessed if no other route is matched */}
                     <Route path="*" element={<NotFoundPage />} />

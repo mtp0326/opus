@@ -6,13 +6,17 @@ import {
   Switch,
   FormControlLabel,
   Typography,
+  Button,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useAppSelector } from '../util/redux/hooks.ts';
-import { selectUser } from '../util/redux/userSlice.ts';
+import { useAppSelector, useAppDispatch } from '../util/redux/hooks.ts';
+import { 
+  logout as logoutAction,
+  selectUser } from '../util/redux/userSlice.ts';
 import Navigation2 from '../components/Navigation2.tsx';
 import { useTheme } from '../context/ThemeContext';
 import { getWorkerByEmail } from '../Projects/api';
+import { logout as logoutApi } from '../Home/api.tsx';
 import IUser from '../util/types/user';
 
 // Add font styles
@@ -33,11 +37,40 @@ const fontStyles = `
   }
 `;
 
+// Function to get color based on league name
+const getLeagueColor = (league: string) => {
+  switch (league.toLowerCase()) {
+    case 'wood':
+      return '#8B4513'; // Brown color for wood
+    case 'bronze':
+      return '#CD7F32'; // Bronze color
+    case 'silver':
+      return '#C0C0C0'; // Silver color
+    case 'gold':
+      return '#FFD700'; // Gold color
+    case 'platinum':
+      return '#E5E4E2'; // Platinum color
+    case 'diamond':
+      return '#B9F2FF'; // Diamond color
+    default:
+      return '#000000'; // Default to black if no match
+  }
+};
+
 function AccountInfoPage() {
   const user = useAppSelector(selectUser);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { isDarkMode, toggleDarkMode } = useTheme();
   const [userInfo, setUserInfo] = useState<IUser | undefined>(undefined);
+
+  const logoutDispatch = () => dispatch(logoutAction());
+  const handleLogout = async () => {
+    if (await logoutApi()) {
+      logoutDispatch();
+      navigate('/wlogin', { replace: true });
+    }
+  };
 
   useEffect(() => {
     // Add font styles to document head
@@ -140,7 +173,7 @@ function AccountInfoPage() {
         </div>
         <div
           style={{
-            color: themeColors.primary,
+            color: (typeof value === 'string' && label === 'League') ? getLeagueColor(value) : themeColors.primary,
             fontFamily: 'Feather Bold',
             fontSize: '1.5rem',
           }}
@@ -253,6 +286,31 @@ function AccountInfoPage() {
                   >
                     Change Password
                   </button>
+                  <Grid item container justifyContent="center" sx={{ mt: 2 }}>
+                    <Button
+                      onClick={handleLogout}
+                      style={{
+                        fontFamily: 'Feather Bold',
+                        backgroundColor: themeColors.primary,
+                        color: 'white',
+                        padding: '8px 24px',
+                        border: 'none',
+                        borderRadius: '12px',
+                        fontSize: '1.1rem',
+                        cursor: 'pointer',
+                        width: '100%',
+                        transition: 'all 0.2s ease',
+                        boxShadow: '0 4px 0 #45a501',
+                        '&:hover': {
+                          backgroundColor: '#45a501',
+                          transform: 'translateY(1px)',
+                          boxShadow: '0 3px 0 #45a501',
+                        },
+                      }}
+                    >
+                      Logout
+                    </Button>
+                  </Grid>
                 </Grid>
               </Grid>
             </Paper>

@@ -13,11 +13,8 @@ import {
 } from '../Projects/api';
 import { useAppDispatch, useAppSelector } from '../util/redux/hooks.ts';
 import {
-  logout as logoutAction,
-  toggleAdmin,
   selectUser,
 } from '../util/redux/userSlice.ts';
-import { logout as logoutApi } from './api.tsx';
 import ScreenGrid from '../components/ScreenGrid.tsx';
 import PrimaryButton from '../components/buttons/PrimaryButton.tsx';
 import Navigation2 from '../components/Navigation2.tsx';
@@ -111,13 +108,6 @@ function WorkerHomePage() {
   const dispatch = useAppDispatch();
   const navigator = useNavigate();
   const [admin, setAdmin] = useState(user.admin);
-  const logoutDispatch = () => dispatch(logoutAction());
-  const handleLogout = async () => {
-    if (await logoutApi()) {
-      logoutDispatch();
-      navigator('/wlogin', { replace: true });
-    }
-  };
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -1208,7 +1198,7 @@ function WorkerHomePage() {
               sx={{
                 fontSize: '2rem',
                 fontWeight: 'bold',
-                color: getLeagueColor(userInfo?.league || ''),
+                color: getLeagueColor(userInfo?.league || 'Wood'),
                 fontFamily: 'Feather Bold',
               }}
             >

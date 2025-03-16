@@ -24,6 +24,8 @@ import Navigation2 from '../components/Navigation2.tsx';
 import { getData } from '../util/api';
 import fireImage from '../assets/images/fire.png';
 import { useTheme } from '../context/ThemeContext';
+import { useSpring, animated } from '@react-spring/web';
+
 // Add font styles
 const fontStyles = `
   @font-face {
@@ -45,6 +47,16 @@ const fontStyles = `
 interface PromoteButtonProps {
   admin: boolean | null;
   navigator: NavigateFunction;
+}
+
+function Number({ n1 = 0, n2 = 0 }: { n1?: number; n2?: number }) {
+  const { number } = useSpring({
+    from: { number: n1 || 0 },
+    to: { number: n2 || 0 },
+    delay: 100,
+    config: { mass: 1, tension: 20, friction: 10 },
+  });
+  return <animated.span>{number.to((n) => n.toFixed(0))}</animated.span>;
 }
 
 /**
@@ -1285,7 +1297,7 @@ function WorkerHomePage() {
                 fontFamily: 'Feather Bold',
               }}
             >
-              +{points} XP
+              +<Number n1={0} n2={points} /> XP
             </Typography>
           </Box>
         </Box>

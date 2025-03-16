@@ -24,6 +24,8 @@ import Navigation2 from '../components/Navigation2.tsx';
 import { getData } from '../util/api';
 import fireImage from '../assets/images/fire.png';
 import { useTheme } from '../context/ThemeContext';
+import { useSpring, animated } from '@react-spring/web';
+
 // Add font styles
 const fontStyles = `
   @font-face {
@@ -45,6 +47,16 @@ const fontStyles = `
 interface PromoteButtonProps {
   admin: boolean | null;
   navigator: NavigateFunction;
+}
+
+function Number({ n1 = 0, n2 = 0 }: { n1?: number; n2?: number }) {
+  const { number } = useSpring({
+    from: { number: n1 || 0 },
+    to: { number: n2 || 0 },
+    delay: 100,
+    config: { mass: 1, tension: 20, friction: 10 },
+  });
+  return <animated.span>{number.to((n) => n.toFixed(0))}</animated.span>;
 }
 
 /**
@@ -142,6 +154,8 @@ function WorkerHomePage() {
     return storedData.date === today ? storedData.points : 0;
   });
   const [userInfo, setUserInfo] = useState<IUser | undefined>(undefined);
+  const [prevPoints, setPrevPoints] = useState(points);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
   const { isDarkMode } = useTheme();
 
   // Idt we need selfpromote for a worker account/nonadmin account
@@ -348,7 +362,8 @@ function WorkerHomePage() {
         const answeredQuestions = questions.filter((q) => q.isAnswered).length;
         const progressValue =
           Math.ceil((answeredQuestions / totalQuestions) * 100) || 0;
-
+          
+        setCurrentQuestion(answeredQuestions);
         // Only update if the progress value has changed
         if (progressValue !== progressRef.current) {
           console.log('Progress calculation:', {
@@ -730,19 +745,13 @@ function WorkerHomePage() {
                   // Clear existing content
                   completionPage.innerHTML = '';
 
-                  // Create completion message
+                  // Create completion message and move it upward by applying a negative top margin
                   const message = document.createElement('h2');
                   message.style.color = '#58CC02';
                   message.style.marginBottom = '1rem';
+                  message.style.marginTop = '-3rem';
                   message.textContent = 'Survey Completed!';
                   completionPage.appendChild(message);
-
-                  // Create thank you text
-                  const thankYou = document.createElement('p');
-                  thankYou.style.marginBottom = '2rem';
-                  thankYou.textContent =
-                    'Check payments page within a couple of days for your reward!';
-                  completionPage.appendChild(thankYou);
 
                   // Create stats container
                   const statsContainer = document.createElement('div');
@@ -821,33 +830,15 @@ function WorkerHomePage() {
                     btn.style.backgroundColor = '#58CC02';
                   });
                   button.onclick = () => {
-                    // Increment daily questions counter
-                    const today = new Date().toISOString().split('T')[0];
-                    const stored = localStorage.getItem('dailyQuestions');
-                    const storedData = stored
-                      ? JSON.parse(stored)
-                      : { date: '', count: 0 };
+                    // Reset survey state to render a new survey
+                    setIsFound(false);          // Reset the survey found flag
+                    setProgress(0);             // Reset the progress bar
+                    setFormData(null);          // Clear the current survey data
+                    setSurveyId(undefined);     // Clear the survey ID
 
-                    // Check if the stored date is today, if not reset the count
-                    const newCount =
-                      storedData.date === today ? storedData.count + 1 : 1;
-                    localStorage.setItem(
-                      'dailyQuestions',
-                      JSON.stringify({ date: today, count: newCount }),
-                    );
-                    setDailyQuestions(newCount);
-
-                    // Reset survey state
-                    setIsFound(false); // Reset the survey found flag
-                    setProgress(0); // Reset progress
-                    setFormData(null); // Clear current form data
-                    setSurveyId(undefined); // Clear current survey ID
-
-                    // Force a re-render of the current page
-                    navigate('/whome', { replace: true });
-                    ///////
-                    updatePoints(); // Increment points when the button is clicked
-                    updateCount(); // Increment survey count
+                    // Optionally update points and counts
+                    updatePoints();             // Increment points when the button is clicked
+                    updateCount();              // Increment survey count
                   };
                   completionPage.appendChild(button);
                 }
@@ -940,6 +931,7 @@ function WorkerHomePage() {
       'dailyPoints',
       JSON.stringify({ date: today, points: newPoints }),
     );
+    setPrevPoints(points);
     setPoints(newPoints);
   };
 
@@ -1172,6 +1164,10 @@ function WorkerHomePage() {
                     model={survey}
                     css={{ root: { width: '100%', height: '100%' } }}
                   />
+                  <div className={styles.topRightBoxContainer}>
+                    <div className={styles.topRightBox}>Q: {currentQuestion + 1}/{formData?.content.pages.length}</div>
+                    <div className={styles.topRightBox}>+{(formData?.reward || 0)} XP</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1285,7 +1281,7 @@ function WorkerHomePage() {
                 fontFamily: 'Feather Bold',
               }}
             >
-              +{points} XP
+              +<Number n1={prevPoints} n2={points} /> XP
             </Typography>
           </Box>
         </Box>

@@ -5,27 +5,27 @@
 }
 
 .container {
-  width: 800px;
+  width: 850px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 10px;
 }
 
 .previewBox {
   background: white;
   border-radius: 8px;
-  padding: 2rem;
+  padding: 0.5rem 2rem 0.5rem 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
 }
 
 .surveyInfo {
-  margin-bottom: 20px;
+  margin-bottom: 5px;
 }
 
 .surveyActions {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 5px;
 }
 
 .surveyLink {
@@ -41,7 +41,7 @@
 .completionCodeSection {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 3px;
 }
 
 .input {
@@ -62,7 +62,7 @@
 .previewActions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 20px;
+  margin-top: 5px;
 }
 
 .nextButton {
@@ -72,4 +72,50 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
-} 
+}
+
+.surveyTitle {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+/* Ensure the survey container is relative so the absolute positioning works */
+.surveyContainer {
+  position: relative;
+}
+
+/* Container for the two boxes in the top-right corner */
+.topRightBoxContainer {
+  position: absolute;
+  top: 2rem;
+  right: 0.5rem;
+  display: flex;
+  flex-direction: column;  /* Stack boxes vertically */
+  gap: 0.5rem;      /* Space between the two boxes */
+  z-index: 10;      /* Ensure these boxes are on top of other content */
+}
+
+/* Styling for the top-right boxes */
+.topRightBox {
+  font-family: 'Feather Bold';
+  background-color: white;
+  padding: 0.5rem;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  display: flex;              /* Enables flexbox layout */
+  align-items: center;        /* Vertically centers the text */
+  justify-content: center;    /* Horizontally centers the text */
+  text-align: center;         /* Centers multi-line text */
+}
+
+/* Border and text color for the first box (Box 1) */
+.topRightBoxContainer .topRightBox:nth-child(1) {
+  border: 2px solid #ff9600;
+  color: #ff9600;
+}
+
+/* Border and text color for the second box (Box 2) */
+.topRightBoxContainer .topRightBox:nth-child(2) {
+  border: 2px solid #1cb0f6;
+  color: #1cb0f6;
+}

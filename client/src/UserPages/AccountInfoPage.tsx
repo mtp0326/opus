@@ -10,9 +10,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../util/redux/hooks.ts';
-import { 
-  logout as logoutAction,
-  selectUser } from '../util/redux/userSlice.ts';
+import { logout as logoutAction, selectUser } from '../util/redux/userSlice.ts';
 import Navigation2 from '../components/Navigation2.tsx';
 import { useTheme } from '../context/ThemeContext';
 import { getWorkerByEmail } from '../Projects/api';
@@ -173,7 +171,10 @@ function AccountInfoPage() {
         </div>
         <div
           style={{
-            color: (typeof value === 'string' && label === 'League') ? getLeagueColor(value) : themeColors.primary,
+            color:
+              typeof value === 'string' && label === 'League'
+                ? getLeagueColor(value)
+                : themeColors.primary,
             fontFamily: 'Feather Bold',
             fontSize: '1.5rem',
           }}

@@ -29,6 +29,7 @@
     "@mui/icons-material": "^6.1.9",
     "@mui/material": "^5.4.1",
     "@mui/system": "^5.5.1",
+    "@react-spring/web": "^9.7.5",
     "@types/nouislider": "^9.0.10",
     "@types/stripe": "^8.0.416",
     "axios": "^1.1.2",

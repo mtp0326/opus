@@ -4,6 +4,7 @@ import { Box, Typography, Grid, Button } from '@mui/material';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 import 'survey-core/defaultV2.min.css';
+import { useSpring, animated } from '@react-spring/web';
 import IUser from '../util/types/user';
 import styles from '../Projects/SurveyPreview.module.css';
 import {
@@ -12,16 +13,13 @@ import {
   getWorkerByEmail,
 } from '../Projects/api';
 import { useAppDispatch, useAppSelector } from '../util/redux/hooks.ts';
-import {
-  selectUser,
-} from '../util/redux/userSlice.ts';
+import { selectUser } from '../util/redux/userSlice.ts';
 import ScreenGrid from '../components/ScreenGrid.tsx';
 import PrimaryButton from '../components/buttons/PrimaryButton.tsx';
 import Navigation2 from '../components/Navigation2.tsx';
 import { getData } from '../util/api';
 import fireImage from '../assets/images/fire.png';
 import { useTheme } from '../context/ThemeContext';
-import { useSpring, animated } from '@react-spring/web';
 
 // Add font styles
 const fontStyles = `
@@ -352,7 +350,7 @@ function WorkerHomePage() {
         const answeredQuestions = questions.filter((q) => q.isAnswered).length;
         const progressValue =
           Math.ceil((answeredQuestions / totalQuestions) * 100) || 0;
-          
+
         setCurrentQuestion(answeredQuestions);
         // Only update if the progress value has changed
         if (progressValue !== progressRef.current) {
@@ -821,14 +819,14 @@ function WorkerHomePage() {
                   });
                   button.onclick = () => {
                     // Reset survey state to render a new survey
-                    setIsFound(false);          // Reset the survey found flag
-                    setProgress(0);             // Reset the progress bar
-                    setFormData(null);          // Clear the current survey data
-                    setSurveyId(undefined);     // Clear the survey ID
+                    setIsFound(false); // Reset the survey found flag
+                    setProgress(0); // Reset the progress bar
+                    setFormData(null); // Clear the current survey data
+                    setSurveyId(undefined); // Clear the survey ID
 
                     // Optionally update points and counts
-                    updatePoints();             // Increment points when the button is clicked
-                    updateCount();              // Increment survey count
+                    updatePoints(); // Increment points when the button is clicked
+                    updateCount(); // Increment survey count
                   };
                   completionPage.appendChild(button);
                 }
@@ -1155,8 +1153,12 @@ function WorkerHomePage() {
                     css={{ root: { width: '100%', height: '100%' } }}
                   />
                   <div className={styles.topRightBoxContainer}>
-                    <div className={styles.topRightBox}>Q: {currentQuestion + 1}/{formData?.content.pages.length}</div>
-                    <div className={styles.topRightBox}>+{(formData?.reward || 0)} XP</div>
+                    <div className={styles.topRightBox}>
+                      Q: {currentQuestion + 1}/{formData?.content.pages.length}
+                    </div>
+                    <div className={styles.topRightBox}>
+                      +{formData?.reward || 0} XP
+                    </div>
                   </div>
                 </div>
               </div>

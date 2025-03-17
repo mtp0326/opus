@@ -48,6 +48,28 @@ function SurveyBuilder() {
   const creator = useMemo(() => {
     const c = new SurveyCreator(creatorOptions);
 
+    // Prevent empty text fields using SurveyJS's built-in events
+    c.onPropertyValueChanging.add((sender, options) => {
+      if (typeof options.newValue === 'string') {
+        // Prevent completely empty strings
+        if (!options.newValue || options.newValue.trim() === '') {
+          options.newValue = '\u200B'; // Zero-width space
+        }
+      }
+    });
+    // Additional handler for text editor content
+    c.onPropertyEditorCreated.add((sender: any, options: any) => {
+      if (
+        options.property.type === 'string' ||
+        options.property.type === 'text'
+      ) {
+        const originalValue = options.editor.koValue();
+        if (!originalValue || originalValue.trim() === '') {
+          options.editor.koValue('\u200B');
+        }
+      }
+    });
+
     // Load from setupData or localStorage
     const savedSurvey = localStorage.getItem('currentSurvey');
     if (setupData?.title) {

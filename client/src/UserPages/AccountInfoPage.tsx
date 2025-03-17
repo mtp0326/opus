@@ -154,6 +154,7 @@ function AccountInfoPage() {
           border: '3px solid #E5E5E5',
           textAlign: 'center',
           transition: 'transform 0.2s ease',
+          backgroundColor: isDarkMode ? '#1C2B34' : '#fff',
           '&:hover': {
             transform: 'translateY(-4px)',
           },
@@ -174,6 +175,8 @@ function AccountInfoPage() {
             color:
               typeof value === 'string' && label === 'League'
                 ? getLeagueColor(value)
+                : isDarkMode
+                ? '#fff'
                 : themeColors.primary,
             fontFamily: 'Feather Bold',
             fontSize: '1.5rem',
@@ -302,11 +305,7 @@ function AccountInfoPage() {
                         width: '100%',
                         transition: 'all 0.2s ease',
                         boxShadow: '0 4px 0 #45a501',
-                        '&:hover': {
-                          backgroundColor: '#45a501',
-                          transform: 'translateY(1px)',
-                          boxShadow: '0 3px 0 #45a501',
-                        },
+                        textTransform: 'none',
                       }}
                     >
                       Logout

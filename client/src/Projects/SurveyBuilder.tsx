@@ -45,28 +45,22 @@ function SurveyBuilder() {
   // Create a ref to store the creator instance
   const creatorRef = React.useRef<SurveyCreator | null>(null);
 
+  const surveyId =
+    setupData?.surveyId || localStorage.getItem('currentSurveyId');
+
   const creator = useMemo(() => {
     const c = new SurveyCreator(creatorOptions);
 
-    // Prevent empty text fields using SurveyJS's built-in events
-    c.onPropertyValueChanging.add((sender, options) => {
-      if (typeof options.newValue === 'string') {
-        // Prevent completely empty strings
-        if (!options.newValue || options.newValue.trim() === '') {
-          options.newValue = '\u200B'; // Zero-width space
-        }
-      }
-    });
-    // Additional handler for text editor content
-    c.onPropertyEditorCreated.add((sender: any, options: any) => {
-      if (
-        options.property.type === 'string' ||
-        options.property.type === 'text'
-      ) {
-        const originalValue = options.editor.koValue();
-        if (!originalValue || originalValue.trim() === '') {
-          options.editor.koValue('\u200B');
-        }
+    // Simpler handler for empty text
+    c.onPropertyEditorCreated.add((sender, options) => {
+      if (options.propertyEditor && options.propertyEditor.contentElement) {
+        const element = options.propertyEditor.contentElement;
+
+        element.addEventListener('input', () => {
+          if (!element.textContent || element.textContent.trim() === '') {
+            element.textContent = ' ';
+          }
+        });
       }
     });
 
@@ -172,7 +166,7 @@ function SurveyBuilder() {
       console.error('❌ Generate QC failed:', error);
       showAlert('Failed to generate QC questions', 'error');
     }
-  }, []);
+  }, [surveyId]);
 
   // Fetch available draft surveys
   useEffect(() => {
@@ -196,30 +190,56 @@ function SurveyBuilder() {
       <Navigation />
       <div className={styles.container}>
         <SurveyCreatorComponent creator={creator} />
-        <ButtonGroup
-          variant="contained"
-          sx={{
-            mt: 2,
-            display: 'flex',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <Button onClick={handleGenerateQC} color="primary">
-            Generate QC Questions
-          </Button>
-          <Button onClick={handleSave} color="primary">
-            Save Survey
-          </Button>
-          <Button
-            onClick={async () => {
-              await handleSave();
-              navigate('/survey-builder-setup');
+        <div style={{ padding: '8px 0', marginTop: '16px' }}>
+          <ButtonGroup
+            variant="contained"
+            sx={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '12px',
+              '& .MuiButton-root': {
+                backgroundColor: '#58CC02',
+                color: 'white',
+                padding: '8px 16px',
+                border: 'none',
+                borderRadius: '12px !important',
+                fontSize: '1.1rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 4px 0 #45a501',
+                textTransform: 'none',
+                '&:hover': {
+                  backgroundColor: '#45a501',
+                  transform: 'translateY(1px)',
+                  boxShadow: '0 3px 0 #45a501',
+                },
+                '&:not(:last-child)': {
+                  borderRight: 'none',
+                },
+              },
             }}
-            color="secondary"
           >
-            Publish Setup
-          </Button>
-        </ButtonGroup>
+            <Button onClick={handleGenerateQC}>Generate QC Questions</Button>
+            <Button onClick={handleSave}>Save Survey</Button>
+            <Button
+              onClick={async () => {
+                await handleSave();
+                navigate('/survey-builder-setup');
+              }}
+              sx={{
+                backgroundColor: '#1cb0f6 !important',
+                boxShadow: '0 4px 0 #1899d6 !important',
+                '&:hover': {
+                  backgroundColor: '#1899d6 !important',
+                  transform: 'translateY(1px)',
+                  boxShadow: '0 3px 0 #1899d6 !important',
+                },
+              }}
+            >
+              Publish Setup
+            </Button>
+          </ButtonGroup>
+        </div>
         <Snackbar
           open={showNotification}
           autoHideDuration={6000}

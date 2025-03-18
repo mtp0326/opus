@@ -13701,20 +13701,20 @@ supports-preserve-symlinks-flag@^1.0.0:
   resolved "https://registry.npmjs.org/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
 
-survey-core@^1.12.11:
-  version "1.12.23"
-  resolved "https://registry.npmjs.org/survey-core/-/survey-core-1.12.23.tgz"
-  integrity sha512-/ZKLF+6xlVLyna4c4N3xWyrYRIlfT43C3ZjScrU/36QY5abpvLyEalHGMxu2rKcBNj1vyw5BwGccYf5DWs5RhQ==
+survey-core@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/survey-core/-/survey-core-2.0.0.tgz"
+  integrity sha512-LwV81+K7zvAFJKuAnIPPxn7O04modWT91ZVTIEKayarQWn9PSTa2Qmx5vhH56zQKoUhJJ9DQg6WN5+G3ZCA1uw==
 
 survey-core@1.9.116:
   version "1.9.116"
   resolved "https://registry.npmjs.org/survey-core/-/survey-core-1.9.116.tgz"
   integrity sha512-yQ56PJ6U0Xm9OhUKAJyZ16yUzO3QZTI5HMBaFeBkiFpEmByFSlx1x7IS9uqML1sbLYeGVNP+kt7P9J4wZ7P3qQ==
 
-survey-creator-core@^1.12.11:
-  version "1.12.23"
-  resolved "https://registry.npmjs.org/survey-creator-core/-/survey-creator-core-1.12.23.tgz"
-  integrity sha512-HN7uyvhMu+JYPGMQdOjGCawdfFe9r43dRGsGtRAwgLuHx+our0oArkS6/poDJOT9WDwfUbnOWRIKyyCfEysSCQ==
+survey-creator-core@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/survey-creator-core/-/survey-creator-core-2.0.0.tgz"
+  integrity sha512-DvTh0qOi0w64VAWJeIZA1x6aEgkVqNPAzix7KXHtKtmVFvnuOP0x9WxNXD1YIfXoUTzyRZazXhTNx2WEBFyR+Q==
 
 survey-creator-core@1.9.116:
   version "1.9.116"
@@ -13723,10 +13723,10 @@ survey-creator-core@1.9.116:
   dependencies:
     survey-core "1.9.116"
 
-survey-creator-react@^1.12.12:
-  version "1.12.23"
-  resolved "https://registry.npmjs.org/survey-creator-react/-/survey-creator-react-1.12.23.tgz"
-  integrity sha512-qhrp58HR4691YPKH5fJ5iTXNrZIXfxqD7d0M+nuDtFjDOg2W5VVviLqO2owTsDmHgo7Mpa0iYAzVhXu8en2H8A==
+survey-creator-react@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/survey-creator-react/-/survey-creator-react-2.0.0.tgz"
+  integrity sha512-S4mRcw/DwMVHG0dgKZEZSUa0BS6X41PMra2n6JNwYvYRimKjfmy9JkafSRU9ZdT6eEO9fZ+5muzpEf0n5wxVvg==
 
 survey-creator-react@1.9.116:
   version "1.9.116"

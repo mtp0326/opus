@@ -163,21 +163,20 @@ function WorkerLoginPage() {
   }
 
   return (
-    <ScreenGrid>
+    <ScreenGrid> 
       <Grid
         container
         justifyContent="flex-start"
-        sx={{ position: 'absolute', top: 0, left: 0, p: 2 }}
+        sx={{backgroundColor: '#102622', color: 'white', position: 'absolute', top: 0, left: 0, p: 2 }}
       >
         <PrimaryButton
           onClick={() => navigate('/')}
           sx={{
-            color: 'grey.400',
-            backgroundColor: 'transparent',
+            color: 'black',
+            backgroundColor: '#66c8b9',
             boxShadow: 'none',
             '&:hover': {
-              color: 'grey.600',
-              backgroundColor: 'transparent',
+              backgroundColor: '#aff8e5',
               boxShadow: 'none',
             },
           }}
@@ -202,6 +201,22 @@ function WorkerLoginPage() {
               label="Email"
               value={values.email}
               onChange={(e) => setValue('email', e.target.value)}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '&:hover fieldset': {
+                    borderColor: '#66c8b9',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#66c8b9',
+                  },
+                },
+                '& label': {
+                  color: 'white',
+                },
+                '& .MuiInputBase-input': {
+                  color: 'white',
+                },
+              }}
             />
           </Grid>
           <Grid item width="1">
@@ -214,6 +229,22 @@ function WorkerLoginPage() {
               label="Password"
               value={values.password}
               onChange={(e) => setValue('password', e.target.value)}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '&:hover fieldset': {
+                    borderColor: '#66c8b9',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#66c8b9',
+                  },
+                },
+                '& label': {
+                  color: 'white',
+                },
+                '& .MuiInputBase-input': {
+                  color: 'white',
+                },
+              }}
             />
           </Grid>
           <Grid item container justifyContent="center">
@@ -221,6 +252,13 @@ function WorkerLoginPage() {
               fullWidth
               type="submit"
               variant="contained"
+              sx={{
+                backgroundColor: '#66c8b9',
+                color: 'black',
+                '&:hover': {
+                  backgroundColor: '#aff8e5',
+                },
+              }}
               onClick={() => handleSubmit()}
             >
               Login
@@ -228,12 +266,12 @@ function WorkerLoginPage() {
           </Grid>
           <FormRow>
             <Grid item>
-              <Link component={RouterLink} to="/email-reset">
+              <Link component={RouterLink} to="/email-reset" sx={{ color: 'white' }}>
                 Forgot password?
               </Link>
             </Grid>
             <Grid item>
-              <Link component={RouterLink} to="/wregister">
+              <Link component={RouterLink} to="/wregister" sx={{ color: 'white' }}>
                 Sign up
               </Link>
             </Grid>

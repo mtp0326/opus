@@ -154,12 +154,11 @@ function ResearcherLoginPage() {
         <PrimaryButton
           onClick={() => navigate('/')}
           sx={{
-            color: 'grey.400',
-            backgroundColor: 'transparent',
+            color: 'black',
+            backgroundColor: '#66c8b9',
             boxShadow: 'none',
             '&:hover': {
-              color: 'grey.600',
-              backgroundColor: 'transparent',
+              backgroundColor: '#aff8e5',
               boxShadow: 'none',
             },
           }}
@@ -170,7 +169,7 @@ function ResearcherLoginPage() {
       <FormGrid>
         <FormCol>
           <Grid item container justifyContent="center">
-            <Typography variant="h2" textAlign="center">
+            <Typography variant="h2" textAlign="center" sx={{ color: 'white' }}>
               Welcome to Opus Research
             </Typography>
           </Grid>
@@ -184,6 +183,22 @@ function ResearcherLoginPage() {
               label="Email"
               value={values.email}
               onChange={(e) => setValue('email', e.target.value)}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '&:hover fieldset': {
+                    borderColor: '#66c8b9',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#66c8b9',
+                  },
+                },
+                '& label': {
+                  color: 'white',
+                },
+                '& .MuiInputBase-input': {
+                  color: 'white',
+                },
+              }}
             />
           </Grid>
           <Grid item width="1">
@@ -196,6 +211,22 @@ function ResearcherLoginPage() {
               label="Password"
               value={values.password}
               onChange={(e) => setValue('password', e.target.value)}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '&:hover fieldset': {
+                    borderColor: '#66c8b9',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#66c8b9',
+                  },
+                },
+                '& label': {
+                  color: 'white',
+                },
+                '& .MuiInputBase-input': {
+                  color: 'white',
+                },
+              }}
             />
           </Grid>
           <Grid item container justifyContent="center">
@@ -203,6 +234,13 @@ function ResearcherLoginPage() {
               fullWidth
               type="submit"
               variant="contained"
+              sx={{
+                backgroundColor: '#66c8b9',
+                color: 'black',
+                '&:hover': {
+                  backgroundColor: '#aff8e5',
+                },
+              }}
               onClick={() => handleSubmit()}
             >
               Login
@@ -210,12 +248,12 @@ function ResearcherLoginPage() {
           </Grid>
           <FormRow>
             <Grid item>
-              <Link component={RouterLink} to="/email-reset">
+              <Link component={RouterLink} to="/email-reset" sx={{ color: 'white' }}>
                 Forgot password?
               </Link>
             </Grid>
             <Grid item>
-              <Link component={RouterLink} to="/rregister">
+              <Link component={RouterLink} to="/rregister" sx={{ color: 'white' }}>
                 Sign up
               </Link>
             </Grid>

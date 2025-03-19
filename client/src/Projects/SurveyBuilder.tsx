@@ -92,8 +92,9 @@ function SurveyBuilder() {
     return () => {
       const path = window.location.pathname;
       if (
-        !path.includes('survey-builder') &&
-        !path.includes('survey-builder-setup')
+        (!path.includes('survey-builder') &&
+          !path.includes('survey-builder-setup')) ||
+        path === '/whome' // Add this condition to clear when going to home
       ) {
         localStorage.removeItem('currentSurvey');
         localStorage.removeItem('currentSurveyId');
@@ -122,29 +123,6 @@ function SurveyBuilder() {
       console.error('Save failed:', error);
     }
   }, []);
-
-  // const handleGenerateQC = useCallback(async () => {
-  //   try {
-  //     // const response = await postData('surveys/js/generate-qc', {
-  //     //   surveyJson: creatorRef.current?.JSON
-  //     // });
-
-  //     const response = await postData('surveys/${surveyId}/quality-control`, {
-  //       surveyJson: creatorRef.current?.JSON
-  //     });
-
-  //     if (response.data) {
-  //       // Update the survey creator with the new JSON that includes QC questions
-  //       creatorRef.current!.JSON = response.data;
-  //       showAlert('QC questions generated successfully', 'success');
-  //     } else {
-  //       showAlert('Failed to generate QC questions', 'error');
-  //     }
-  //   } catch (error) {
-  //     console.error('Generate QC failed:', error);
-  //     showAlert('Failed to generate QC questions', 'error');
-  //   }
-  // }, []);
 
   const handleGenerateQC = useCallback(async () => {
     try {

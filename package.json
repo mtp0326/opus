@@ -46,10 +46,6 @@
     "react-router-dom": "^6.2.2",
     "stripe": "^17.6.0",
     "styled-components": "^5.3.3",
-    "survey-core": "^2.0.0",
-    "survey-creator-core": "^2.0.0",
-    "survey-creator-react": "^2.0.0",
-    "survey-react-ui": "^1.12.9",
     "surveyjs-widgets": "^1.12.12",
     "winston": "^3.14.2"
   },

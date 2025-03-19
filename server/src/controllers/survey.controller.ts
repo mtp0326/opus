@@ -6,7 +6,7 @@ import { User, IUser } from '../models/user.model.ts';
 import SurveySubmission from '../models/surveySubmission.model.ts';
 import SurveyJs from '../models/surveyJs.model.ts';
 import SurveyJsSubmission from '../models/surveyJsSubmission.model.ts';
-import { generateQualityControlQuestions } from '../services/surveyQualityControl';
+import { generateQualityControlQuestions } from '../services/surveyQualityControl.ts';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);

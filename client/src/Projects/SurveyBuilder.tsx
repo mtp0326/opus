@@ -126,23 +126,36 @@ function SurveyBuilder() {
 
   const handleGenerateQC = useCallback(async () => {
     try {
+      if (!creatorRef.current?.JSON) {
+        showAlert('Please save your survey first', 'error');
+        return;
+      }
+
+      console.log(
+        '📋 Survey JSON being sent:',
+        JSON.stringify(creatorRef.current.JSON, null, 2),
+      );
       console.log('🟢 Sending request to generate QC questions...');
       const response = await postData(`surveys/${surveyId}/quality-control`, {
-        surveyJson: creatorRef.current?.JSON,
+        surveyJson: creatorRef.current.JSON,
       });
 
       console.log('🔵 Response from backend:', response);
 
       if (response.data) {
-        creatorRef.current!.JSON = response.data;
-        showAlert('QC questions generated successfully', 'success');
+        // Update the survey with the new QC questions
+        creatorRef.current.JSON = response.data;
+        showAlert(
+          'Quality control questions generated successfully',
+          'success',
+        );
       } else {
         console.error('🔴 Backend returned no data:', response);
-        showAlert('Failed to generate QC questions', 'error');
+        showAlert('Failed to generate quality control questions', 'error');
       }
     } catch (error) {
       console.error('❌ Generate QC failed:', error);
-      showAlert('Failed to generate QC questions', 'error');
+      showAlert('Failed to generate quality control questions', 'error');
     }
   }, [surveyId]);
 

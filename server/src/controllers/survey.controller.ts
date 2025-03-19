@@ -1,15 +1,18 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
+import Stripe from 'stripe';
+import { OpenAI } from 'openai';
 import ApiError from '../util/apiError.ts';
 import Survey from '../models/survey.model.ts';
 import { User, IUser } from '../models/user.model.ts';
 import SurveySubmission from '../models/surveySubmission.model.ts';
 import SurveyJs from '../models/surveyJs.model.ts';
 import SurveyJsSubmission from '../models/surveyJsSubmission.model.ts';
-import { generateQualityControlQuestions } from '../services/surveyQualityControl.ts';
-import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY || '',
+});
 
 export const publishSurvey = async (
   req: Request & { user?: IUser },
@@ -796,29 +799,149 @@ export const addQualityControlQuestions = async (
   res: Response,
 ) => {
   try {
+    console.log('🎯 Starting quality control questions generation...');
+
     if (!req.user?._id) {
+      console.log('❌ User not authenticated');
       throw new Error('User not authenticated');
     }
 
     const { surveyId } = req.params;
+    const { surveyJson } = req.body;
+
+    console.log('📋 Received request:', {
+      surveyId,
+      hasSurveyJson: !!surveyJson,
+      surveyJsonKeys: surveyJson ? Object.keys(surveyJson) : [],
+    });
+
+    if (!surveyJson) {
+      console.log('❌ No survey JSON provided');
+      return res.status(400).json({
+        error: { message: 'Survey JSON is required' },
+      });
+    }
 
     // Check if user owns the survey
+    console.log('🔍 Checking survey ownership...');
     const [externalSurvey, jsSurvey] = await Promise.all([
       Survey.findOne({ _id: surveyId, createdBy: req.user._id }),
       SurveyJs.findOne({ _id: surveyId, createdBy: req.user._id }),
     ]);
 
     if (!externalSurvey && !jsSurvey) {
+      console.log('❌ Survey not found or unauthorized');
       return res.status(404).json({
         error: { message: 'Survey not found or unauthorized' },
       });
     }
 
-    const updatedSurvey = await generateQualityControlQuestions(surveyId);
+    console.log('✅ Survey ownership verified');
 
-    console.log('✅ Added quality control questions to survey:', surveyId);
+    // Extract existing questions from the provided survey JSON
+    console.log('📊 Analyzing survey structure...');
+    const pages = surveyJson.pages || [];
+    const existingQuestions = pages
+      .flatMap((page: any) => page.elements || [])
+      .map((element: any) => element.title || element.name)
+      .join('\n');
+
+    // Count total questions
+    const totalQuestions = pages.reduce((count: number, page: any) => {
+      return count + (page.elements?.length || 0);
+    }, 0);
+
+    // Determine number of QC questions based on survey length
+    let numQCQuestions;
+    if (totalQuestions <= 5) {
+      numQCQuestions = 1;
+    } else if (totalQuestions <= 10) {
+      numQCQuestions = 2;
+    } else if (totalQuestions <= 20) {
+      numQCQuestions = 3;
+    } else {
+      numQCQuestions = 4;
+    }
+
+    console.log('📈 Survey analysis:', {
+      totalPages: pages.length,
+      totalQuestions,
+      numQCQuestions,
+      existingQuestions: existingQuestions.split('\n').length,
+    });
+
+    // Generate quality control questions using OpenAI
+    console.log('🤖 Sending request to OpenAI...');
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4',
+      messages: [
+        {
+          role: 'system',
+          content: `You are a survey expert. Generate ${numQCQuestions} quality control questions based on the existing survey questions. These should help verify the respondent is paying attention and giving consistent answers. Format the response as a SurveyJS compatible JSON object with proper question types and choices.`,
+        },
+        {
+          role: 'user',
+          content: `Here are the existing survey questions/context:\n${existingQuestions}\n\nGenerate ${numQCQuestions} quality control questions that would be appropriate for this survey. Return them in this format:
+          {
+            "elements": [
+              {
+                "type": "radiogroup",
+                "name": "qc_1",
+                "title": "Your quality control question here",
+                "isRequired": true,
+                "isQualityControl": true,
+                "choices": [
+                  {
+                    "value": "Item 1",
+                    "text": "First choice"
+                  },
+                  {
+                    "value": "Item 2",
+                    "text": "Second choice"
+                  }
+                ]
+              }
+            ]
+          }`,
+        },
+      ],
+      temperature: 0.0,
+    });
+
+    console.log('✅ Received response from OpenAI');
+
+    // Parse the generated questions
+    const { content } = completion.choices[0].message;
+    if (!content) {
+      console.log('❌ No content received from OpenAI');
+      throw new Error('No content received from OpenAI');
+    }
+
+    console.log('📄 Parsing OpenAI response:', content);
+    const generatedQuestions = JSON.parse(content);
+
+    // Create a new page with quality control questions
+    const qcPage = {
+      name: 'quality_control',
+      title: 'Quality Control Questions',
+      elements: generatedQuestions.elements,
+    };
+
+    // Add the QC page to the survey
+    const updatedSurveyJson = {
+      ...surveyJson,
+      pages: [...pages, qcPage],
+    };
+
+    console.log('✅ Successfully generated QC questions');
+    console.log('📊 Updated survey structure:', {
+      totalPages: updatedSurveyJson.pages.length,
+      qcPageIndex: updatedSurveyJson.pages.length - 1,
+      qcQuestionsCount: qcPage.elements.length,
+    });
+
     return res.json({
-      data: updatedSurvey,
+      data: updatedSurveyJson,
       message: 'Quality control questions added successfully',
     });
   } catch (error) {

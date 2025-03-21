@@ -252,14 +252,15 @@ function SurveyBuilder() {
       <Navigation />
       <div className={styles.container}>
         <SurveyCreatorComponent creator={creator} />
-        <div style={{ padding: '8px 0', marginTop: '16px' }}>
+        <div style={{ marginTop: '8px' }}>
           <ButtonGroup
             variant="contained"
             sx={{
               display: 'flex',
               justifyContent: 'flex-end',
               gap: '12px',
-              '& .MuiButton-root': {
+              width: '100%',
+              '& .MuiButton-root, & .MuiButton-root[component="span"]': {
                 backgroundColor: '#58CC02',
                 color: 'white',
                 padding: '8px 16px',
@@ -267,17 +268,39 @@ function SurveyBuilder() {
                 borderRadius: '12px !important',
                 fontSize: '1.1rem',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 4px 0 #45a501',
+                transition: 'background-color 0.2s ease',
                 textTransform: 'none',
+                minWidth: 'fit-content',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                position: 'relative',
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  width: '100%',
+                  height: '4px',
+                  backgroundColor: '#45a501',
+                  borderBottomLeftRadius: '12px',
+                  borderBottomRightRadius: '12px',
+                  transition: 'height 0.2s ease',
+                },
                 '&:hover': {
                   backgroundColor: '#45a501',
-                  transform: 'translateY(1px)',
-                  boxShadow: '0 3px 0 #45a501',
+                  '&::after': {
+                    height: '3px',
+                  },
                 },
                 '&:not(:last-child)': {
                   borderRight: 'none',
                 },
+              },
+              '& label': {
+                margin: 0,
+                padding: 0,
+                height: '40px',
               },
             }}
           >
@@ -325,11 +348,11 @@ function SurveyBuilder() {
               }}
               sx={{
                 backgroundColor: '#1cb0f6 !important',
-                boxShadow: '0 4px 0 #1899d6 !important',
+                '&::after': {
+                  backgroundColor: '#1899d6 !important',
+                },
                 '&:hover': {
                   backgroundColor: '#1899d6 !important',
-                  transform: 'translateY(1px)',
-                  boxShadow: '0 3px 0 #1899d6 !important',
                 },
               }}
             >

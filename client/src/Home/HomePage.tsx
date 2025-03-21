@@ -29,12 +29,6 @@ function HomePage() {
             <a href="#features" className="nav-link w-nav-link">
               Features
             </a>
-            <a href="/customers" className="nav-link w-nav-link">
-              Customers
-            </a>
-            <a href="/signup" className="nav-link w-nav-link">
-              Sign Up
-            </a>
           </nav>
           <div className="logo-text">Opus</div>
           <div className="nav-link menu w-nav-button">

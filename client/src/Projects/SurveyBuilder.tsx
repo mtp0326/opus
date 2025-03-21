@@ -20,9 +20,13 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  CircularProgress,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { SurveyJSON5 } from 'survey-creator-core';
+import { SurveyJSON5, PropertyEditorCreatedEvent } from 'survey-creator-core';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import Navigation from '../components/Navigation';
 import styles from './SurveyBuilder.module.css';
 import { postData, getData, putData } from '../util/api.tsx';
@@ -56,12 +60,17 @@ function SurveyBuilder() {
 
     // Simpler handler for empty text
     c.onPropertyEditorCreated.add((sender, options) => {
-      if (options.propertyEditor && options.propertyEditor.contentElement) {
-        const element = options.propertyEditor.contentElement;
+      // Type assertion for the specific properties we need
+      const contentElement = (options as any)?.propertyEditor
+        ?.contentElement as HTMLElement | undefined;
 
-        element.addEventListener('input', () => {
-          if (!element.textContent || element.textContent.trim() === '') {
-            element.textContent = ' ';
+      if (contentElement) {
+        contentElement.addEventListener('input', () => {
+          if (
+            !contentElement.textContent ||
+            contentElement.textContent.trim() === ''
+          ) {
+            contentElement.textContent = ' ';
           }
         });
       }
@@ -113,6 +122,8 @@ function SurveyBuilder() {
   const [surveys, setSurveys] = useState<Array<{ _id: string; title: string }>>(
     [],
   );
+  const [isGeneratingQC, setIsGeneratingQC] = useState(false);
+  const [isProcessingDoc, setIsProcessingDoc] = useState(false);
 
   const showAlert = (message: string, type: 'success' | 'error' | 'info') => {
     setNotification({ message, type });
@@ -138,6 +149,7 @@ function SurveyBuilder() {
         return;
       }
 
+      setIsGeneratingQC(true);
       console.log(
         '📋 Survey JSON being sent:',
         JSON.stringify(creatorRef.current.JSON, null, 2),
@@ -157,7 +169,10 @@ function SurveyBuilder() {
         // Force the creator to refresh its view
         creatorRef.current.survey.render();
         // Save the updated survey to localStorage
-        // localStorage.setItem('currentSurvey', JSON.stringify(response.data));
+        localStorage.setItem(
+          'currentSurvey',
+          JSON.stringify(response.data.data),
+        );
         showAlert(
           'Quality control questions generated successfully',
           'success',
@@ -169,8 +184,51 @@ function SurveyBuilder() {
     } catch (error) {
       console.error('❌ Generate QC failed:', error);
       showAlert('Failed to generate quality control questions', 'error');
+    } finally {
+      setIsGeneratingQC(false);
     }
   }, []);
+
+  const handleFileUpload = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      // Check if it's a Word document
+      if (!file.name.endsWith('.doc') && !file.name.endsWith('.docx')) {
+        showAlert('Please upload a Word document (.doc or .docx)', 'error');
+        return;
+      }
+
+      try {
+        setIsProcessingDoc(true);
+        const formData = new FormData();
+        formData.append('document', file);
+
+        const response = await postData('surveys/process-document', formData);
+
+        if (response.error) {
+          throw new Error(response.error.message);
+        }
+
+        if (response.data) {
+          // Update the survey with the processed questions
+          creatorRef.current!.JSON = response.data.data;
+          creatorRef.current!.survey.render();
+          showAlert('Questions imported successfully', 'success');
+        }
+      } catch (error) {
+        console.error('Failed to process document:', error);
+        showAlert('Failed to process document', 'error');
+      } finally {
+        setIsProcessingDoc(false);
+        // Reset the file input using a new FileList
+        const newInput = event.target.cloneNode(true) as HTMLInputElement;
+        event.target.parentNode?.replaceChild(newInput, event.target);
+      }
+    },
+    [],
+  );
 
   // Fetch available draft surveys
   useEffect(() => {
@@ -223,8 +281,41 @@ function SurveyBuilder() {
               },
             }}
           >
-            <Button onClick={handleGenerateQC}>
-              Generate Quality Control Questions
+            <input
+              type="file"
+              accept=".doc,.docx"
+              style={{ display: 'none' }}
+              id="upload-document"
+              onChange={handleFileUpload}
+              disabled={isProcessingDoc}
+            />
+            <label htmlFor="upload-document">
+              <Tooltip title="Upload Word document with questions">
+                <Button
+                  component="span"
+                  disabled={isProcessingDoc}
+                  startIcon={
+                    isProcessingDoc ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : (
+                      <UploadFileIcon />
+                    )
+                  }
+                >
+                  {isProcessingDoc ? 'Processing...' : 'Import Questions'}
+                </Button>
+              </Tooltip>
+            </label>
+            <Button
+              onClick={handleGenerateQC}
+              disabled={isGeneratingQC}
+              startIcon={
+                isGeneratingQC ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : null
+              }
+            >
+              {isGeneratingQC ? 'Generating...' : 'Generate QC Questions'}
             </Button>
             <Button onClick={handleSave}>Save Survey</Button>
             <Button

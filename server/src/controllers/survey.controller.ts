@@ -2,6 +2,8 @@ import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Stripe from 'stripe';
 import { OpenAI } from 'openai';
+import multer from 'multer';
+import mammoth from 'mammoth';
 import ApiError from '../util/apiError.ts';
 import Survey from '../models/survey.model.ts';
 import { User, IUser } from '../models/user.model.ts';
@@ -13,6 +15,25 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || '',
 });
+
+// Configure multer for file upload
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (
+      file.mimetype ===
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+      file.mimetype === 'application/msword'
+    ) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only .doc and .docx files are allowed'));
+    }
+  },
+}).single('document');
 
 export const publishSurvey = async (
   req: Request & { user?: IUser },
@@ -1021,6 +1042,114 @@ export const getRandomSurvey = async (
           error instanceof Error
             ? error.message
             : 'Failed to fetch random survey',
+      },
+    });
+  }
+};
+
+export const processDocument = async (
+  req: Request & { user?: IUser },
+  res: Response,
+) => {
+  try {
+    // Handle file upload
+    upload(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({
+          error: { message: err.message },
+        });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({
+          error: { message: 'No file uploaded' },
+        });
+      }
+
+      try {
+        // Extract text from Word document
+        const result = await mammoth.extractRawText({
+          buffer: req.file.buffer,
+        });
+        const text = result.value;
+
+        // Use OpenAI to convert the text to SurveyJS format
+        const completion = await openai.chat.completions.create({
+          model: 'gpt-4',
+          messages: [
+            {
+              role: 'system',
+              content: `You are a survey expert. Convert the provided document text into a SurveyJS compatible JSON format. Each question should be properly formatted with appropriate question types and choices.`,
+            },
+            {
+              role: 'user',
+              content: `Convert the following questions into SurveyJS format. Use appropriate question types (radiogroup for multiple choice, text for open-ended, etc.). Return only valid JSON that matches this structure, the question "type" can be different based on the question:
+{
+  "pages": [
+    {
+      "name": "page1",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "question1",
+          "title": "Question text here",
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "First choice"
+            },
+            {
+              "value": "Item 2",
+              "text": "Second choice"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+Here are the questions to convert:
+
+${text}`,
+            },
+          ],
+          temperature: 0.0,
+        });
+
+        const { content } = completion.choices[0].message;
+        if (!content) {
+          throw new Error('No content received from OpenAI');
+        }
+
+        // Parse and validate the generated JSON
+        const surveyJson = JSON.parse(content);
+
+        console.log('✅ Successfully converted document to SurveyJS format');
+        return res.json({
+          data: surveyJson,
+          message: 'Document processed successfully',
+        });
+      } catch (error) {
+        console.error('❌ Error processing document:', error);
+        return res.status(500).json({
+          error: {
+            message:
+              error instanceof Error
+                ? error.message
+                : 'Failed to process document',
+          },
+        });
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error handling file upload:', error);
+    return res.status(500).json({
+      error: {
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to handle file upload',
       },
     });
   }

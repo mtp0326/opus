@@ -1,0 +1,179 @@
+{
+  "data": {
+      "data": {
+          "title": "Attention Check Question",
+          "pages": [
+              {
+                  "name": "page1",
+                  "elements": [
+                      {
+                          "type": "radiogroup",
+                          "name": "question1",
+                          "title": "What phone do you have",
+                          "choices": [
+                              {
+                                  "value": "Item 1",
+                                  "text": "IPhone"
+                              },
+                              {
+                                  "value": "Item 2",
+                                  "text": "Samsung"
+                              },
+                              {
+                                  "value": "Item 3",
+                                  "text": "Nokia"
+                              }
+                          ]
+                      },
+                      {
+                          "type": "radiogroup",
+                          "name": "question2",
+                          "title": "What social media do you use the most",
+                          "choices": [
+                              {
+                                  "value": "Item 1",
+                                  "text": "Instagram"
+                              },
+                              {
+                                  "value": "Item 2",
+                                  "text": "Reddit"
+                              },
+                              {
+                                  "value": "Item 3",
+                                  "text": "Snapchat"
+                              }
+                          ]
+                      }
+                  ]
+              },
+              {
+                  "name": "quality_control",
+                  "elements": [
+                      {
+                          "type": "radiogroup",
+                          "name": "qc_1",
+                          "title": "Which of the following is not a type of phone?",
+                          "choices": [
+                              {
+                                  "value": "Item 1",
+                                  "text": "iPhone"
+                              },
+                              {
+                                  "value": "Item 2",
+                                  "text": "Samsung Galaxy"
+                              },
+                              {
+                                  "value": "Item 3",
+                                  "text": "Banana"
+                              }
+                          ]
+                      }
+                  ]
+              }
+          ]
+      },
+      "message": "Quality control questions added successfully"
+  },
+  "error": null
+}
+
+
+{
+    "title": "Attention Check Question",
+    "pages": [
+        {
+            "name": "page1",
+            "elements": [
+                {
+                    "type": "radiogroup",
+                    "name": "question1",
+                    "title": "What phone do you have",
+                    "choices": [
+                        {
+                            "value": "Item 1",
+                            "text": "IPhone"
+                        },
+                        {
+                            "value": "Item 2",
+                            "text": "Samsung"
+                        },
+                        {
+                            "value": "Item 3",
+                            "text": "Nokia"
+                        }
+                    ]
+                },
+                {
+                    "type": "radiogroup",
+                    "name": "question2",
+                    "title": "What social media do you use the most",
+                    "choices": [
+                        {
+                            "value": "Item 1",
+                            "text": "Instagram"
+                        },
+                        {
+                            "value": "Item 2",
+                            "text": "Reddit"
+                        },
+                        {
+                            "value": "Item 3",
+                            "text": "Snapchat"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
+{
+    "data": {
+        "title": "Attention Check Question",
+        "pages": [
+            {
+                "name": "page1",
+                "elements": [
+                    {
+                        "type": "radiogroup",
+                        "name": "question1",
+                        "title": "Tester",
+                        "choices": [
+                            {
+                                "value": "Item 1",
+                                "text": "IPhone"
+                            },
+                            {
+                                "value": "Item 2",
+                                "text": "Samsung"
+                            },
+                            {
+                                "value": "Item 3",
+                                "text": "Nokia"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "radiogroup",
+                        "name": "question2",
+                        "title": "What social media do you use the most",
+                        "choices": [
+                            {
+                                "value": "Item 1",
+                                "text": "Instagram"
+                            },
+                            {
+                                "value": "Item 2",
+                                "text": "Reddit"
+                            },
+                            {
+                                "value": "Item 3",
+                                "text": "Snapchat"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

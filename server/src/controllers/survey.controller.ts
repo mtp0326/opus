@@ -801,16 +801,9 @@ export const addQualityControlQuestions = async (
   try {
     console.log('🎯 Starting quality control questions generation...');
 
-    if (!req.user?._id) {
-      console.log('❌ User not authenticated');
-      throw new Error('User not authenticated');
-    }
-
-    const { surveyId } = req.params;
     const { surveyJson } = req.body;
 
     console.log('📋 Received request:', {
-      surveyId,
       hasSurveyJson: !!surveyJson,
       surveyJsonKeys: surveyJson ? Object.keys(surveyJson) : [],
     });
@@ -821,22 +814,6 @@ export const addQualityControlQuestions = async (
         error: { message: 'Survey JSON is required' },
       });
     }
-
-    // Check if user owns the survey
-    console.log('🔍 Checking survey ownership...');
-    const [externalSurvey, jsSurvey] = await Promise.all([
-      Survey.findOne({ _id: surveyId, createdBy: req.user._id }),
-      SurveyJs.findOne({ _id: surveyId, createdBy: req.user._id }),
-    ]);
-
-    if (!externalSurvey && !jsSurvey) {
-      console.log('❌ Survey not found or unauthorized');
-      return res.status(404).json({
-        error: { message: 'Survey not found or unauthorized' },
-      });
-    }
-
-    console.log('✅ Survey ownership verified');
 
     // Extract existing questions from the provided survey JSON
     console.log('📊 Analyzing survey structure...');
@@ -877,37 +854,53 @@ export const addQualityControlQuestions = async (
       messages: [
         {
           role: 'system',
-          content: `You are a survey expert. Generate ${numQCQuestions} quality control questions based on the existing survey questions. These should help verify the respondent is paying attention and giving consistent answers. Format the response as a SurveyJS compatible JSON object with proper question types and choices.`,
+          content: `You are a survey expert. Generate ${numQCQuestions} quality control questions that will help verify if respondents are paying attention. Return them in a specific JSON format that matches the SurveyJS schema.`,
         },
         {
           role: 'user',
-          content: `Here are the existing survey questions/context:\n${existingQuestions}\n\nGenerate ${numQCQuestions} quality control questions that would be appropriate for this survey. Return them in this format:
-          {
-            "elements": [
-              {
-                "type": "radiogroup",
-                "name": "qc_1",
-                "title": "Your quality control question here",
-                "isRequired": true,
-                "isQualityControl": true,
-                "choices": [
-                  {
-                    "value": "Item 1",
-                    "text": "First choice"
-                  },
-                  {
-                    "value": "Item 2",
-                    "text": "Second choice"
-                  }
-                ]
-              }
-            ]
-          }`,
+          content: `Here are the existing survey questions/context:\n${existingQuestions}\n\nGenerate ${numQCQuestions} quality control questions that would be appropriate for this survey. Return them in this exact format:
+{
+  "pages": [
+    {
+      "name": "quality_control",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "qc_1",
+          "title": "Your quality control question here",
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "First choice"
+            },
+            {
+              "value": "Item 2",
+              "text": "Second choice"
+            },
+            {
+              "value": "Item 3",
+              "text": "Third choice"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+Important format notes:
+1. Keep the exact structure with "pages" array containing one page
+2. The page should have "name": "quality_control"
+3. Each question should be of type "radiogroup"
+4. Question names should be "qc_1", "qc_2", etc.
+5. Make questions that are clear attention checks
+6. Each choice must have both "value" and "text" properties
+7. Values should be "Item 1", "Item 2", etc.
+8. Keep the structure minimal - only include the shown fields`,
         },
       ],
       temperature: 0.0,
     });
-
     console.log('✅ Received response from OpenAI');
 
     // Parse the generated questions
@@ -920,24 +913,17 @@ export const addQualityControlQuestions = async (
     console.log('📄 Parsing OpenAI response:', content);
     const generatedQuestions = JSON.parse(content);
 
-    // Create a new page with quality control questions
-    const qcPage = {
-      name: 'quality_control',
-      title: 'Quality Control Questions',
-      elements: generatedQuestions.elements,
-    };
-
-    // Add the QC page to the survey
+    // Since the response is already in the correct format, we can use it directly
     const updatedSurveyJson = {
       ...surveyJson,
-      pages: [...pages, qcPage],
+      pages: [...surveyJson.pages, ...generatedQuestions.pages],
     };
 
     console.log('✅ Successfully generated QC questions');
     console.log('📊 Updated survey structure:', {
       totalPages: updatedSurveyJson.pages.length,
       qcPageIndex: updatedSurveyJson.pages.length - 1,
-      qcQuestionsCount: qcPage.elements.length,
+      qcQuestionsCount: generatedQuestions.pages[0].elements.length,
     });
 
     return res.json({

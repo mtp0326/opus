@@ -143,10 +143,9 @@ router.put(
 
 /**
  * A POST route to add quality control questions to a survey
- * Expects surveyId in URL params
  */
 router.post(
-  '/:surveyId/quality-control',
+  '/quality-control',
   isAuthenticated,
   addQualityControlQuestions as express.RequestHandler,
 );

@@ -22,6 +22,7 @@ import {
   InputLabel,
 } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { SurveyJSON5 } from 'survey-creator-core';
 import Navigation from '../components/Navigation';
 import styles from './SurveyBuilder.module.css';
 import { postData, getData, putData } from '../util/api.tsx';
@@ -45,8 +46,10 @@ function SurveyBuilder() {
   // Create a ref to store the creator instance
   const creatorRef = React.useRef<SurveyCreator | null>(null);
 
-  const surveyId =
-    setupData?.surveyId || localStorage.getItem('currentSurveyId');
+  // Get surveyId from localStorage
+  const [surveyId, setSurveyId] = useState<string | null>(
+    localStorage.getItem('currentSurveyId'),
+  );
 
   const creator = useMemo(() => {
     const c = new SurveyCreator(creatorOptions);
@@ -118,7 +121,11 @@ function SurveyBuilder() {
 
   const handleSave = useCallback(async () => {
     try {
-      await handleSurveyJsSave(creatorRef, showAlert);
+      const response = await handleSurveyJsSave(creatorRef, showAlert);
+      // Update surveyId state if it's a new survey
+      if (response?.data?.data?._id) {
+        setSurveyId(response.data.data._id);
+      }
     } catch (error) {
       console.error('Save failed:', error);
     }
@@ -136,15 +143,21 @@ function SurveyBuilder() {
         JSON.stringify(creatorRef.current.JSON, null, 2),
       );
       console.log('🟢 Sending request to generate QC questions...');
-      const response = await postData(`surveys/${surveyId}/quality-control`, {
+      const response = await postData('surveys/quality-control', {
         surveyJson: creatorRef.current.JSON,
       });
+      console.log('📋 JSON being sent:', creatorRef.current.JSON);
 
-      console.log('🔵 Response from backend:', response);
+      console.log('🔵 Response from backend:', response.data.data);
 
       if (response.data) {
         // Update the survey with the new QC questions
-        creatorRef.current.JSON = response.data;
+        creatorRef.current.JSON = response.data.data;
+
+        // Force the creator to refresh its view
+        creatorRef.current.survey.render();
+        // Save the updated survey to localStorage
+        // localStorage.setItem('currentSurvey', JSON.stringify(response.data));
         showAlert(
           'Quality control questions generated successfully',
           'success',
@@ -157,7 +170,7 @@ function SurveyBuilder() {
       console.error('❌ Generate QC failed:', error);
       showAlert('Failed to generate quality control questions', 'error');
     }
-  }, [surveyId]);
+  }, []);
 
   // Fetch available draft surveys
   useEffect(() => {
@@ -210,7 +223,9 @@ function SurveyBuilder() {
               },
             }}
           >
-            <Button onClick={handleGenerateQC}>Generate QC Questions</Button>
+            <Button onClick={handleGenerateQC}>
+              Generate Quality Control Questions
+            </Button>
             <Button onClick={handleSave}>Save Survey</Button>
             <Button
               onClick={async () => {

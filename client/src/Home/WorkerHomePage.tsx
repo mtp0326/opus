@@ -10,6 +10,8 @@ import {
   getRandomSurvey,
   submitSurveyCompletion,
   getWorkerByEmail,
+  getPointsForNextLeague,
+  getLeaderboard,
 } from '../Projects/api';
 import { useAppDispatch, useAppSelector } from '../util/redux/hooks.ts';
 import {
@@ -147,6 +149,8 @@ function WorkerHomePage() {
   const [prevPoints, setPrevPoints] = useState(points);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const { isDarkMode } = useTheme();
+  const [users, setUsers] = useState<IUser[]>([]);
+  const [prevPointsNeeded, setPrevPointsNeeded] = useState(0);
 
   // Idt we need selfpromote for a worker account/nonadmin account
   // const handleSelfPromote = async () => {
@@ -941,6 +945,28 @@ function WorkerHomePage() {
     setDailyProgress(newCountP);
   };
 
+  const getCurrentRankDifference = (users: IUser[], currentUserEmail: string): number => {
+    const sortedUsers = [...users].sort((a, b) => b.points - a.points);
+    const currentUserIndex = sortedUsers.findIndex(user => user.email === currentUserEmail);
+    
+    if (currentUserIndex <= 0) return 0;
+    
+    const pointsAhead = sortedUsers[currentUserIndex - 1].points;
+    const currentPoints = sortedUsers[currentUserIndex].points;
+    return pointsAhead - currentPoints + 1;
+  };
+
+  useEffect(() => {
+    if (userInfo?.league) {
+      getLeaderboard().then((data) => {
+        const sameLeagueUsers = data.filter(
+          (user) => user.league === userInfo.league
+        );
+        setUsers(sameLeagueUsers);
+      });
+    }
+  }, [userInfo?.league]);
+
   if (isLoading) {
     return (
       <>
@@ -1280,6 +1306,67 @@ function WorkerHomePage() {
             >
               +<Number n1={prevPoints} n2={points} /> XP
             </Typography>
+          </Box>
+          <Box
+            sx={{
+              backgroundColor: 'white',
+              padding: '16px',
+              borderRadius: '12px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: '3px solid #ce82ff',
+              marginTop: '16px',
+            }}
+          >
+            <Typography
+              sx={{
+                color: '#ce82ff',
+                fontSize: '1rem',
+                marginBottom: '8px',
+                fontFamily: 'Feather Bold',
+              }}
+            >
+              Progress Tracker
+            </Typography>
+            
+            {/* Points to next league */}
+            <Typography
+              sx={{
+                fontSize: '1.1rem',
+                color: '#666',
+                fontFamily: 'Feather Bold',
+                marginBottom: '4px',
+              }}
+            >
+              <Number n1={prevPointsNeeded} n2={getPointsForNextLeague(userInfo?.points || 0)} /> points until{' '}
+              <span style={{ 
+                color: getLeagueColor(
+                  userInfo?.league === 'Wood' ? 'Bronze' :
+                  userInfo?.league === 'Bronze' ? 'Silver' :
+                  userInfo?.league === 'Silver' ? 'Gold' :
+                  userInfo?.league === 'Gold' ? 'Platinum' :
+                  userInfo?.league === 'Platinum' ? 'Diamond' : 'Diamond'
+                )
+              }}>
+                {userInfo?.league === 'Wood' ? 'Bronze' :
+                 userInfo?.league === 'Bronze' ? 'Silver' :
+                 userInfo?.league === 'Silver' ? 'Gold' :
+                 userInfo?.league === 'Gold' ? 'Platinum' :
+                 userInfo?.league === 'Platinum' ? 'Diamond' : ''}
+              </span> League!
+            </Typography>
+
+            {/* Points to climb rank - only show if we have users data */}
+            {users.length > 0 && (
+              <Typography
+                sx={{
+                  fontSize: '1.1rem',
+                  color: '#666',
+                  fontFamily: 'Feather Bold',
+                }}
+              >
+                {getCurrentRankDifference(users, userInfo?.email || '')} points to climb a rank!
+              </Typography>
+            )}
           </Box>
         </Box>
       </Box>

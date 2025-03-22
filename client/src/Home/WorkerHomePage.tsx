@@ -1148,11 +1148,11 @@ function WorkerHomePage() {
             <div className={styles.container}>
               <div className={styles.previewBox}>
                 <div className={styles.surveyContainer}>
-                  <Survey
-                    model={survey}
-                    css={{ root: { width: '100%', height: '100%' } }}
-                  />
-                  <div className={styles.topRightBoxContainer}>
+                  <Survey model={survey} css={{ root: 'sv_main' }} />
+                  <div
+                    className={styles.topRightBoxContainer}
+                    style={{ top: '0.5rem' }}
+                  >
                     <div className={styles.topRightBox}>
                       Q: {currentQuestion + 1}/{formData?.content.pages.length}
                     </div>

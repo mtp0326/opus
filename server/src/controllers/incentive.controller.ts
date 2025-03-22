@@ -1,8 +1,6 @@
 // import { User } from '../models/user.model.ts';
 // import { Request, Response } from 'express';
 
-
-
 // // Function to update streaks and tickets
 // export const updateStreakAndTickets = async (userId: string) => {
 //   const user = await User.findById(userId);
@@ -44,4 +42,4 @@
 //   await updateStreakAndTickets(userId);
 //   await updateLeague(userId);
 //   res.status(200).send('Survey completed and incentives updated.');
-// }; 
+// };

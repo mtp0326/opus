@@ -30,6 +30,9 @@ interface SurveySubmission {
   responseData?: Record<string, any>;
   status: 'pending' | 'approved' | 'rejected';
   submittedAt: string;
+  rank?: number;
+  attentionCheckScore?: string;
+  submissionUrl?: string;
 }
 
 interface SurveyDetails {
@@ -58,33 +61,61 @@ function SubmissionsTable({
   onSelectSubmission,
   pendingSubmissions,
 }: SubmissionsTableProps) {
+  const getRowBackgroundColor = (status: string) => {
+    switch (status) {
+      case 'approved':
+        return 'rgba(76, 175, 80, 0.1)';
+      case 'rejected':
+        return 'rgba(244, 67, 54, 0.1)';
+      default:
+        return 'inherit';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'approved':
+        return <CheckCircleIcon color="success" />;
+      case 'rejected':
+        return <CancelIcon color="error" />;
+      default:
+        return <CircularProgress size={20} />;
+    }
+  };
+
   return (
-    <TableContainer component={Paper}>
+    <TableContainer component={Paper} sx={{ overflow: 'visible' }}>
       <Table>
         <TableHead>
           <TableRow>
             {showCheckboxes && (
               <TableCell padding="checkbox">
                 <Checkbox
-                  checked={
-                    selectedSubmissions.length === pendingSubmissions.length
-                  }
                   indeterminate={
                     selectedSubmissions.length > 0 &&
                     selectedSubmissions.length < pendingSubmissions.length
+                  }
+                  checked={
+                    pendingSubmissions.length > 0 &&
+                    selectedSubmissions.length === pendingSubmissions.length
                   }
                   onChange={onSelectAll}
                 />
               </TableCell>
             )}
+            <TableCell>Rank</TableCell>
             <TableCell>Worker</TableCell>
-            {surveyType === 'external' ? (
-              <TableCell>Completion Code</TableCell>
-            ) : (
-              <TableCell>Response Data</TableCell>
-            )}
+            <TableCell>Submission Time</TableCell>
             <TableCell>Status</TableCell>
-            <TableCell>Submitted At</TableCell>
+            {surveyType === 'surveyjs' && (
+              <>
+                <TableCell>Attention Score</TableCell>
+                <TableCell>Response Data</TableCell>
+              </>
+            )}
+            {surveyType === 'external' && (
+              <TableCell>Completion Code</TableCell>
+            )}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -92,12 +123,11 @@ function SubmissionsTable({
             <TableRow
               key={submission._id}
               sx={{
-                backgroundColor:
-                  submission.status === 'approved'
-                    ? 'rgba(76, 175, 80, 0.1)'
-                    : submission.status === 'rejected'
-                    ? 'rgba(244, 67, 54, 0.1)'
-                    : 'inherit',
+                backgroundColor: getRowBackgroundColor(submission.status),
+                '& > td': {
+                  padding: '8px 16px',
+                  fontSize: '0.875rem',
+                },
               }}
             >
               {showCheckboxes && (
@@ -105,19 +135,71 @@ function SubmissionsTable({
                   <Checkbox
                     checked={selectedSubmissions.includes(submission._id)}
                     onChange={() => onSelectSubmission(submission._id)}
+                    disabled={submission.status !== 'pending'}
+                    size="small"
                   />
                 </TableCell>
               )}
+              <TableCell>{submission.rank || '-'}</TableCell>
               <TableCell>{submission.worker}</TableCell>
-              <TableCell>
-                {surveyType === 'external'
-                  ? submission.completionCode
-                  : JSON.stringify(submission.responseData)}
-              </TableCell>
-              <TableCell>{submission.status}</TableCell>
               <TableCell>
                 {new Date(submission.submittedAt).toLocaleString()}
               </TableCell>
+              <TableCell>{getStatusIcon(submission.status)}</TableCell>
+              {surveyType === 'surveyjs' && (
+                <>
+                  <TableCell>
+                    {submission.attentionCheckScore || 'N/A'}
+                  </TableCell>
+                  <TableCell>
+                    <Box
+                      sx={{
+                        position: 'relative',
+                        '& .truncated': {
+                          maxHeight: '60px',
+                          overflow: 'hidden',
+                          '&::after': {
+                            content: '""',
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            height: '20px',
+                            background: 'linear-gradient(transparent, white)',
+                            pointerEvents: 'none',
+                          },
+                        },
+                        '& pre': {
+                          margin: 0,
+                          whiteSpace: 'pre-wrap',
+                          fontSize: '0.75rem',
+                          lineHeight: 1.2,
+                        },
+                        '& .full-data': {
+                          position: 'absolute',
+                          opacity: 0,
+                          pointerEvents: 'none',
+                          zIndex: -1,
+                        },
+                      }}
+                    >
+                      <div className="truncated">
+                        <pre>
+                          {JSON.stringify(submission.responseData, null, 2)}
+                        </pre>
+                      </div>
+                      <div className="full-data">
+                        <pre>
+                          {JSON.stringify(submission.responseData, null, 2)}
+                        </pre>
+                      </div>
+                    </Box>
+                  </TableCell>
+                </>
+              )}
+              {surveyType === 'external' && (
+                <TableCell>{submission.completionCode}</TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>

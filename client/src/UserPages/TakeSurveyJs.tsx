@@ -605,7 +605,7 @@ function TakeSurveyJs() {
                     createStatBox('Attention Score', '2/2', '#ff9600'),
                   );
                   statsContainer.appendChild(
-                    createStatBox('Time Spent', '1m 30s', '#ce82ff'),
+                    createStatBox('Time Spent', '11s', '#ce82ff'),
                   );
 
                   // Create return to home button
@@ -718,10 +718,7 @@ function TakeSurveyJs() {
       <div className={styles.container}>
         <div className={styles.previewBox}>
           <div className={styles.surveyContainer}>
-            <Survey
-              model={survey}
-              css={{ root: { width: '100%', height: '100%' } }}
-            />
+            <Survey model={survey} css={{ root: 'sv_main' }} />
             <div className={styles.topRightBoxContainer}>
               <div className={styles.topRightBox}>Box 1</div>
               <div className={styles.topRightBox}>Box 2</div>

@@ -112,7 +112,6 @@ export const getResearcherSurveys = async (
     ];
 
     console.log('🔍 Found surveys:', allSurveys.length);
-    console.log('📊 Query results:', JSON.stringify(allSurveys, null, 2));
 
     return res.json(allSurveys);
   } catch (error) {
@@ -157,7 +156,6 @@ export const getUserSurveys = async (
     ];
 
     console.log('🔍 Found surveys:', allSurveys.length);
-    console.log('📊 Query results:', JSON.stringify(allSurveys, null, 2));
 
     return res.json(allSurveys);
   } catch (error) {
@@ -361,27 +359,75 @@ export const submitSurveyCompletion = async (
       });
     }
 
-    // Create appropriate submission type
+    // Calculate XP and attention check score for SurveyJS submissions
+    let xpEarned = 0;
+    let attentionCheckScore = '0/0';
     let submission;
-    if (jsSurvey) {
-      if (!responseData) {
-        return res.status(400).json({
-          message: 'Response data is required for SurveyJS submissions',
-        });
+
+    if (jsSurvey && responseData) {
+      // Get the count of existing submissions to determine rank
+      const submissionCount = await SurveyJsSubmission.countDocuments({
+        survey: surveyId,
+      });
+      const rank = submissionCount + 1;
+
+      // Calculate base XP
+      const totalXPPool = (survey.reward || 0) * 100;
+      const baseXPPerSubmission = totalXPPool / (survey.respondents || 1);
+
+      // Calculate rank bonus (max 5% difference)
+      const rankBonus = Math.max(
+        0,
+        1 - (rank / (survey.respondents || 1)) * 0.05,
+      );
+
+      // Check attention check questions
+      let passedChecks = 0;
+      let totalChecks = 0;
+
+      // Find quality control page in survey content
+      const surveyContent = jsSurvey.content;
+      const qcPage = surveyContent.pages?.find(
+        (page: any) => page.name === 'quality_control',
+      );
+      if (qcPage) {
+        totalChecks = qcPage.elements?.length || 0;
+        passedChecks =
+          qcPage.elements?.reduce((count: number, element: any) => {
+            const response = responseData[element.name];
+            // Check if the response matches the correct answer
+            // For now, assuming correct answer is always "Item 1"
+            return count + (response === 'Item 1' ? 1 : 0);
+          }, 0) || 0;
       }
+
+      // Calculate attention check multiplier
+      const attentionCheckMultiplier =
+        totalChecks > 0
+          ? 1 - ((totalChecks - passedChecks) / totalChecks) * 0.5
+          : 1;
+
+      // Calculate final XP
+      xpEarned = Math.round(
+        baseXPPerSubmission * (1 + rankBonus) * attentionCheckMultiplier,
+      );
+
+      // Set attention check score
+      attentionCheckScore = `${passedChecks}/${totalChecks}`;
+
+      // Create submission with XP and attention check score
       submission = new SurveyJsSubmission({
         survey: surveyId,
         worker: workerId,
         responseData,
         status: 'pending',
+        rank,
+        xpEarned,
+        attentionCheckScore,
       });
     } else {
-      if (!completionCode) {
-        return res.status(400).json({
-          message:
-            'Completion code is required for external survey submissions',
-        });
-      }
+      // For external surveys, use base reward
+      xpEarned = survey.reward || 0;
       submission = new SurveySubmission({
         survey: surveyId,
         worker: workerId,
@@ -414,8 +460,8 @@ export const submitSurveyCompletion = async (
     }
 
     // Add survey points to the user's total points
-    if (survey.reward) {
-      worker.points = (worker.points || 0) + survey.reward;
+    if (xpEarned > 0) {
+      worker.points = (worker.points || 0) + xpEarned;
     }
 
     worker.surveysCompleted = (worker.surveysCompleted || 0) + 1;
@@ -425,7 +471,11 @@ export const submitSurveyCompletion = async (
 
     res.status(201).json({
       message: 'Survey completion submitted successfully',
-      data: submission,
+      data: {
+        ...submission.toObject(),
+        xpEarned,
+        attentionCheckScore,
+      },
     });
   } catch (error) {
     console.error('Failed to submit survey completion:', error);
@@ -691,10 +741,12 @@ export const getSurveyResults = async (
     //   }
     // }
 
-    // Get submissions based on survey type
+    // Get submissions based on survey type and sort by rank
     const submissions = jsSurvey
-      ? await SurveyJsSubmission.find({ survey: surveyId })
-      : await SurveySubmission.find({ survey: surveyId });
+      ? await SurveyJsSubmission.find({ survey: surveyId }).sort({ rank: 1 })
+      : await SurveySubmission.find({ survey: surveyId }).sort({
+          submittedAt: 1,
+        });
 
     console.log('✅ Found submissions:', submissions.length);
     return res.json({
@@ -759,6 +811,35 @@ export const updateSubmissionsBatch = async (
       });
     }
 
+    // Get the submissions to process
+    const submissions = jsSurvey
+      ? await SurveyJsSubmission.find({
+          _id: { $in: submissionIds },
+          survey: surveyId,
+          status: 'pending',
+        })
+      : await SurveySubmission.find({
+          _id: { $in: submissionIds },
+          survey: surveyId,
+          status: 'pending',
+        });
+
+    // If rejecting submissions, deduct points from users
+    if (status === 'rejected' && survey.reward) {
+      const userIds = submissions.map((sub) => sub.worker);
+      const users = await User.find({ _id: { $in: userIds } });
+
+      // Deduct points from each user
+      await Promise.all(
+        users.map(async (user) => {
+          const rewardAmount = survey.reward || 0; // Add type safety
+          user.points = Math.max(0, (user.points || 0) - rewardAmount);
+          user.surveysCompleted = Math.max(0, (user.surveysCompleted || 0) - 1);
+          await user.save();
+        }),
+      );
+    }
+
     // Update submissions based on survey type
     const updatePromise = jsSurvey
       ? SurveyJsSubmission.updateMany(
@@ -767,7 +848,12 @@ export const updateSubmissionsBatch = async (
             survey: surveyId,
             status: 'pending', // Only update pending submissions
           },
-          { $set: { status } },
+          {
+            $set: {
+              status,
+              reviewedAt: new Date(),
+            },
+          },
         )
       : SurveySubmission.updateMany(
           {
@@ -775,7 +861,12 @@ export const updateSubmissionsBatch = async (
             survey: surveyId,
             status: 'pending', // Only update pending submissions
           },
-          { $set: { status } },
+          {
+            $set: {
+              status,
+              reviewedAt: new Date(),
+            },
+          },
         );
 
     const result = await updatePromise;

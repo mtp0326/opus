@@ -89,9 +89,9 @@ function AccountInfoPage() {
   }, [user]);
 
   const themeColors = {
-    background: isDarkMode ? '#141F25' : '#ffffff',
+    background: isDarkMode ? '#102622' : '#FFFAED',
     text: isDarkMode ? '#ffffff' : '#141F25',
-    primary: '#58CC02',
+    primary: '#285943',
     secondary: '#1cb0f6',
     accent: '#ce82ff',
   };

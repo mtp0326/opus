@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box } from '@mui/material';
+import { Box, Paper, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../util/redux/hooks.ts';
 import { selectUser } from '../util/redux/userSlice.ts';
@@ -33,9 +33,9 @@ function PointRewards() {
   const [userInfo, setUserInfo] = useState<IUser | undefined>(undefined);
 
   const themeColors = {
-    background: isDarkMode ? '#141F25' : '#ffffff',
-    text: isDarkMode ? '#ffffff' : '#141F25',
-    primary: '#58CC02',
+    background: isDarkMode ? '#102622' : '#FFFAED',
+    text: isDarkMode ? '#ffffff' : '#285943',
+    primary: '#285943',
     secondary: '#1cb0f6',
     accent: '#ce82ff',
   };
@@ -104,15 +104,31 @@ function PointRewards() {
   return (
     <Box sx={{ backgroundColor: themeColors.background, minHeight: '100vh' }}>
       <Navigation2 />
-      <Box
-        sx={{ padding: 3, color: themeColors.text, fontFamily: 'Feather Bold' }}
-      >
-        <h1>Point Rewards</h1>
-        {userInfo?.points !== null ? (
-          <p>Your current points: {userInfo?.points ?? 0}</p>
-        ) : (
-          <p>Loading points...</p>
-        )}
+      <Box sx={{ padding: 3, color: themeColors.text, fontFamily: 'Feather Bold' }}>
+        <h1 style={{ textAlign: 'center' }}>Point Rewards</h1>
+        
+        {/* New Box for Point Rewards */}
+        <Paper
+          sx={{
+            p: 4,
+            borderRadius: '16px',
+            backgroundColor: isDarkMode ? '#141F25' : '#fff',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            textAlign: 'center', // Center the text inside the box
+            margin: '0 auto', // Center the box itself
+            maxWidth: '600px', // Optional: Set a max width for the box
+          }}
+        >
+          {userInfo?.points !== null ? (
+            <Typography variant="h5" sx={{ color: themeColors.primary }}>
+              Your current points: {userInfo?.points ?? 0}
+            </Typography>
+          ) : (
+            <Typography variant="h5" sx={{ color: themeColors.primary }}>
+              Loading points...
+            </Typography>
+          )}
+        </Paper>
       </Box>
     </Box>
   );

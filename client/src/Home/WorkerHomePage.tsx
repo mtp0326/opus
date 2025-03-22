@@ -121,10 +121,10 @@ function WorkerHomePage() {
   const [progress, setProgress] = useState(0);
   const progressRef = React.useRef(0);
   const progressSound = React.useRef(
-    new Audio('/assets/sounds/duolingo-correct.mp3'),
+    new Audio('/assets/sounds/correct-answer.mp3'),
   );
   const completionSound = React.useRef(
-    new Audio('/assets/sounds/duolingo-completed-lesson.mp3'),
+    new Audio('/assets/sounds/Wii-Win.mp3'),
   );
   const [dailyQuestions, setDailyQuestions] = useState(0);
   const userGoalPoints = 30; // THIS SHOULD CHANGE BY USER
@@ -183,9 +183,9 @@ function WorkerHomePage() {
   // }, []);
 
   const themeColors = {
-    background: isDarkMode ? '#141F25' : '#ffffff',
-    text: isDarkMode ? '#ffffff' : '#141F25',
-    primary: '#58CC02',
+    background: isDarkMode ? '#102622' : '#FFFAED',
+    text: isDarkMode ? '#ffffff' : '#ffffff',
+    primary: '#285943',
     secondary: '#1cb0f6',
     accent: '#ce82ff',
   };
@@ -608,19 +608,19 @@ function WorkerHomePage() {
 
         /* Title styling */
         .sd-title {
-          color: #58CC02 !important;
+          color: #285943 !important;
         }
 
         /* Next button styling */
         .sd-btn.sd-navigation__next-btn {
-          background-color: #58CC02 !important;
+          background-color: #66c8b9 !important;
           color: white !important;
           border: none !important;
         }
 
         /* Complete button styling */
         .sd-btn.sd-btn--action.sd-navigation__complete-btn {
-          background-color: #58CC02 !important;
+          background-color: #66c8b9 !important;
           color: white !important;
           border: none !important;
         }
@@ -999,10 +999,10 @@ function WorkerHomePage() {
   return (
     <>
       <Navigation2 />
-      <Box sx={{ width: '100%', padding: '0 20px', marginBottom: '16px' }}>
+      <Box sx={{ width: '100%', padding: '0 20px', marginBottom: '16px', backgroundColor: '#FFFAED'}}>
         <Typography
           sx={{
-            color: '#58CC02',
+            color: '#285943',
             fontFamily: 'Feather Bold',
             textAlign: 'center',
             mb: 1,
@@ -1013,7 +1013,7 @@ function WorkerHomePage() {
         <Box
           sx={{
             height: '8px',
-            backgroundColor: '#e0e0e0',
+            backgroundColor: '#FEDC97',
             borderRadius: '4px',
             overflow: 'visible',
             position: 'relative',
@@ -1023,7 +1023,7 @@ function WorkerHomePage() {
             sx={{
               width: `${dailyProgress}%`,
               height: '100%',
-              backgroundColor: '#58CC02',
+              backgroundColor: '#66c8b9',
               transition: 'width 0.3s ease',
               position: 'relative',
             }}
@@ -1049,7 +1049,7 @@ function WorkerHomePage() {
               top: 0,
               width: '2px',
               height: '100%',
-              backgroundColor: '#1f1f1f',
+              backgroundColor: '#F87060',
             }}
           />
           <Box
@@ -1059,7 +1059,7 @@ function WorkerHomePage() {
               top: 0,
               width: '2px',
               height: '100%',
-              backgroundColor: '#1f1f1f',
+              backgroundColor: '#F87060',
             }}
           />
           <Box
@@ -1069,7 +1069,7 @@ function WorkerHomePage() {
               top: 0,
               width: '2px',
               height: '100%',
-              backgroundColor: '#1f1f1f',
+              backgroundColor: '#F87060',
             }}
           />
 
@@ -1077,6 +1077,7 @@ function WorkerHomePage() {
           <Box
             sx={{
               position: 'absolute',
+              backgroundColor: '#FFFAED',
               top: '100%',
               left: '0',
               width: '100%',
@@ -1145,7 +1146,13 @@ function WorkerHomePage() {
       </Box>
       <Box sx={{ display: 'flex', height: 'calc(100vh - 100px)' }}>
         {/* Main content */}
-        <Box sx={{ flex: 1 }}>
+        <Box
+          sx={{
+            flex: 1,
+            backgroundColor: isDarkMode ? '#102622' : '#FFFAED',
+            color: '#102622',
+          }}
+        >
           <div className={styles.pageContainer}>
             <div className={styles.container}>
               <div className={styles.previewBox}>

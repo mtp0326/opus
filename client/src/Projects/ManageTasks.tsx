@@ -103,120 +103,122 @@ function ManageTasks() {
         </div>
       )}
       <Navigation />
-      <Container maxWidth="lg">
-        <Paper sx={{ p: 2, mt: 2 }}>
-          <Typography
-            variant="h4"
-            gutterBottom
-            sx={{
-              color: '#58CC02',
-            }}
-          >
-            Manage Tasks
-          </Typography>
+      <Box sx={{ backgroundColor: '#FFFAED', minHeight: '100vh', p: 2 }}>
+        <Container maxWidth="lg">
+          <Paper sx={{ p: 2, mt: 2 }}>
+            <Typography
+              variant="h4"
+              gutterBottom
+              sx={{
+                color: '#285943',
+              }}
+            >
+              Manage Tasks
+            </Typography>
 
-          <Grid container spacing={2}>
-            {surveys.map((survey) => (
-              <Grid item xs={12} key={survey._id}>
-                <Card sx={{ '&:hover': { borderColor: '#58CC02' } }}>
-                  <CardContent>
-                    <Grid
-                      container
-                      justifyContent="space-between"
-                      alignItems="center"
-                    >
-                      <Grid item xs={8}>
-                        <Typography variant="h6" gutterBottom>
-                          {survey.title}
-                        </Typography>
-                        {survey.description && (
-                          <Typography color="textSecondary">
-                            {survey.description}
+            <Grid container spacing={2}>
+              {surveys.map((survey) => (
+                <Grid item xs={12} key={survey._id}>
+                  <Card sx={{ '&:hover': { borderColor: '#285943' } }}>
+                    <CardContent>
+                      <Grid
+                        container
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        <Grid item xs={8}>
+                          <Typography variant="h6" gutterBottom>
+                            {survey.title}
                           </Typography>
-                        )}
-                      </Grid>
-                      <Grid item xs={4}>
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'flex-end', // Align content to the right
-                          }}
-                        >
-                          <Typography variant="body2" color="textSecondary">
-                            Created:{' '}
-                            {new Date(survey.createdAt).toLocaleDateString()}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            Status: {survey.status}
-                          </Typography>
-                          {survey.status === 'draft' && (
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                gap: 1,
-                                mt: 1,
-                                justifyContent: 'flex-end', // Align buttons to the right
-                              }}
-                            >
-                              <Button
-                                startIcon={<EditIcon />}
-                                onClick={() => handleEdit(survey)}
-                                size="small"
-                              >
-                                Edit
-                              </Button>
-                              <Button
-                                startIcon={<DeleteIcon />}
-                                onClick={() => handleDelete(survey._id)}
-                                size="small"
-                                color="error"
-                              >
-                                Delete
-                              </Button>
-                            </Box>
+                          {survey.description && (
+                            <Typography color="textSecondary">
+                              {survey.description}
+                            </Typography>
                           )}
-                          {(survey.status === 'active' ||
-                            survey.status === 'completed') && (
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                gap: 1,
-                                mt: 1,
-                                justifyContent: 'flex-end',
-                              }}
-                            >
-                              <Button
-                                variant="contained"
+                        </Grid>
+                        <Grid item xs={4}>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'flex-end', // Align content to the right
+                            }}
+                          >
+                            <Typography variant="body2" color="textSecondary">
+                              Created:{' '}
+                              {new Date(survey.createdAt).toLocaleDateString()}
+                            </Typography>
+                            <Typography variant="body2" color="textSecondary">
+                              Status: {survey.status}
+                            </Typography>
+                            {survey.status === 'draft' && (
+                              <Box
                                 sx={{
-                                  backgroundColor: '#58CC02',
-                                  '&:hover': { backgroundColor: '#45a501' },
+                                  display: 'flex',
+                                  gap: 1,
+                                  mt: 1,
+                                  justifyContent: 'flex-end', // Align buttons to the right
                                 }}
-                                onClick={() =>
-                                  navigate(`/survey-results/${survey._id}`)
-                                }
                               >
-                                Review Results
-                              </Button>
-                            </Box>
-                          )}
-                        </Box>
+                                <Button
+                                  startIcon={<EditIcon />}
+                                  onClick={() => handleEdit(survey)}
+                                  size="small"
+                                >
+                                  Edit
+                                </Button>
+                                <Button
+                                  startIcon={<DeleteIcon />}
+                                  onClick={() => handleDelete(survey._id)}
+                                  size="small"
+                                  color="error"
+                                >
+                                  Delete
+                                </Button>
+                              </Box>
+                            )}
+                            {(survey.status === 'active' ||
+                              survey.status === 'completed') && (
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  gap: 1,
+                                  mt: 1,
+                                  justifyContent: 'flex-end',
+                                }}
+                              >
+                                <Button
+                                  variant="contained"
+                                  sx={{
+                                    backgroundColor: '#58CC02',
+                                    '&:hover': { backgroundColor: '#45a501' },
+                                  }}
+                                  onClick={() =>
+                                    navigate(`/survey-results/${survey._id}`)
+                                  }
+                                >
+                                  Review Results
+                                </Button>
+                              </Box>
+                            )}
+                          </Box>
+                        </Grid>
                       </Grid>
-                    </Grid>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-            {surveys.length === 0 && (
-              <Grid item xs={12}>
-                <Typography variant="body1" align="center">
-                  No published surveys found.
-                </Typography>
-              </Grid>
-            )}
-          </Grid>
-        </Paper>
-      </Container>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+              {surveys.length === 0 && (
+                <Grid item xs={12}>
+                  <Typography variant="body1" align="center">
+                    No published surveys found.
+                  </Typography>
+                </Grid>
+              )}
+            </Grid>
+          </Paper>
+        </Container>
+      </Box>
     </>
   );
 }

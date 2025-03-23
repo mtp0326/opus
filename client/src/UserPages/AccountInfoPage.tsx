@@ -187,7 +187,12 @@ function AccountInfoPage() {
 
   return (
     <Box
-      sx={{ margin: 0, padding: 0, backgroundColor: themeColors.background }}
+      sx={{
+        margin: 0,
+        padding: 0,
+        backgroundColor: themeColors.background,
+        minHeight: '100vh',
+      }}
     >
       <Navigation2 />
       <Box sx={{ maxWidth: '1200px', margin: '0 auto', p: 4 }}>

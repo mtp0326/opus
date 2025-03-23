@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 import { NavigateFunction, useNavigate } from 'react-router-dom';
-import { Typography, Grid } from '@mui/material';
+import { Typography, Grid, Box } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../util/redux/hooks.ts';
 import {
   logout as logoutAction,
@@ -70,30 +70,34 @@ function WorkerHomePage() {
   return (
     <>
       <Navigation />
-      <ScreenGrid>
-        <Typography
-          variant="h2"
-          sx={{
-            color: '#58CC02',
-          }}
-        >
-          {message}
-        </Typography>
-        <Grid item container justifyContent="center">
-          <PromoteButton admin={admin} navigator={navigator} />
+      <Box sx={{ background: '#FFFAED', minHeight: '100vh' }}>
+        <Grid container direction="column" justifyContent="center" alignItems="center" style={{ height: '100vh' }}>
+          <Grid item>
+            <Typography
+              variant="h2"
+              sx={{
+                color: '#285943',
+              }}
+            >
+              {message}
+            </Typography>
+          </Grid>
+          <Grid item container justifyContent="center" alignItems="center">
+            <PromoteButton admin={admin} navigator={navigator} />
+          </Grid>
+          <Grid item container justifyContent="center">
+            <Button
+              onClick={handleLogout}
+              sx={{
+                color: '#285943',
+                '&:hover': { backgroundColor: '#f0f9f0' },
+              }}
+            >
+              Logout
+            </Button>
+          </Grid>
         </Grid>
-        <Grid item container justifyContent="center">
-          <Button
-            onClick={handleLogout}
-            sx={{
-              color: '#58CC02',
-              '&:hover': { backgroundColor: '#f0f9f0' },
-            }}
-          >
-            Logout
-          </Button>
-        </Grid>
-      </ScreenGrid>
+      </Box>
     </>
   );
 }

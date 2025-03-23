@@ -24,6 +24,7 @@ import { getData } from '../util/api';
 import fireImage from '../assets/images/fire.png';
 import { useTheme } from '../context/ThemeContext';
 import { useSpring, animated } from '@react-spring/web';
+import { height } from '@mui/system';
 
 // Add font styles
 const fontStyles = `
@@ -1023,12 +1024,20 @@ function WorkerHomePage() {
   }
 
   return (
-    <>
+    <Box
+      sx={{
+        margin: 0,
+        padding: 0,
+        backgroundColor: themeColors.background,
+        minHeight: '100vh',
+      }}
+    >
       <Navigation2 />
       <Box sx={{ width: '100%', padding: '0 20px', marginBottom: '16px', backgroundColor: '#FFFAED'}}>
         <Typography
           sx={{
             color: '#285943',
+            padding: '10px',
             fontFamily: 'Feather Bold',
             textAlign: 'center',
             mb: 1,
@@ -1177,6 +1186,7 @@ function WorkerHomePage() {
             flex: 1,
             backgroundColor: isDarkMode ? '#102622' : '#FFFAED',
             color: '#102622',
+            minHeight: '100vh'
           }}
         >
           <div className={styles.pageContainer}>
@@ -1206,6 +1216,7 @@ function WorkerHomePage() {
             display: 'flex',
             flexDirection: 'column',
             gap: '16px',
+            minHeight: '100vh'
           }}
         >
           <Box
@@ -1370,7 +1381,7 @@ function WorkerHomePage() {
           </Box>
         </Box>
       </Box>
-    </>
+    </Box>
   );
 }
 

@@ -263,6 +263,7 @@ function WorkerHomePage() {
           setFormData({
             content: response.data.content,
             reward: response.data.reward,
+            respondents: response.data.respondents,
           });
           console.log('Survey ID:', response.data._id);
           setSurveyId(response.data._id);
@@ -787,14 +788,14 @@ function WorkerHomePage() {
                   statsContainer.appendChild(
                     createStatBox(
                       'Points Gained',
-                      `+${submissionResponse?.xpEarned || 0} XP`,
+                      `+${submissionResponse?.data.xpEarned || 0} XP`,
                       '#1cb0f6',
                     ),
                   );
                   statsContainer.appendChild(
                     createStatBox(
                       'Attention Score',
-                      submissionResponse?.attentionCheckScore || '0/0',
+                      submissionResponse?.data.attentionCheckScore || '0/0',
                       '#ff9600',
                     ),
                   );
@@ -834,7 +835,7 @@ function WorkerHomePage() {
                     setSurveyId(undefined); // Clear the survey ID
 
                     // Optionally update points and counts
-                    updatePoints(submissionResponse?.xpEarned || 0); // Increment points when the button is clicked
+                    updatePoints(submissionResponse?.data.xpEarned || 0); // Increment points when the button is clicked
                     updateCount(); // Increment survey count
                   };
                   completionPage.appendChild(button);
@@ -1166,12 +1167,18 @@ function WorkerHomePage() {
                       Q: {currentQuestion + 1}/{formData?.content.pages.length}
                     </div>
                     <div className={styles.topRightBox}>
-                      +
-                      {Math.round(
-                        ((formData?.reward || 0) * 100) /
-                          (formData?.respondents || 1),
-                      )}{' '}
-                      Base XP
+                      {(() => {
+                        const reward = formData?.reward || 0;
+                        const respondents = formData?.respondents || 1;
+                        const baseXP = Math.round((reward * 100) / respondents);
+                        console.log('XP Calculation Debug:', {
+                          reward,
+                          respondents,
+                          baseXP,
+                          formData,
+                        });
+                        return `+${baseXP} Base XP`;
+                      })()}
                     </div>
                   </div>
                 </div>

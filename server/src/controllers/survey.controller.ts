@@ -194,9 +194,6 @@ export const getAllSurveys = async (
       })),
     ];
 
-    console.log('🔍 Found surveys:', allSurveys.length);
-    console.log('📊 Query results:', JSON.stringify(allSurveys, null, 2));
-
     return res.json(allSurveys);
   } catch (error) {
     console.error('❌ Error fetching surveys:', error);
@@ -1132,6 +1129,7 @@ export const getRandomSurvey = async (
 
     const randomSurvey = activeSurveys[0];
     console.log('✅ Found random survey:', randomSurvey._id);
+    console.log(randomSurvey.respondents);
 
     return res.json({ data: randomSurvey });
   } catch (error) {

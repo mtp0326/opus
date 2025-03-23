@@ -216,6 +216,7 @@ export const onSurveyCompletion = async (
   const Survey = (await import('./survey.model')).default;
   const user = await User.findById(userId);
   if (!user) throw new Error('User not found');
+  console.log('🔍 User!!!!!!:', user);
 
   const survey = await Survey.findById(surveyId);
   if (!survey) throw new Error('Survey not found');

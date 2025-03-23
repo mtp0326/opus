@@ -6,6 +6,7 @@ import 'survey-core/defaultV2.min.css';
 import { Box, LinearProgress, Typography } from '@mui/material';
 import styles from '../Projects/SurveyPreview.module.css';
 import { getSurveyById, submitSurveyCompletion } from '../Projects/api';
+import Navigation2 from '../components/Navigation2';
 
 // Add font styles
 const fontStyles = `
@@ -714,22 +715,25 @@ function TakeSurveyJs() {
   }
 
   return (
-    <div className={styles.pageContainer}>
-      <div className={styles.container}>
-        <div className={styles.previewBox}>
-          <div className={styles.surveyContainer}>
-            <Survey
-              model={survey}
-              css={{ root: { width: '100%', height: '100%' } }}
-            />
-            <div className={styles.topRightBoxContainer}>
-              <div className={styles.topRightBox}>Box 1</div>
-              <div className={styles.topRightBox}>Box 2</div>
+    <>
+      <Navigation2 />
+      <div className={styles.pageContainer}>
+        <div className={styles.container}>
+          <div className={styles.previewBox}>
+            <div className={styles.surveyContainer}>
+              <Survey
+                model={survey}
+                css={{ root: { width: '100%', height: '100%' } }}
+              />
+              <div className={styles.topRightBoxContainer}>
+                <div className={styles.topRightBox}>Box 1</div>
+                <div className={styles.topRightBox}>Box 2</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

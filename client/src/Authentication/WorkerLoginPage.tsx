@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TextField, Link, Typography, Grid } from '@mui/material';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useAppDispatch } from '../util/redux/hooks.ts';
@@ -12,12 +12,40 @@ import AlertDialog from '../components/AlertDialog.tsx';
 import PrimaryButton from '../components/buttons/PrimaryButton.tsx';
 import ScreenGrid from '../components/ScreenGrid.tsx';
 
+// Inject custom fonts similar to WorkerHomePage
+const fontStyles = `
+  @font-face {
+    font-family: 'Feather Bold';
+    src: url('/fonts/Feather-Bold.woff2') format('woff2'),
+         url('/fonts/Feather-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'DIN Next Rounded LT W01 Regular';
+    src: url('/fonts/DINNextRoundedLTW01-Regular.woff2') format('woff2'),
+         url('/fonts/DINNextRoundedLTW01-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+`;
+
 /**
  * A page allowing users to input their email and password to login. The default
  * starting page of the application
  */
 function WorkerLoginPage() {
   const navigate = useNavigate();
+
+  // Inject font styles on mount
+  useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = fontStyles;
+    document.head.appendChild(styleElement);
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
 
   // Default values for state
   const defaultValues = {
@@ -46,19 +74,19 @@ function WorkerLoginPage() {
   const setValue = (field: string, value: string) => {
     setValueState((prevState) => ({
       ...prevState,
-      ...{ [field]: value },
+      [field]: value,
     }));
   };
   const setShowError = (field: string, show: boolean) => {
     setShowErrorState((prevState) => ({
       ...prevState,
-      ...{ [field]: show },
+      [field]: show,
     }));
   };
   const setErrorMessage = (field: string, msg: string) => {
     setErrorMessageState((prevState) => ({
       ...prevState,
-      ...{ [field]: msg },
+      [field]: msg,
     }));
   };
 
@@ -107,7 +135,6 @@ function WorkerLoginPage() {
     clearErrorMessages();
     let isValid = true;
 
-    // eslint-disable-next-line no-restricted-syntax, guard-for-in
     for (const valueTypeString in values) {
       const valueType = valueTypeString as ValueType;
       if (!values[valueType]) {
@@ -172,14 +199,15 @@ function WorkerLoginPage() {
         <PrimaryButton
           onClick={() => navigate('/')}
           sx={{
-            color: 'grey.400',
+            color: '#58CC02',
             backgroundColor: 'transparent',
             boxShadow: 'none',
             '&:hover': {
-              color: 'grey.600',
+              color: '#45a501',
               backgroundColor: 'transparent',
               boxShadow: 'none',
             },
+            fontFamily: 'Feather Bold',
           }}
         >
           Home
@@ -188,7 +216,11 @@ function WorkerLoginPage() {
       <FormGrid>
         <FormCol>
           <Grid item container justifyContent="center">
-            <Typography variant="h2" textAlign="center">
+            <Typography
+              variant="h2"
+              textAlign="center"
+              sx={{ color: '#58CC02', fontFamily: 'Feather Bold' }}
+            >
               Welcome to Opus User
             </Typography>
           </Grid>
@@ -202,6 +234,9 @@ function WorkerLoginPage() {
               label="Email"
               value={values.email}
               onChange={(e) => setValue('email', e.target.value)}
+              InputLabelProps={{
+                style: { fontFamily: 'Feather Bold', color: '#58CC02' },
+              }}
             />
           </Grid>
           <Grid item width="1">
@@ -214,6 +249,9 @@ function WorkerLoginPage() {
               label="Password"
               value={values.password}
               onChange={(e) => setValue('password', e.target.value)}
+              InputLabelProps={{
+                style: { fontFamily: 'Feather Bold', color: '#58CC02' },
+              }}
             />
           </Grid>
           <Grid item container justifyContent="center">
@@ -222,18 +260,31 @@ function WorkerLoginPage() {
               type="submit"
               variant="contained"
               onClick={() => handleSubmit()}
+              sx={{
+                backgroundColor: '#58CC02',
+                '&:hover': { backgroundColor: '#45a501' },
+                fontFamily: 'Feather Bold',
+              }}
             >
               Login
             </PrimaryButton>
           </Grid>
           <FormRow>
             <Grid item>
-              <Link component={RouterLink} to="/email-reset">
+              <Link
+                component={RouterLink}
+                to="/email-reset"
+                sx={{ fontFamily: 'Feather Bold', color: '#58CC02' }}
+              >
                 Forgot password?
               </Link>
             </Grid>
             <Grid item>
-              <Link component={RouterLink} to="/wregister">
+              <Link
+                component={RouterLink}
+                to="/wregister"
+                sx={{ fontFamily: 'Feather Bold', color: '#58CC02' }}
+              >
                 Sign up
               </Link>
             </Grid>

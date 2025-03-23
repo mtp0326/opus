@@ -100,6 +100,25 @@ const getLeagueColor = (league: string) => {
   }
 };
 
+const getUserGoalPoints = (league: string) => {
+  switch (league.toLowerCase()) {
+    case 'wood':
+      return 5;
+    case 'bronze':
+      return 10;
+    case 'silver':
+      return 15;
+    case 'gold':
+      return 20;
+    case 'platinum':
+      return 25;
+    case 'diamond':
+      return 30;
+    default:
+      return 10;
+  }
+};
+
 /**
  * The HomePage of the user dashboard. Displays a welcome message, a logout button and a button to promote the user to admin if they are not already an admin. If the user is an admin, the button will navigate them to the admin dashboard. This utilizes redux to access the current user's information.
  */
@@ -127,7 +146,10 @@ function WorkerHomePage() {
     new Audio('/assets/sounds/duolingo-completed-lesson.mp3'),
   );
   const [dailyQuestions, setDailyQuestions] = useState(0);
-  const userGoalPoints = 30; // THIS SHOULD CHANGE BY USER
+  const [daily10Xp, setDaily10Xp] = useState(false);
+  const [daily15Xp, setDaily15Xp] = useState(false);
+  const [daily20Xp, setDaily20Xp] = useState(false);
+  const [userGoalPoints, setUserGoalPoints] = useState(10);
   const [dailyProgress, setDailyProgress] = useState(() => {
     const stored = localStorage.getItem('dailyQuestions');
     const storedData = stored ? JSON.parse(stored) : { date: '', count: 0 };
@@ -206,6 +228,7 @@ function WorkerHomePage() {
       getWorkerByEmail(user.email).then((data) => {
         console.log('🔍 User info:', data);
         setUserInfo(data[0]);
+        setUserGoalPoints(getUserGoalPoints(userInfo?.league ?? 'wood'));
       });
     }
 
@@ -732,6 +755,29 @@ function WorkerHomePage() {
                 const completionPage =
                   document.querySelector('.sd-completedpage');
                 if (completionPage) {
+                  // Compute total XP (survey reward plus bonus)
+                  const newDailyCount = dailyQuestions + 1;
+
+                  console.log('🔍 Daily count:', newDailyCount);
+                  console.log('🔍 User goal points:', userGoalPoints);
+
+                  let bonusXp = 0;
+                  if (newDailyCount >= userGoalPoints && !daily10Xp) {
+                    bonusXp = 20;
+                    setDaily10Xp(true);
+                  } else if (newDailyCount >= 0.75 * userGoalPoints && !daily15Xp) {
+                    bonusXp = 15;
+                    setDaily15Xp(true);
+                  } else if (newDailyCount >= (userGoalPoints / 2) && !daily20Xp) {
+                    bonusXp = 10;
+                    setDaily20Xp(true);
+                  }
+                  console.log('🔍 Bonus XP:', bonusXp);
+                  const totalXp = (formData?.reward || 0) + bonusXp;
+
+                  // If bonusXp exists, append an indicator to the stat text.
+                  const bonusText = bonusXp > 0 ? ` (+${bonusXp} bonus XP)` : '';
+
                   // Clear existing content
                   completionPage.innerHTML = '';
 
@@ -740,7 +786,7 @@ function WorkerHomePage() {
                   message.style.color = '#58CC02';
                   message.style.marginBottom = '1rem';
                   message.style.marginTop = '-3rem';
-                  message.textContent = 'Survey Completed!';
+                  message.textContent = `Survey Completed! ${bonusText}`;
                   completionPage.appendChild(message);
 
                   // Create stats container
@@ -783,12 +829,12 @@ function WorkerHomePage() {
                     box.appendChild(valueElement);
                     return box;
                   };
-
+                  
                   // Add stat boxes with the specified colors
                   statsContainer.appendChild(
                     createStatBox(
                       'Points Gained',
-                      `+${formData?.reward || 0} XP`,
+                      `+${totalXp} XP`,
                       '#1cb0f6',
                     ),
                   );
@@ -826,9 +872,8 @@ function WorkerHomePage() {
                     setFormData(null);          // Clear the current survey data
                     setSurveyId(undefined);     // Clear the survey ID
 
-                    // Optionally update points and counts
-                    updatePoints();             // Increment points when the button is clicked
-                    updateCount();              // Increment survey count
+                    // Update points and count with bonus XP logic
+                    updatePointsAndCount();
                   };
                   completionPage.appendChild(button);
                 }
@@ -883,6 +928,9 @@ function WorkerHomePage() {
         JSON.stringify({ date: today, count: 0 }),
       );
       setDailyQuestions(0);
+      setDaily10Xp(false);
+      setDaily15Xp(false);
+      setDaily20Xp(false);
     } else {
       setDailyQuestions(storedData.count);
     }
@@ -914,31 +962,42 @@ function WorkerHomePage() {
     }
   }, []);
 
-  const updatePoints = () => {
+  const updatePointsAndCount = () => {
     const today = new Date().toISOString().split('T')[0];
-    const newPoints = points + (formData?.reward || 0);
+    const newDailyCount = dailyQuestions + 1;
+    
+    // Compute bonus XP based on the new daily count:
+    let bonusXp = 0;
+    if (newDailyCount >= userGoalPoints) {
+      bonusXp = 20;
+    } else if (newDailyCount >= 0.75 * userGoalPoints) {
+      bonusXp = 15;
+    } else if (newDailyCount >= (userGoalPoints / 2)) {
+      bonusXp = 10;
+    }
+    
+    const xpReward = (formData?.reward || 0) + bonusXp;
+    const newPoints = points + xpReward;
+
+    // Update daily survey count in local storage and state:
+    localStorage.setItem(
+      'dailyQuestions',
+      JSON.stringify({ date: today, count: newDailyCount }),
+    );
+    setDailyQuestions(newDailyCount);
+    const progressPercentage =
+      newDailyCount <= userGoalPoints
+        ? Math.ceil((newDailyCount / userGoalPoints) * 100) || 0
+        : 100;
+    setDailyProgress(progressPercentage);
+
+    // Update points in local storage and state:
     localStorage.setItem(
       'dailyPoints',
       JSON.stringify({ date: today, points: newPoints }),
     );
     setPrevPoints(points);
     setPoints(newPoints);
-  };
-
-  const updateCount = () => {
-    // Increment daily questions when moving to next page
-    const today = new Date().toISOString().split('T')[0];
-    const newCount = dailyQuestions + 1;
-    localStorage.setItem(
-      'dailyQuestions',
-      JSON.stringify({ date: today, count: newCount }),
-    );
-    const newCountP =
-      newCount <= userGoalPoints
-        ? Math.ceil((newCount / userGoalPoints) * 100) || 0
-        : 100;
-    setDailyQuestions(newCount);
-    setDailyProgress(newCountP);
   };
 
   if (isLoading) {
@@ -1008,7 +1067,7 @@ function WorkerHomePage() {
             mb: 1,
           }}
         >
-          Daily Progress ({dailyQuestions}/{userGoalPoints})
+          Daily Progress ({dailyQuestions}/{getUserGoalPoints(userInfo?.league ?? 'wood')})
         </Typography>
         <Box
           sx={{

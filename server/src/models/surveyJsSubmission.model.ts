@@ -8,6 +8,9 @@ interface ISurveyJsSubmission {
   submittedAt: Date;
   reviewedAt?: Date;
   rejectionReason?: string;
+  rank?: number; // Rank based on submission time
+  xpEarned?: number; // XP earned from the submission
+  attentionCheckScore?: string; // Format: "X/Y" where X is passed checks and Y is total checks
 }
 
 const surveyJsSubmissionSchema = new mongoose.Schema<ISurveyJsSubmission>({
@@ -38,6 +41,15 @@ const surveyJsSubmissionSchema = new mongoose.Schema<ISurveyJsSubmission>({
     type: Date,
   },
   rejectionReason: {
+    type: String,
+  },
+  rank: {
+    type: Number,
+  },
+  xpEarned: {
+    type: Number,
+  },
+  attentionCheckScore: {
     type: String,
   },
 });

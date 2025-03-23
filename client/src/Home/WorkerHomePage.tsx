@@ -4,6 +4,7 @@ import { Box, Typography, Grid, Button } from '@mui/material';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 import 'survey-core/defaultV2.min.css';
+import { useSpring, animated } from '@react-spring/web';
 import IUser from '../util/types/user';
 import styles from '../Projects/SurveyPreview.module.css';
 import {
@@ -12,16 +13,13 @@ import {
   getWorkerByEmail,
 } from '../Projects/api';
 import { useAppDispatch, useAppSelector } from '../util/redux/hooks.ts';
-import {
-  selectUser,
-} from '../util/redux/userSlice.ts';
+import { selectUser } from '../util/redux/userSlice.ts';
 import ScreenGrid from '../components/ScreenGrid.tsx';
 import PrimaryButton from '../components/buttons/PrimaryButton.tsx';
 import Navigation2 from '../components/Navigation2.tsx';
 import { getData } from '../util/api';
 import fireImage from '../assets/images/fire.png';
 import { useTheme } from '../context/ThemeContext';
-import { useSpring, animated } from '@react-spring/web';
 
 // Add font styles
 const fontStyles = `
@@ -139,6 +137,7 @@ function WorkerHomePage() {
   const [isFound, setIsFound] = useState(false);
   const [progress, setProgress] = useState(0);
   const progressRef = React.useRef(0);
+  const startTime = React.useRef(Date.now());
   const progressSound = React.useRef(
     new Audio('/assets/sounds/duolingo-correct.mp3'),
   );
@@ -287,6 +286,7 @@ function WorkerHomePage() {
           setFormData({
             content: response.data.content,
             reward: response.data.reward,
+            respondents: response.data.respondents,
           });
           console.log('Survey ID:', response.data._id);
           setSurveyId(response.data._id);
@@ -375,7 +375,7 @@ function WorkerHomePage() {
         const answeredQuestions = questions.filter((q) => q.isAnswered).length;
         const progressValue =
           Math.ceil((answeredQuestions / totalQuestions) * 100) || 0;
-          
+
         setCurrentQuestion(answeredQuestions);
         // Only update if the progress value has changed
         if (progressValue !== progressRef.current) {
@@ -747,7 +747,7 @@ function WorkerHomePage() {
             completionCode: JSON.stringify(surveyData),
             isSurveyJs: true,
           })
-            .then(() => {
+            .then((submissionResponse) => {
               console.log('✅ Survey submitted successfully');
 
               // Wait for the default completion page to render
@@ -773,7 +773,7 @@ function WorkerHomePage() {
                     setDaily20Xp(true);
                   }
                   console.log('🔍 Bonus XP:', bonusXp);
-                  const totalXp = (formData?.reward || 0) + bonusXp;
+                  const totalXp = (submissionResponse?.data.xpEarned || 0) + bonusXp;
 
                   // If bonusXp exists, append an indicator to the stat text.
                   const bonusText = bonusXp > 0 ? ` (+${bonusXp} bonus XP)` : '';
@@ -834,15 +834,23 @@ function WorkerHomePage() {
                   statsContainer.appendChild(
                     createStatBox(
                       'Points Gained',
-                      `+${totalXp} XP`,
+                      `+${totalXp || 0} XP`,
                       '#1cb0f6',
                     ),
                   );
                   statsContainer.appendChild(
-                    createStatBox('Attention Score', '2/2', '#ff9600'),
+                    createStatBox(
+                      'Attention Score',
+                      submissionResponse?.data.attentionCheckScore || '0/0',
+                      '#ff9600',
+                    ),
                   );
                   statsContainer.appendChild(
-                    createStatBox('Time Spent', '1m 30s', '#ce82ff'),
+                    createStatBox(
+                      'Time Spent',
+                      `${Math.round((Date.now() - startTime.current) / 1000)}s`,
+                      '#ce82ff',
+                    ),
                   );
 
                   // Create return to home button
@@ -867,10 +875,10 @@ function WorkerHomePage() {
                   });
                   button.onclick = () => {
                     // Reset survey state to render a new survey
-                    setIsFound(false);          // Reset the survey found flag
-                    setProgress(0);             // Reset the progress bar
-                    setFormData(null);          // Clear the current survey data
-                    setSurveyId(undefined);     // Clear the survey ID
+                    setIsFound(false); // Reset the survey found flag
+                    setProgress(0); // Reset the progress bar
+                    setFormData(null); // Clear the current survey data
+                    setSurveyId(undefined); // Clear the survey ID
 
                     // Update points and count with bonus XP logic
                     updatePointsAndCount();
@@ -1209,13 +1217,28 @@ function WorkerHomePage() {
             <div className={styles.container}>
               <div className={styles.previewBox}>
                 <div className={styles.surveyContainer}>
-                  <Survey
-                    model={survey}
-                    css={{ root: { width: '100%', height: '100%' } }}
-                  />
-                  <div className={styles.topRightBoxContainer}>
-                    <div className={styles.topRightBox}>Q: {currentQuestion + 1}/{formData?.content.pages.length}</div>
-                    <div className={styles.topRightBox}>+{(formData?.reward || 0)} XP</div>
+                  <Survey model={survey} css={{ root: 'sv_main' }} />
+                  <div
+                    className={styles.topRightBoxContainer}
+                    style={{ top: '0.5rem' }}
+                  >
+                    <div className={styles.topRightBox}>
+                      Q: {currentQuestion + 1}/{formData?.content.pages.length}
+                    </div>
+                    <div className={styles.topRightBox}>
+                      {(() => {
+                        const reward = formData?.reward || 0;
+                        const respondents = formData?.respondents || 1;
+                        const baseXP = Math.round((reward * 100) / respondents);
+                        console.log('XP Calculation Debug:', {
+                          reward,
+                          respondents,
+                          baseXP,
+                          formData,
+                        });
+                        return `+${baseXP} Base XP`;
+                      })()}
+                    </div>
                   </div>
                 </div>
               </div>

@@ -87,7 +87,7 @@
 /* Container for the two boxes in the top-right corner */
 .topRightBoxContainer {
   position: absolute;
-  top: 2rem;
+  top: 1rem;
   right: 0.5rem;
   display: flex;
   flex-direction: column;  /* Stack boxes vertically */

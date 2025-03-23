@@ -20,8 +20,13 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  CircularProgress,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { SurveyJSON5, PropertyEditorCreatedEvent } from 'survey-creator-core';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import Navigation from '../components/Navigation';
 import styles from './SurveyBuilder.module.css';
 import { postData, getData, putData } from '../util/api.tsx';
@@ -45,8 +50,31 @@ function SurveyBuilder() {
   // Create a ref to store the creator instance
   const creatorRef = React.useRef<SurveyCreator | null>(null);
 
+  // Get surveyId from localStorage
+  const [surveyId, setSurveyId] = useState<string | null>(
+    localStorage.getItem('currentSurveyId'),
+  );
+
   const creator = useMemo(() => {
     const c = new SurveyCreator(creatorOptions);
+
+    // Simpler handler for empty text
+    c.onPropertyEditorCreated.add((sender, options) => {
+      // Type assertion for the specific properties we need
+      const contentElement = (options as any)?.propertyEditor
+        ?.contentElement as HTMLElement | undefined;
+
+      if (contentElement) {
+        contentElement.addEventListener('input', () => {
+          if (
+            !contentElement.textContent ||
+            contentElement.textContent.trim() === ''
+          ) {
+            contentElement.textContent = ' ';
+          }
+        });
+      }
+    });
 
     // Load from setupData or localStorage
     const savedSurvey = localStorage.getItem('currentSurvey');
@@ -76,8 +104,9 @@ function SurveyBuilder() {
     return () => {
       const path = window.location.pathname;
       if (
-        !path.includes('survey-builder') &&
-        !path.includes('survey-builder-setup')
+        (!path.includes('survey-builder') &&
+          !path.includes('survey-builder-setup')) ||
+        path === '/whome' // Add this condition to clear when going to home
       ) {
         localStorage.removeItem('currentSurvey');
         localStorage.removeItem('currentSurveyId');
@@ -93,6 +122,8 @@ function SurveyBuilder() {
   const [surveys, setSurveys] = useState<Array<{ _id: string; title: string }>>(
     [],
   );
+  const [isGeneratingQC, setIsGeneratingQC] = useState(false);
+  const [isProcessingDoc, setIsProcessingDoc] = useState(false);
 
   const showAlert = (message: string, type: 'success' | 'error' | 'info') => {
     setNotification({ message, type });
@@ -101,56 +132,103 @@ function SurveyBuilder() {
 
   const handleSave = useCallback(async () => {
     try {
-      await handleSurveyJsSave(creatorRef, showAlert);
+      const response = await handleSurveyJsSave(creatorRef, showAlert);
+      // Update surveyId state if it's a new survey
+      if (response?.data?.data?._id) {
+        setSurveyId(response.data.data._id);
+      }
     } catch (error) {
       console.error('Save failed:', error);
     }
   }, []);
 
-  // const handleGenerateQC = useCallback(async () => {
-  //   try {
-  //     // const response = await postData('surveys/js/generate-qc', {
-  //     //   surveyJson: creatorRef.current?.JSON
-  //     // });
-
-  //     const response = await postData('surveys/${surveyId}/quality-control`, {
-  //       surveyJson: creatorRef.current?.JSON
-  //     });
-
-  //     if (response.data) {
-  //       // Update the survey creator with the new JSON that includes QC questions
-  //       creatorRef.current!.JSON = response.data;
-  //       showAlert('QC questions generated successfully', 'success');
-  //     } else {
-  //       showAlert('Failed to generate QC questions', 'error');
-  //     }
-  //   } catch (error) {
-  //     console.error('Generate QC failed:', error);
-  //     showAlert('Failed to generate QC questions', 'error');
-  //   }
-  // }, []);
-
   const handleGenerateQC = useCallback(async () => {
     try {
-      console.log('🟢 Sending request to generate QC questions...');
-      const response = await postData(`surveys/${surveyId}/quality-control`, {
-        surveyJson: creatorRef.current?.JSON,
-      });
+      if (!creatorRef.current?.JSON) {
+        showAlert('Please save your survey first', 'error');
+        return;
+      }
 
-      console.log('🔵 Response from backend:', response);
+      setIsGeneratingQC(true);
+      console.log(
+        '📋 Survey JSON being sent:',
+        JSON.stringify(creatorRef.current.JSON, null, 2),
+      );
+      console.log('🟢 Sending request to generate QC questions...');
+      const response = await postData('surveys/quality-control', {
+        surveyJson: creatorRef.current.JSON,
+      });
+      console.log('📋 JSON being sent:', creatorRef.current.JSON);
+
+      console.log('🔵 Response from backend:', response.data.data);
 
       if (response.data) {
-        creatorRef.current!.JSON = response.data;
-        showAlert('QC questions generated successfully', 'success');
+        // Update the survey with the new QC questions
+        creatorRef.current.JSON = response.data.data;
+
+        // Force the creator to refresh its view
+        creatorRef.current.survey.render();
+        // Save the updated survey to localStorage
+        localStorage.setItem(
+          'currentSurvey',
+          JSON.stringify(response.data.data),
+        );
+        showAlert(
+          'Quality control questions generated successfully',
+          'success',
+        );
       } else {
         console.error('🔴 Backend returned no data:', response);
-        showAlert('Failed to generate QC questions', 'error');
+        showAlert('Failed to generate quality control questions', 'error');
       }
     } catch (error) {
       console.error('❌ Generate QC failed:', error);
-      showAlert('Failed to generate QC questions', 'error');
+      showAlert('Failed to generate quality control questions', 'error');
+    } finally {
+      setIsGeneratingQC(false);
     }
   }, []);
+
+  const handleFileUpload = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      // Check if it's a Word document
+      if (!file.name.endsWith('.doc') && !file.name.endsWith('.docx')) {
+        showAlert('Please upload a Word document (.doc or .docx)', 'error');
+        return;
+      }
+
+      try {
+        setIsProcessingDoc(true);
+        const formData = new FormData();
+        formData.append('document', file);
+
+        const response = await postData('surveys/process-document', formData);
+
+        if (response.error) {
+          throw new Error(response.error.message);
+        }
+
+        if (response.data) {
+          // Update the survey with the processed questions
+          creatorRef.current!.JSON = response.data.data;
+          creatorRef.current!.survey.render();
+          showAlert('Questions imported successfully', 'success');
+        }
+      } catch (error) {
+        console.error('Failed to process document:', error);
+        showAlert('Failed to process document', 'error');
+      } finally {
+        setIsProcessingDoc(false);
+        // Reset the file input using a new FileList
+        const newInput = event.target.cloneNode(true) as HTMLInputElement;
+        event.target.parentNode?.replaceChild(newInput, event.target);
+      }
+    },
+    [],
+  );
 
   // Fetch available draft surveys
   useEffect(() => {
@@ -174,30 +252,114 @@ function SurveyBuilder() {
       <Navigation />
       <div className={styles.container}>
         <SurveyCreatorComponent creator={creator} />
-        <ButtonGroup
-          variant="contained"
-          sx={{
-            mt: 2,
-            display: 'flex',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <Button onClick={handleGenerateQC} color="primary">
-            Generate QC Questions
-          </Button>
-          <Button onClick={handleSave} color="primary">
-            Save Survey
-          </Button>
-          <Button
-            onClick={async () => {
-              await handleSave();
-              navigate('/survey-builder-setup');
+        <div style={{ marginTop: '8px' }}>
+          <ButtonGroup
+            variant="contained"
+            sx={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '12px',
+              width: '100%',
+              '& .MuiButton-root, & .MuiButton-root[component="span"]': {
+                backgroundColor: '#58CC02',
+                color: 'white',
+                padding: '8px 16px',
+                border: 'none',
+                borderRadius: '12px !important',
+                fontSize: '1.1rem',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s ease',
+                textTransform: 'none',
+                minWidth: 'fit-content',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                position: 'relative',
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  width: '100%',
+                  height: '4px',
+                  backgroundColor: '#45a501',
+                  borderBottomLeftRadius: '12px',
+                  borderBottomRightRadius: '12px',
+                  transition: 'height 0.2s ease',
+                },
+                '&:hover': {
+                  backgroundColor: '#45a501',
+                  '&::after': {
+                    height: '3px',
+                  },
+                },
+                '&:not(:last-child)': {
+                  borderRight: 'none',
+                },
+              },
+              '& label': {
+                margin: 0,
+                padding: 0,
+                height: '40px',
+              },
             }}
-            color="secondary"
           >
-            Publish Setup
-          </Button>
-        </ButtonGroup>
+            <input
+              type="file"
+              accept=".doc,.docx"
+              style={{ display: 'none' }}
+              id="upload-document"
+              onChange={handleFileUpload}
+              disabled={isProcessingDoc}
+            />
+            <label htmlFor="upload-document">
+              <Tooltip title="Upload Word document with questions">
+                <Button
+                  component="span"
+                  disabled={isProcessingDoc}
+                  startIcon={
+                    isProcessingDoc ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : (
+                      <UploadFileIcon />
+                    )
+                  }
+                >
+                  {isProcessingDoc ? 'Processing...' : 'Import Questions'}
+                </Button>
+              </Tooltip>
+            </label>
+            <Button
+              onClick={handleGenerateQC}
+              disabled={isGeneratingQC}
+              startIcon={
+                isGeneratingQC ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : null
+              }
+            >
+              {isGeneratingQC ? 'Generating...' : 'Generate QC Questions'}
+            </Button>
+            <Button onClick={handleSave}>Save Survey</Button>
+            <Button
+              onClick={async () => {
+                await handleSave();
+                navigate('/survey-builder-setup');
+              }}
+              sx={{
+                backgroundColor: '#1cb0f6 !important',
+                '&::after': {
+                  backgroundColor: '#1899d6 !important',
+                },
+                '&:hover': {
+                  backgroundColor: '#1899d6 !important',
+                },
+              }}
+            >
+              Publish Setup
+            </Button>
+          </ButtonGroup>
+        </div>
         <Snackbar
           open={showNotification}
           autoHideDuration={6000}

@@ -1,15 +1,39 @@
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
+import Stripe from 'stripe';
+import { OpenAI } from 'openai';
+import multer from 'multer';
+import mammoth from 'mammoth';
 import ApiError from '../util/apiError.ts';
 import Survey from '../models/survey.model.ts';
 import { User, IUser } from '../models/user.model.ts';
 import SurveySubmission from '../models/surveySubmission.model.ts';
 import SurveyJs from '../models/surveyJs.model.ts';
 import SurveyJsSubmission from '../models/surveyJsSubmission.model.ts';
-import { generateQualityControlQuestions } from '../services/surveyQualityControl';
-import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY || '',
+});
+
+// Configure multer for file upload
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (
+      file.mimetype ===
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+      file.mimetype === 'application/msword'
+    ) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only .doc and .docx files are allowed'));
+    }
+  },
+}).single('document');
 
 export const publishSurvey = async (
   req: Request & { user?: IUser },
@@ -88,7 +112,6 @@ export const getResearcherSurveys = async (
     ];
 
     console.log('🔍 Found surveys:', allSurveys.length);
-    console.log('📊 Query results:', JSON.stringify(allSurveys, null, 2));
 
     return res.json(allSurveys);
   } catch (error) {
@@ -133,7 +156,6 @@ export const getUserSurveys = async (
     ];
 
     console.log('🔍 Found surveys:', allSurveys.length);
-    console.log('📊 Query results:', JSON.stringify(allSurveys, null, 2));
 
     return res.json(allSurveys);
   } catch (error) {
@@ -171,9 +193,6 @@ export const getAllSurveys = async (
         surveyType: 'surveyjs', // Add identifier for frontend
       })),
     ];
-
-    console.log('🔍 Found surveys:', allSurveys.length);
-    console.log('📊 Query results:', JSON.stringify(allSurveys, null, 2));
 
     return res.json(allSurveys);
   } catch (error) {
@@ -337,27 +356,74 @@ export const submitSurveyCompletion = async (
       });
     }
 
-    // Create appropriate submission type
+    // Calculate XP and attention check score for SurveyJS submissions
+    let xpEarned = 0;
+    let attentionCheckScore = '0/0';
     let submission;
-    if (jsSurvey) {
-      if (!responseData) {
-        return res.status(400).json({
-          message: 'Response data is required for SurveyJS submissions',
-        });
+
+    if (jsSurvey && responseData) {
+      // Get the count of existing submissions to determine rank
+      const submissionCount = await SurveyJsSubmission.countDocuments({
+        survey: surveyId,
+      });
+      const rank = submissionCount + 1;
+
+      // Calculate base XP
+      const totalXPPool = (survey.reward || 0) * 100;
+      const baseXPPerSubmission = totalXPPool / (survey.respondents || 1);
+
+      // Calculate rank bonus (max 5% difference)
+      const rankBonus = Math.max(
+        0,
+        (1 - rank / (survey.respondents || 1)) * 0.05,
+      );
+      // Check attention check questions
+      let passedChecks = 0;
+      let totalChecks = 0;
+
+      // Find quality control page in survey content
+      const surveyContent = jsSurvey.content;
+      const qcPage = surveyContent.pages?.find(
+        (page: any) => page.name === 'quality_control',
+      );
+      if (qcPage) {
+        totalChecks = qcPage.elements?.length || 0;
+        passedChecks =
+          qcPage.elements?.reduce((count: number, element: any) => {
+            const response = responseData[element.name];
+            // Check if the response matches the correct answer
+            // For now, assuming correct answer is always "Item 1"
+            return count + (response === 'Item 1' ? 1 : 0);
+          }, 0) || 0;
       }
+
+      // Calculate attention check multiplier
+      const attentionCheckMultiplier =
+        totalChecks > 0
+          ? 1 - ((totalChecks - passedChecks) / totalChecks) * 0.5
+          : 1;
+
+      // Calculate final XP
+      xpEarned = Math.round(
+        baseXPPerSubmission * (1 + rankBonus) * attentionCheckMultiplier,
+      );
+
+      // Set attention check score
+      attentionCheckScore = `${passedChecks}/${totalChecks}`;
+
+      // Create submission with XP and attention check score
       submission = new SurveyJsSubmission({
         survey: surveyId,
         worker: workerId,
         responseData,
         status: 'pending',
+        rank,
+        xpEarned,
+        attentionCheckScore,
       });
     } else {
-      if (!completionCode) {
-        return res.status(400).json({
-          message:
-            'Completion code is required for external survey submissions',
-        });
-      }
+      // For external surveys, use base reward
+      xpEarned = survey.reward || 0;
       submission = new SurveySubmission({
         survey: surveyId,
         worker: workerId,
@@ -390,8 +456,8 @@ export const submitSurveyCompletion = async (
     }
 
     // Add survey points to the user's total points
-    if (survey.reward) {
-      worker.points = (worker.points || 0) + survey.reward;
+    if (xpEarned > 0) {
+      worker.points = (worker.points || 0) + xpEarned;
     }
 
     worker.surveysCompleted = (worker.surveysCompleted || 0) + 1;
@@ -401,7 +467,11 @@ export const submitSurveyCompletion = async (
 
     res.status(201).json({
       message: 'Survey completion submitted successfully',
-      data: submission,
+      data: {
+        ...submission.toObject(),
+        xpEarned,
+        attentionCheckScore,
+      },
     });
   } catch (error) {
     console.error('Failed to submit survey completion:', error);
@@ -607,7 +677,9 @@ export const getSurveyById = async (
     }
 
     // Since this is called from /js/:surveyId, we only need to look in SurveyJs collection
-    const survey = await SurveyJs.findById(surveyId);
+    const survey = await SurveyJs.findById(surveyId).select(
+      'content reward respondents',
+    );
     console.log('Found survey:', survey ? 'yes' : 'no');
 
     if (!survey) {
@@ -667,10 +739,12 @@ export const getSurveyResults = async (
     //   }
     // }
 
-    // Get submissions based on survey type
+    // Get submissions based on survey type and sort by rank
     const submissions = jsSurvey
-      ? await SurveyJsSubmission.find({ survey: surveyId })
-      : await SurveySubmission.find({ survey: surveyId });
+      ? await SurveyJsSubmission.find({ survey: surveyId }).sort({ rank: 1 })
+      : await SurveySubmission.find({ survey: surveyId }).sort({
+          submittedAt: 1,
+        });
 
     console.log('✅ Found submissions:', submissions.length);
     return res.json({
@@ -735,6 +809,35 @@ export const updateSubmissionsBatch = async (
       });
     }
 
+    // Get the submissions to process
+    const submissions = jsSurvey
+      ? await SurveyJsSubmission.find({
+          _id: { $in: submissionIds },
+          survey: surveyId,
+          status: 'pending',
+        })
+      : await SurveySubmission.find({
+          _id: { $in: submissionIds },
+          survey: surveyId,
+          status: 'pending',
+        });
+
+    // If rejecting submissions, deduct points from users
+    if (status === 'rejected' && survey.reward) {
+      const userIds = submissions.map((sub) => sub.worker);
+      const users = await User.find({ _id: { $in: userIds } });
+
+      // Deduct points from each user
+      await Promise.all(
+        users.map(async (user) => {
+          const rewardAmount = survey.reward || 0; // Add type safety
+          user.points = Math.max(0, (user.points || 0) - rewardAmount);
+          user.surveysCompleted = Math.max(0, (user.surveysCompleted || 0) - 1);
+          await user.save();
+        }),
+      );
+    }
+
     // Update submissions based on survey type
     const updatePromise = jsSurvey
       ? SurveyJsSubmission.updateMany(
@@ -743,7 +846,12 @@ export const updateSubmissionsBatch = async (
             survey: surveyId,
             status: 'pending', // Only update pending submissions
           },
-          { $set: { status } },
+          {
+            $set: {
+              status,
+              reviewedAt: new Date(),
+            },
+          },
         )
       : SurveySubmission.updateMany(
           {
@@ -751,7 +859,12 @@ export const updateSubmissionsBatch = async (
             survey: surveyId,
             status: 'pending', // Only update pending submissions
           },
-          { $set: { status } },
+          {
+            $set: {
+              status,
+              reviewedAt: new Date(),
+            },
+          },
         );
 
     const result = await updatePromise;
@@ -796,29 +909,135 @@ export const addQualityControlQuestions = async (
   res: Response,
 ) => {
   try {
-    if (!req.user?._id) {
-      throw new Error('User not authenticated');
-    }
+    console.log('🎯 Starting quality control questions generation...');
 
-    const { surveyId } = req.params;
+    const { surveyJson } = req.body;
 
-    // Check if user owns the survey
-    const [externalSurvey, jsSurvey] = await Promise.all([
-      Survey.findOne({ _id: surveyId, createdBy: req.user._id }),
-      SurveyJs.findOne({ _id: surveyId, createdBy: req.user._id }),
-    ]);
+    console.log('📋 Received request:', {
+      hasSurveyJson: !!surveyJson,
+      surveyJsonKeys: surveyJson ? Object.keys(surveyJson) : [],
+    });
 
-    if (!externalSurvey && !jsSurvey) {
-      return res.status(404).json({
-        error: { message: 'Survey not found or unauthorized' },
+    if (!surveyJson) {
+      console.log('❌ No survey JSON provided');
+      return res.status(400).json({
+        error: { message: 'Survey JSON is required' },
       });
     }
 
-    const updatedSurvey = await generateQualityControlQuestions(surveyId);
+    // Extract existing questions from the provided survey JSON
+    console.log('📊 Analyzing survey structure...');
+    const pages = surveyJson.pages || [];
+    const existingQuestions = pages
+      .flatMap((page: any) => page.elements || [])
+      .map((element: any) => element.title || element.name)
+      .join('\n');
 
-    console.log('✅ Added quality control questions to survey:', surveyId);
+    // Count total questions
+    const totalQuestions = pages.reduce((count: number, page: any) => {
+      return count + (page.elements?.length || 0);
+    }, 0);
+
+    // Determine number of QC questions based on survey length
+    let numQCQuestions;
+    if (totalQuestions <= 5) {
+      numQCQuestions = 1;
+    } else if (totalQuestions <= 10) {
+      numQCQuestions = 2;
+    } else if (totalQuestions <= 20) {
+      numQCQuestions = 3;
+    } else {
+      numQCQuestions = 4;
+    }
+
+    console.log('📈 Survey analysis:', {
+      totalPages: pages.length,
+      totalQuestions,
+      numQCQuestions,
+      existingQuestions: existingQuestions.split('\n').length,
+    });
+
+    // Generate quality control questions using OpenAI
+    console.log('🤖 Sending request to OpenAI...');
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4',
+      messages: [
+        {
+          role: 'system',
+          content: `You are a survey expert. Generate ${numQCQuestions} quality control questions that will help verify if respondents are paying attention. Return them in a specific JSON format that matches the SurveyJS schema.`,
+        },
+        {
+          role: 'user',
+          content: `Here are the existing survey questions/context:\n${existingQuestions}\n\nGenerate ${numQCQuestions} quality control questions that would be appropriate for this survey. Return them in this exact format:
+{
+  "pages": [
+    {
+      "name": "quality_control",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "qc_1",
+          "title": "Your quality control question here",
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "First choice"
+            },
+            {
+              "value": "Item 2",
+              "text": "Second choice"
+            },
+            {
+              "value": "Item 3",
+              "text": "Third choice"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+Important format notes:
+1. Keep the exact structure with "pages" array containing one page
+2. The page should have "name": "quality_control"
+3. Each question should be of type "radiogroup"
+4. Question names should be "qc_1", "qc_2", etc.
+5. Make questions that are clear attention checks
+6. Each choice must have both "value" and "text" properties
+7. Values should be "Item 1", "Item 2", etc.
+8. Keep the structure minimal - only include the shown fields`,
+        },
+      ],
+      temperature: 0.0,
+    });
+    console.log('✅ Received response from OpenAI');
+
+    // Parse the generated questions
+    const { content } = completion.choices[0].message;
+    if (!content) {
+      console.log('❌ No content received from OpenAI');
+      throw new Error('No content received from OpenAI');
+    }
+
+    console.log('📄 Parsing OpenAI response:', content);
+    const generatedQuestions = JSON.parse(content);
+
+    // Since the response is already in the correct format, we can use it directly
+    const updatedSurveyJson = {
+      ...surveyJson,
+      pages: [...surveyJson.pages, ...generatedQuestions.pages],
+    };
+
+    console.log('✅ Successfully generated QC questions');
+    console.log('📊 Updated survey structure:', {
+      totalPages: updatedSurveyJson.pages.length,
+      qcPageIndex: updatedSurveyJson.pages.length - 1,
+      qcQuestionsCount: generatedQuestions.pages[0].elements.length,
+    });
+
     return res.json({
-      data: updatedSurvey,
+      data: updatedSurveyJson,
       message: 'Quality control questions added successfully',
     });
   } catch (error) {
@@ -893,6 +1112,14 @@ export const getRandomSurvey = async (
           content: { $ne: {} },
         },
       },
+      {
+        $project: {
+          _id: 1,
+          content: 1,
+          reward: 1,
+          respondents: 1,
+        },
+      },
       { $sample: { size: 1 } }, // Get random document
     ]);
 
@@ -902,6 +1129,7 @@ export const getRandomSurvey = async (
 
     const randomSurvey = activeSurveys[0];
     console.log('✅ Found random survey:', randomSurvey._id);
+    console.log(randomSurvey.respondents);
 
     return res.json({ data: randomSurvey });
   } catch (error) {
@@ -912,6 +1140,114 @@ export const getRandomSurvey = async (
           error instanceof Error
             ? error.message
             : 'Failed to fetch random survey',
+      },
+    });
+  }
+};
+
+export const processDocument = async (
+  req: Request & { user?: IUser },
+  res: Response,
+) => {
+  try {
+    // Handle file upload
+    upload(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({
+          error: { message: err.message },
+        });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({
+          error: { message: 'No file uploaded' },
+        });
+      }
+
+      try {
+        // Extract text from Word document
+        const result = await mammoth.extractRawText({
+          buffer: req.file.buffer,
+        });
+        const text = result.value;
+
+        // Use OpenAI to convert the text to SurveyJS format
+        const completion = await openai.chat.completions.create({
+          model: 'gpt-4',
+          messages: [
+            {
+              role: 'system',
+              content: `You are a survey expert. Convert the provided document text into a SurveyJS compatible JSON format. Each question should be properly formatted with appropriate question types and choices.`,
+            },
+            {
+              role: 'user',
+              content: `Convert the following questions into SurveyJS format. Use appropriate question types (radiogroup for multiple choice, text for open-ended, etc.). Return only valid JSON that matches this structure, the question "type" can be different based on the question:
+{
+  "pages": [
+    {
+      "name": "page1",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "question1",
+          "title": "Question text here",
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "First choice"
+            },
+            {
+              "value": "Item 2",
+              "text": "Second choice"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+Here are the questions to convert:
+
+${text}`,
+            },
+          ],
+          temperature: 0.0,
+        });
+
+        const { content } = completion.choices[0].message;
+        if (!content) {
+          throw new Error('No content received from OpenAI');
+        }
+
+        // Parse and validate the generated JSON
+        const surveyJson = JSON.parse(content);
+
+        console.log('✅ Successfully converted document to SurveyJS format');
+        return res.json({
+          data: surveyJson,
+          message: 'Document processed successfully',
+        });
+      } catch (error) {
+        console.error('❌ Error processing document:', error);
+        return res.status(500).json({
+          error: {
+            message:
+              error instanceof Error
+                ? error.message
+                : 'Failed to process document',
+          },
+        });
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error handling file upload:', error);
+    return res.status(500).json({
+      error: {
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Failed to handle file upload',
       },
     });
   }

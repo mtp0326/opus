@@ -38,6 +38,7 @@ function TakeSurveyJs() {
   const [isFound, setIsFound] = useState(false);
   const [progress, setProgress] = useState(0);
   const progressRef = React.useRef(0);
+  const startTime = React.useRef(Date.now());
   const progressSound = React.useRef(
     new Audio('/assets/sounds/duolingo-correct.mp3'),
   );
@@ -64,9 +65,7 @@ function TakeSurveyJs() {
           if (!response.data) {
             throw new Error('Survey data not found');
           }
-          setFormData({
-            content: response.data.content,
-          });
+          setFormData(response.data);
           setIsFound(true);
         }
       } catch (fetchError) {
@@ -528,7 +527,7 @@ function TakeSurveyJs() {
             completionCode: JSON.stringify(surveyData),
             isSurveyJs: true,
           })
-            .then(() => {
+            .then((response) => {
               console.log('✅ Survey submitted successfully');
 
               // Wait for the default completion page to render
@@ -598,15 +597,23 @@ function TakeSurveyJs() {
                   statsContainer.appendChild(
                     createStatBox(
                       'Points Gained',
-                      `+${formData?.reward || 0} XP`,
+                      `+${response.data.xpEarned || 0} XP`,
                       '#1cb0f6',
                     ),
                   );
                   statsContainer.appendChild(
-                    createStatBox('Attention Score', '2/2', '#ff9600'),
+                    createStatBox(
+                      'Attention Score',
+                      response.data.attentionCheckScore || '0/0',
+                      '#ff9600',
+                    ),
                   );
                   statsContainer.appendChild(
-                    createStatBox('Time Spent', '1m 30s', '#ce82ff'),
+                    createStatBox(
+                      'Time Spent',
+                      `${Math.round((Date.now() - startTime.current) / 1000)}s`,
+                      '#ce82ff',
+                    ),
                   );
 
                   // Create return to home button
@@ -717,22 +724,28 @@ function TakeSurveyJs() {
   return (
     <>
       <Navigation2 />
-      <div className={styles.pageContainer}>
-        <div className={styles.container}>
-          <div className={styles.previewBox}>
-            <div className={styles.surveyContainer}>
-              <Survey
-                model={survey}
-                css={{ root: { width: '100%', height: '100%' } }}
-              />
-              <div className={styles.topRightBoxContainer}>
-                <div className={styles.topRightBox}>Box 1</div>
-                <div className={styles.topRightBox}>Box 2</div>
+    <div className={styles.pageContainer}>
+      <div className={styles.container}>
+        <div className={styles.previewBox}>
+          <div className={styles.surveyContainer}>
+            <Survey model={survey} css={{ root: 'sv_main' }} />
+            <div className={styles.topRightBoxContainer}>
+              <div className={styles.topRightBox}>
+                Q: {(survey?.currentPageNo || 0) + 1}/{survey?.pageCount || 0}
+              </div>
+              <div className={styles.topRightBox}>
+                +
+                {Math.round(
+                  ((formData?.reward || 0) * 100) /
+                    (formData?.respondents || 1),
+                )}{' '}
+                Base XP
               </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
     </>
   );
 }

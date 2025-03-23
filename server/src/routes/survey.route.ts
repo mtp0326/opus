@@ -19,6 +19,7 @@ import {
   addQualityControlQuestions,
   getStripePayment,
   getRandomSurvey,
+  processDocument,
 } from '../controllers/survey.controller.ts';
 import { IUser } from '../models/user.model.ts';
 
@@ -143,10 +144,9 @@ router.put(
 
 /**
  * A POST route to add quality control questions to a survey
- * Expects surveyId in URL params
  */
 router.post(
-  '/:surveyId/quality-control',
+  '/quality-control',
   isAuthenticated,
   addQualityControlQuestions as express.RequestHandler,
 );
@@ -161,6 +161,15 @@ router.get(
   '/random-survey',
   isAuthenticated,
   getRandomSurvey as express.RequestHandler,
+);
+
+/**
+ * A POST route to process a Word document and convert it to SurveyJS format
+ */
+router.post(
+  '/process-document',
+  isAuthenticated,
+  processDocument as express.RequestHandler,
 );
 
 export default router;

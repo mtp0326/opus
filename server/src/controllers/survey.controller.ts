@@ -378,9 +378,8 @@ export const submitSurveyCompletion = async (
       // Calculate rank bonus (max 5% difference)
       const rankBonus = Math.max(
         0,
-        1 - (rank / (survey.respondents || 1)) * 0.05,
+        (1 - rank / (survey.respondents || 1)) * 0.05,
       );
-
       // Check attention check questions
       let passedChecks = 0;
       let totalChecks = 0;
@@ -681,7 +680,9 @@ export const getSurveyById = async (
     }
 
     // Since this is called from /js/:surveyId, we only need to look in SurveyJs collection
-    const survey = await SurveyJs.findById(surveyId);
+    const survey = await SurveyJs.findById(surveyId).select(
+      'content reward respondents',
+    );
     console.log('Found survey:', survey ? 'yes' : 'no');
 
     if (!survey) {
@@ -1112,6 +1113,14 @@ export const getRandomSurvey = async (
           },
           // Ensure content is not an empty object
           content: { $ne: {} },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          content: 1,
+          reward: 1,
+          respondents: 1,
         },
       },
       { $sample: { size: 1 } }, // Get random document

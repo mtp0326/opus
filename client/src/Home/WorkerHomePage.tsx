@@ -118,6 +118,7 @@ function WorkerHomePage() {
   const [isFound, setIsFound] = useState(false);
   const [progress, setProgress] = useState(0);
   const progressRef = React.useRef(0);
+  const startTime = React.useRef(Date.now());
   const progressSound = React.useRef(
     new Audio('/assets/sounds/duolingo-correct.mp3'),
   );
@@ -722,7 +723,7 @@ function WorkerHomePage() {
             completionCode: JSON.stringify(surveyData),
             isSurveyJs: true,
           })
-            .then(() => {
+            .then((submissionResponse) => {
               console.log('✅ Survey submitted successfully');
 
               // Wait for the default completion page to render
@@ -786,15 +787,23 @@ function WorkerHomePage() {
                   statsContainer.appendChild(
                     createStatBox(
                       'Points Gained',
-                      `+${formData?.reward || 0} XP`,
+                      `+${submissionResponse?.xpEarned || 0} XP`,
                       '#1cb0f6',
                     ),
                   );
                   statsContainer.appendChild(
-                    createStatBox('Attention Score', '2/2', '#ff9600'),
+                    createStatBox(
+                      'Attention Score',
+                      submissionResponse?.attentionCheckScore || '0/0',
+                      '#ff9600',
+                    ),
                   );
                   statsContainer.appendChild(
-                    createStatBox('Time Spent', '1m 30s', '#ce82ff'),
+                    createStatBox(
+                      'Time Spent',
+                      `${Math.round((Date.now() - startTime.current) / 1000)}s`,
+                      '#ce82ff',
+                    ),
                   );
 
                   // Create return to home button
@@ -825,7 +834,7 @@ function WorkerHomePage() {
                     setSurveyId(undefined); // Clear the survey ID
 
                     // Optionally update points and counts
-                    updatePoints(); // Increment points when the button is clicked
+                    updatePoints(submissionResponse?.xpEarned || 0); // Increment points when the button is clicked
                     updateCount(); // Increment survey count
                   };
                   completionPage.appendChild(button);
@@ -912,9 +921,9 @@ function WorkerHomePage() {
     }
   }, []);
 
-  const updatePoints = () => {
+  const updatePoints = (xpEarned: number) => {
     const today = new Date().toISOString().split('T')[0];
-    const newPoints = points + (formData?.reward || 0);
+    const newPoints = points + xpEarned;
     localStorage.setItem(
       'dailyPoints',
       JSON.stringify({ date: today, points: newPoints }),
@@ -1157,7 +1166,12 @@ function WorkerHomePage() {
                       Q: {currentQuestion + 1}/{formData?.content.pages.length}
                     </div>
                     <div className={styles.topRightBox}>
-                      +{formData?.reward || 0} XP
+                      +
+                      {Math.round(
+                        ((formData?.reward || 0) * 100) /
+                          (formData?.respondents || 1),
+                      )}{' '}
+                      Base XP
                     </div>
                   </div>
                 </div>

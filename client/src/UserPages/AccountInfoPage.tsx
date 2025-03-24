@@ -16,6 +16,7 @@ import { useTheme } from '../context/ThemeContext';
 import { getWorkerByEmail } from '../Projects/api';
 import { logout as logoutApi } from '../Home/api.tsx';
 import IUser from '../util/types/user';
+import { WithdrawalPanel } from './WithdrawalPanel';
 
 // Add font styles
 const fontStyles = `
@@ -248,102 +249,108 @@ function AccountInfoPage() {
                     <h2
                       style={{
                         fontFamily: 'Feather Bold',
-                        color: themeColors.text,
+                        color: isDarkMode ? '#ffffff' : themeColors.primary,
                         marginBottom: '1rem',
                       }}
                     >
-                      Profile Details
+                      Profile Information
                     </h2>
-                    <div
-                      style={{
-                        fontFamily: 'DIN Next Rounded LT W01 Regular',
-                        fontSize: '1.1rem',
-                        color: themeColors.text,
-                        lineHeight: '1.8',
-                      }}
-                    >
-                      <div>
-                        Name: {user?.firstName || 'N/A'}{' '}
-                        {user?.lastName || 'N/A'}
-                      </div>
-                      <div>Email: {user?.email || 'N/A'}</div>
-                    </div>
+                    {userInfo && (
+                      <>
+                        <Typography
+                          sx={{
+                            color: themeColors.text,
+                            fontFamily: 'DIN Next Rounded LT W01 Regular',
+                            mb: 1,
+                          }}
+                        >
+                          Name: {userInfo.firstName} {userInfo.lastName}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            color: themeColors.text,
+                            fontFamily: 'DIN Next Rounded LT W01 Regular',
+                            mb: 1,
+                          }}
+                        >
+                          Email: {userInfo.email}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            color: themeColors.text,
+                            fontFamily: 'DIN Next Rounded LT W01 Regular',
+                            mb: 1,
+                          }}
+                        >
+                          League: {userInfo.league}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            color: themeColors.text,
+                            fontFamily: 'DIN Next Rounded LT W01 Regular',
+                            mb: 1,
+                          }}
+                        >
+                          Points: {userInfo.points}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            color: themeColors.text,
+                            fontFamily: 'DIN Next Rounded LT W01 Regular',
+                            mb: 1,
+                          }}
+                        >
+                          Surveys Completed: {userInfo.surveysCompleted}
+                        </Typography>
+                      </>
+                    )}
                   </Box>
                 </Grid>
-
                 <Grid item xs={12} md={6}>
-                  <button
-                    onClick={() => navigate('/email-reset')}
-                    style={{
-                      fontFamily: 'Feather Bold',
-                      backgroundColor: themeColors.primary,
-                      color: 'white',
-                      padding: '12px 24px',
-                      border: 'none',
-                      borderRadius: '12px',
-                      fontSize: '1.1rem',
-                      cursor: 'pointer',
-                      width: '100%',
-                      transition: 'all 0.2s ease',
-                      boxShadow: '0 4px 0 #45a501',
-                      '&:hover': {
-                        backgroundColor: '#45a501',
-                        transform: 'translateY(1px)',
-                        boxShadow: '0 3px 0 #45a501',
-                      },
-                    }}
-                  >
-                    Change Password
-                  </button>
-                  <Grid item container justifyContent="center" sx={{ mt: 2 }}>
-                    <Button
-                      onClick={handleLogout}
+                  <Box sx={{ mb: 3 }}>
+                    <h2
                       style={{
                         fontFamily: 'Feather Bold',
-                        backgroundColor: themeColors.primary,
-                        color: 'white',
-                        padding: '8px 24px',
-                        border: 'none',
-                        borderRadius: '12px',
-                        fontSize: '1.1rem',
-                        cursor: 'pointer',
-                        width: '100%',
-                        transition: 'all 0.2s ease',
-                        boxShadow: '0 4px 0 #45a501',
-                        textTransform: 'none',
+                        color: isDarkMode ? '#ffffff' : themeColors.primary,
+                        marginBottom: '1rem',
                       }}
                     >
-                      Logout
-                    </Button>
-                  </Grid>
+                      Account Balance
+                    </h2>
+                    {userInfo && (
+                      <Typography
+                        sx={{
+                          color: themeColors.text,
+                          fontFamily: 'DIN Next Rounded LT W01 Regular',
+                          fontSize: '1.5rem',
+                          mb: 2,
+                        }}
+                      >
+                        ${userInfo.cashBalance.toFixed(2)}
+                      </Typography>
+                    )}
+                    <WithdrawalPanel />
+                  </Box>
                 </Grid>
               </Grid>
             </Paper>
           </Grid>
-
-          <Grid item xs={12}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6} md={3}>
-                <StatBox label="League" value={userInfo?.league || 'Wood'} />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <StatBox label="Points" value={userInfo?.points ?? 0} />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <StatBox
-                  label="Cash Balance"
-                  value={`$${userInfo?.cashBalance ?? 0}`}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <StatBox
-                  label="Surveys Completed"
-                  value={userInfo?.surveysCompleted ?? 0}
-                />
-              </Grid>
-            </Grid>
-          </Grid>
         </Grid>
+
+        <Box sx={{ mt: 4, textAlign: 'center' }}>
+          <Button
+            onClick={handleLogout}
+            variant="contained"
+            sx={{
+              backgroundColor: themeColors.primary,
+              '&:hover': {
+                backgroundColor: '#1a3d2a',
+              },
+            }}
+          >
+            Logout
+          </Button>
+        </Box>
       </Box>
     </Box>
   );

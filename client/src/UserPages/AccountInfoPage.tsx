@@ -470,7 +470,7 @@ function AccountInfoPage() {
               onClick={handleWithdraw}
               disabled={!ready || withdrawAmount <= 0}
             >
-              Withdraw
+              Withdraw 
             </Button>
           </DialogActions>
         </Dialog>

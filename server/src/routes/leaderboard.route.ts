@@ -10,4 +10,4 @@ const router = express.Router();
  */
 router.get('/', isAuthenticated, getLeaderboard as express.RequestHandler);
 
-export default router; 
+export default router;

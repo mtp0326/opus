@@ -71,7 +71,13 @@ function WorkerHomePage() {
     <>
       <Navigation />
       <Box sx={{ background: '#FFFAED', minHeight: '100vh' }}>
-        <Grid container direction="column" justifyContent="center" alignItems="center" style={{ height: '100vh' }}>
+        <Grid
+          container
+          direction="column"
+          justifyContent="center"
+          alignItems="center"
+          style={{ height: '100vh' }}
+        >
           <Grid item>
             <Typography
               variant="h2"

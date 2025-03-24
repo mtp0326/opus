@@ -323,7 +323,7 @@ function RecommendationPage() {
           variant="h2"
           sx={{
             fontFamily: 'Feather Bold',
-            color: isDarkMode ? '#ffffff' : themeColors.primary,
+            color: isDarkMode ? '#ffffff' : '#285943',
             textAlign: 'center',
             mb: 4,
             mt: 6,

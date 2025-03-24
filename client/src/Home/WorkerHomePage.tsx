@@ -5,6 +5,7 @@ import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 import 'survey-core/defaultV2.min.css';
 import { useSpring, animated } from '@react-spring/web';
+import { height } from '@mui/system';
 import IUser from '../util/types/user';
 import styles from '../Projects/SurveyPreview.module.css';
 import {
@@ -22,7 +23,6 @@ import Navigation2 from '../components/Navigation2.tsx';
 import { getData } from '../util/api';
 import fireImage from '../assets/images/fire.png';
 import { useTheme } from '../context/ThemeContext';
-import { height } from '@mui/system';
 
 // Add font styles
 const fontStyles = `
@@ -144,9 +144,7 @@ function WorkerHomePage() {
   const progressSound = React.useRef(
     new Audio('/assets/sounds/correct-answer.mp3'),
   );
-  const completionSound = React.useRef(
-    new Audio('/assets/sounds/Wii-Win.mp3'),
-  );
+  const completionSound = React.useRef(new Audio('/assets/sounds/Wii-Win.mp3'));
   const [dailyQuestions, setDailyQuestions] = useState(0);
   const [daily10Xp, setDaily10Xp] = useState(false);
   const [daily15Xp, setDaily15Xp] = useState(false);
@@ -774,18 +772,26 @@ function WorkerHomePage() {
                   if (newDailyCount >= userGoalPoints && !daily10Xp) {
                     bonusXp = 20;
                     setDaily10Xp(true);
-                  } else if (newDailyCount >= 0.75 * userGoalPoints && !daily15Xp) {
+                  } else if (
+                    newDailyCount >= 0.75 * userGoalPoints &&
+                    !daily15Xp
+                  ) {
                     bonusXp = 15;
                     setDaily15Xp(true);
-                  } else if (newDailyCount >= (userGoalPoints / 2) && !daily20Xp) {
+                  } else if (
+                    newDailyCount >= userGoalPoints / 2 &&
+                    !daily20Xp
+                  ) {
                     bonusXp = 10;
                     setDaily20Xp(true);
                   }
                   console.log('🔍 Bonus XP:', bonusXp);
-                  const totalXp = (submissionResponse?.data.xpEarned || 0) + bonusXp;
+                  const totalXp =
+                    (submissionResponse?.data.xpEarned || 0) + bonusXp;
 
                   // If bonusXp exists, append an indicator to the stat text.
-                  const bonusText = bonusXp > 0 ? ` (+${bonusXp} bonus XP)` : '';
+                  const bonusText =
+                    bonusXp > 0 ? ` (+${bonusXp} bonus XP)` : '';
 
                   // Clear existing content
                   completionPage.innerHTML = '';
@@ -838,7 +844,7 @@ function WorkerHomePage() {
                     box.appendChild(valueElement);
                     return box;
                   };
-                  
+
                   // Add stat boxes with the specified colors
                   statsContainer.appendChild(
                     createStatBox(
@@ -982,17 +988,17 @@ function WorkerHomePage() {
   const updatePointsAndCount = () => {
     const today = new Date().toISOString().split('T')[0];
     const newDailyCount = dailyQuestions + 1;
-    
+
     // Compute bonus XP based on the new daily count:
     let bonusXp = 0;
     if (newDailyCount >= userGoalPoints) {
       bonusXp = 20;
     } else if (newDailyCount >= 0.75 * userGoalPoints) {
       bonusXp = 15;
-    } else if (newDailyCount >= (userGoalPoints / 2)) {
+    } else if (newDailyCount >= userGoalPoints / 2) {
       bonusXp = 10;
     }
-    
+
     const xpReward = (formData?.reward || 0) + bonusXp;
     const newPoints = points + xpReward;
 
@@ -1017,13 +1023,17 @@ function WorkerHomePage() {
     setPoints(newPoints);
   };
 
-
-  const getCurrentRankDifference = (users: IUser[], currentUserEmail: string): number => {
+  const getCurrentRankDifference = (
+    users: IUser[],
+    currentUserEmail: string,
+  ): number => {
     const sortedUsers = [...users].sort((a, b) => b.points - a.points);
-    const currentUserIndex = sortedUsers.findIndex(user => user.email === currentUserEmail);
-    
+    const currentUserIndex = sortedUsers.findIndex(
+      (user) => user.email === currentUserEmail,
+    );
+
     if (currentUserIndex <= 0) return 0;
-    
+
     const pointsAhead = sortedUsers[currentUserIndex - 1].points;
     const currentPoints = sortedUsers[currentUserIndex].points;
     return pointsAhead - currentPoints + 1;
@@ -1033,7 +1043,7 @@ function WorkerHomePage() {
     if (userInfo?.league) {
       getLeaderboard().then((data) => {
         const sameLeagueUsers = data.filter(
-          (user) => user.league === userInfo.league
+          (user) => user.league === userInfo.league,
         );
         setUsers(sameLeagueUsers);
       });
@@ -1122,8 +1132,8 @@ function WorkerHomePage() {
             mb: 1,
           }}
         >
-          Daily Progress (
-          {dailyQuestions}/{getUserGoalPoints(userInfo?.league ?? 'wood')})
+          Daily Progress ({dailyQuestions}/
+          {getUserGoalPoints(userInfo?.league ?? 'wood')})
         </Typography>
         <Box
           sx={{
@@ -1261,7 +1271,7 @@ function WorkerHomePage() {
             flex: 1,
             backgroundColor: isDarkMode ? '#102622' : '#FFFAED',
             color: '#102622',
-            minHeight: '100vh'
+            minHeight: '100vh',
           }}
         >
           <div className={styles.pageContainer}>
@@ -1306,7 +1316,7 @@ function WorkerHomePage() {
             display: 'flex',
             flexDirection: 'column',
             gap: '16px',
-            minHeight: '100vh'
+            minHeight: '100vh',
           }}
         >
           <Box
@@ -1428,7 +1438,7 @@ function WorkerHomePage() {
             >
               Progress Tracker
             </Typography>
-            
+
             {/* Points to next league */}
             <Typography
               sx={{
@@ -1438,22 +1448,41 @@ function WorkerHomePage() {
                 marginBottom: '4px',
               }}
             >
-              <Number n1={prevPointsNeeded} n2={getPointsForNextLeague(userInfo?.points || 0)} /> points until{' '}
-              <span style={{ 
-                color: getLeagueColor(
-                  userInfo?.league === 'Wood' ? 'Bronze' :
-                  userInfo?.league === 'Bronze' ? 'Silver' :
-                  userInfo?.league === 'Silver' ? 'Gold' :
-                  userInfo?.league === 'Gold' ? 'Platinum' :
-                  userInfo?.league === 'Platinum' ? 'Diamond' : 'Diamond'
-                )
-              }}>
-                {userInfo?.league === 'Wood' ? 'Bronze' :
-                 userInfo?.league === 'Bronze' ? 'Silver' :
-                 userInfo?.league === 'Silver' ? 'Gold' :
-                 userInfo?.league === 'Gold' ? 'Platinum' :
-                 userInfo?.league === 'Platinum' ? 'Diamond' : ''}
-              </span> League!
+              <Number
+                n1={prevPointsNeeded}
+                n2={getPointsForNextLeague(userInfo?.points || 0)}
+              />{' '}
+              points until{' '}
+              <span
+                style={{
+                  color: getLeagueColor(
+                    userInfo?.league === 'Wood'
+                      ? 'Bronze'
+                      : userInfo?.league === 'Bronze'
+                      ? 'Silver'
+                      : userInfo?.league === 'Silver'
+                      ? 'Gold'
+                      : userInfo?.league === 'Gold'
+                      ? 'Platinum'
+                      : userInfo?.league === 'Platinum'
+                      ? 'Diamond'
+                      : 'Diamond',
+                  ),
+                }}
+              >
+                {userInfo?.league === 'Wood'
+                  ? 'Bronze'
+                  : userInfo?.league === 'Bronze'
+                  ? 'Silver'
+                  : userInfo?.league === 'Silver'
+                  ? 'Gold'
+                  : userInfo?.league === 'Gold'
+                  ? 'Platinum'
+                  : userInfo?.league === 'Platinum'
+                  ? 'Diamond'
+                  : ''}
+              </span>{' '}
+              League!
             </Typography>
 
             {/* Points to climb rank - only show if we have users data */}
@@ -1465,7 +1494,8 @@ function WorkerHomePage() {
                   fontFamily: 'Feather Bold',
                 }}
               >
-                {getCurrentRankDifference(users, userInfo?.email || '')} points to climb a rank!
+                {getCurrentRankDifference(users, userInfo?.email || '')} points
+                to climb a rank!
               </Typography>
             )}
           </Box>

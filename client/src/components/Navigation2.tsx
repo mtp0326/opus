@@ -1,7 +1,7 @@
 import React from 'react';
 import { AppBar, Toolbar, Button, Box, Avatar } from '@mui/material';
-import { selectUser } from '../util/redux/userSlice.ts';
 import { useNavigate } from 'react-router-dom';
+import { selectUser } from '../util/redux/userSlice.ts';
 import { useAppSelector } from '../util/redux/hooks.ts';
 import { useTheme } from '../context/ThemeContext';
 

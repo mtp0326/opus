@@ -197,8 +197,11 @@ function ResearcherLoginPage() {
       <FormGrid>
         <FormCol>
           <Grid item container justifyContent="center">
-            <Typography variant="h2" textAlign="center"
-              sx={{ color: '#66c8b9', fontFamily: 'Feather Bold' }}>
+            <Typography
+              variant="h2"
+              textAlign="center"
+              sx={{ color: '#66c8b9', fontFamily: 'Feather Bold' }}
+            >
               Welcome to Opus Research
             </Typography>
           </Grid>

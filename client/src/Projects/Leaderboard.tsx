@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Paper, Typography } from '@mui/material';
-import { getLeaderboard } from './api';
+import { getLeaderboard, getWorkerByEmail } from './api';
 import IUser from '../util/types/user';
 import Navigation2 from '../components/Navigation2';
 import { useAppSelector } from '../util/redux/hooks';
 import { selectUser } from '../util/redux/userSlice';
 import { useTheme } from '../context/ThemeContext';
-import { getWorkerByEmail } from '../Projects/api';
 
 // Add font styles
 const fontStyles = `

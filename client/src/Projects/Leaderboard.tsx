@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Paper, Typography } from '@mui/material';
-import { getLeaderboard } from './api';
+import { getLeaderboard, getWorkerByEmail } from './api';
 import IUser from '../util/types/user';
 import Navigation2 from '../components/Navigation2';
 import { useAppSelector } from '../util/redux/hooks';
 import { selectUser } from '../util/redux/userSlice';
 import { useTheme } from '../context/ThemeContext';
-import { getWorkerByEmail } from '../Projects/api';
 
 // Add font styles
 const fontStyles = `
@@ -107,7 +106,7 @@ function Leaderboard() {
           variant="h1"
           sx={{
             fontFamily: 'Feather Bold',
-            color: '#285943',
+            color: isDarkMode ? '#ffffff' : '#285943',
             textAlign: 'center',
             mb: 2,
             fontSize: '2.5rem',
@@ -119,7 +118,7 @@ function Leaderboard() {
         <Typography
           sx={{
             fontFamily: 'DIN Next Rounded LT W01 Regular',
-            color: '#4b4b4b',
+            color: isDarkMode ? '#ffffff' : '#4b4b4b',
             textAlign: 'center',
             mb: 4,
             fontSize: '1.2rem',

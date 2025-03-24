@@ -308,7 +308,7 @@ function RecommendationPage() {
           sx={{
             fontFamily: 'Feather Bold',
             // color: themeColors.primary,
-            color: '#285943',
+            color: isDarkMode ? '#ffffff' : '#285943',
             textAlign: 'center',
             mb: 4,
             fontSize: '2.5rem',
@@ -323,7 +323,7 @@ function RecommendationPage() {
           variant="h2"
           sx={{
             fontFamily: 'Feather Bold',
-            color: themeColors.primary,
+            color: isDarkMode ? '#ffffff' : '#285943',
             textAlign: 'center',
             mb: 4,
             mt: 6,

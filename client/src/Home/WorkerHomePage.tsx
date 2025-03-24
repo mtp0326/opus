@@ -172,6 +172,10 @@ function WorkerHomePage() {
   const [users, setUsers] = useState<IUser[]>([]);
   const [prevPointsNeeded, setPrevPointsNeeded] = useState(0);
 
+  // Define background colors for the daily progress UI based on dark mode setting
+  const dailyProgressContainerBg = isDarkMode ? '#102622' : '#FFFAED';
+  const dailyProgressBarBgColor = isDarkMode ? '#333' : '#FEDC97';
+
   // Idt we need selfpromote for a worker account/nonadmin account
   // const handleSelfPromote = async () => {
   //   const newAdminStatus = await selfUpgrade(user.email as string);
@@ -1116,12 +1120,12 @@ function WorkerHomePage() {
           width: '100%',
           padding: '0 20px',
           marginBottom: '16px',
-          backgroundColor: '#FFFAED',
+          backgroundColor: dailyProgressContainerBg,
         }}
       >
         <Typography
           sx={{
-            color: '#285943',
+            color: isDarkMode ? '#ffffff' : '#285943',
             padding: '10px',
             fontFamily: 'Feather Bold',
             textAlign: 'center',
@@ -1134,7 +1138,7 @@ function WorkerHomePage() {
         <Box
           sx={{
             height: '8px',
-            backgroundColor: '#FEDC97',
+            backgroundColor: dailyProgressBarBgColor,
             borderRadius: '4px',
             overflow: 'visible',
             position: 'relative',
@@ -1198,7 +1202,7 @@ function WorkerHomePage() {
           <Box
             sx={{
               position: 'absolute',
-              backgroundColor: '#FFFAED',
+              backgroundColor: dailyProgressContainerBg,
               top: '100%',
               left: '0',
               width: '100%',
@@ -1206,7 +1210,6 @@ function WorkerHomePage() {
               mt: 1,
             }}
           >
-            {/* Container for +10p at 50% */}
             <Box
               sx={{
                 position: 'absolute',
@@ -1224,8 +1227,6 @@ function WorkerHomePage() {
                 +10 xp
               </Typography>
             </Box>
-
-            {/* Container for +15p at 75% */}
             <Box
               sx={{
                 position: 'absolute',
@@ -1243,8 +1244,6 @@ function WorkerHomePage() {
                 +15 xp
               </Typography>
             </Box>
-
-            {/* Container for +20p at 100% */}
             <Box
               sx={{
                 position: 'absolute',

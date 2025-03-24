@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../util/redux/hooks.ts';
 import { selectUser } from '../util/redux/userSlice.ts';
 import Navigation2 from '../components/Navigation2.tsx';
-import { getWorkerByEmail } from '../Projects/api';
+import { getWorkerByEmail } from './api';
 import { useTheme } from '../context/ThemeContext';
 import IUser from '../util/types/user';
 
@@ -105,7 +105,11 @@ function PointRewards() {
     <Box sx={{ backgroundColor: themeColors.background, minHeight: '100vh' }}>
       <Navigation2 />
       <Box
-        sx={{ padding: 3, color: themeColors.text, fontFamily: 'Feather Bold' }}
+        sx={{
+          padding: 3,
+          color: isDarkMode ? '#ffffff' : themeColors.text,
+          fontFamily: 'Feather Bold',
+        }}
       >
         <h1 style={{ textAlign: 'center' }}>Point Rewards</h1>
 
@@ -122,7 +126,10 @@ function PointRewards() {
           }}
         >
           {userInfo?.points !== null ? (
-            <Typography variant="h5" sx={{ color: themeColors.primary }}>
+            <Typography
+              variant="h5"
+              sx={{ color: isDarkMode ? '#ffffff' : themeColors.primary }}
+            >
               Your current points: {userInfo?.points ?? 0}
             </Typography>
           ) : (

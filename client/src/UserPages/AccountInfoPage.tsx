@@ -303,7 +303,7 @@ function AccountInfoPage() {
         <h1
           style={{
             fontFamily: 'Feather Bold',
-            color: themeColors.primary,
+            color: isDarkMode ? '#ffffff' : themeColors.primary,
             textAlign: 'center',
             marginBottom: '2rem',
             fontSize: '2.5rem',

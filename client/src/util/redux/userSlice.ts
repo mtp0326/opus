@@ -84,6 +84,12 @@ const userSlice = createSlice({
       state.verified = false;
       state.onboarded = false;
     },
+    updateCashBalance: (state, action: PayloadAction<number>) => {
+      if (state) {
+        // Assuming cashBalance is a property of the user object
+        state.cashBalance = (state.cashBalance || 0) + action.payload;
+      }
+    },
   },
 });
 

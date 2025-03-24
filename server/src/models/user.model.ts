@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { PaymentService } from '../services/payment.service';
 
 // -----------------------------
 // User Schema & Interface
@@ -96,11 +97,16 @@ export const updateLeague = async (user: IUser) => {
 export const awardBaseFee = async (user: IUser, survey: any) => {
   const payout = Math.min(BASE_FEE, survey.remainingBudget);
   if (payout > 0) {
-    user.cashBalance += payout;
+    await PaymentService.processPayout(
+      user._id.toString(),
+      payout,
+      'survey_completion',
+      `Base fee for completing survey ${survey._id}`,
+      survey._id.toString(),
+    );
     survey.remainingBudget -= payout;
+    await survey.save();
   }
-  await user.save();
-  await survey.save();
 };
 
 /**
@@ -136,9 +142,14 @@ export const distributeSurveyLottery = async (
     // Ensure payout does not exceed the survey's remaining budget.
     bonus = Math.min(bonus, survey.remainingBudget);
     if (bonus > 0) {
-      user.cashBalance += bonus;
+      await PaymentService.processPayout(
+        user._id.toString(),
+        bonus,
+        'lottery_win',
+        `Lottery win for survey ${surveyId}`,
+        surveyId,
+      );
       survey.remainingBudget -= bonus;
-      await user.save();
     }
     if (survey.remainingBudget <= 0) break;
   }
@@ -181,8 +192,14 @@ export const distributeBiWeeklyPayout = async () => {
   // Distribute the biWeekly pool proportionally to each user's points.
   for (const user of users) {
     const bonus = (user.points / totalPoints) * biWeeklyPool;
-    user.cashBalance += bonus;
-    await user.save();
+    if (bonus > 0) {
+      await PaymentService.processPayout(
+        user._id.toString(),
+        bonus,
+        'biweekly_bonus',
+        `Bi-weekly bonus payout`,
+      );
+    }
   }
 };
 

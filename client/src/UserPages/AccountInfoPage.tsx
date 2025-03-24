@@ -395,19 +395,28 @@ function AccountInfoPage() {
                     >
                       Logout
                     </Button>
+                    </Grid><Grid item container justifyContent="center" sx={{ mt: 2 }}>
                     <Button
-                      variant="contained"
-                      onClick={() => setIsWithdrawModalOpen(true)}
+                      onClick={handleWithdraw}
                       disabled={!(userInfo?.cashBalance ?? 0 > 0)}
                       style={{
                         fontFamily: 'Feather Bold',
                         backgroundColor: themeColors.primary,
                         color: 'white',
                         padding: '12px 24px',
+                        border: 'none',
                         borderRadius: '12px',
                         fontSize: '1.1rem',
+                        cursor: 'pointer',
                         width: '100%',
-                        marginTop: '16px',
+                        transition: 'all 0.2s ease',
+                        boxShadow: '0 4px 0 #45a501',
+                        textTransform: 'none', // This ensures the text is not in uppercase
+                        '&:hover': {
+                          backgroundColor: '#45a501',
+                          transform: 'translateY(1px)',
+                          boxShadow: '0 3px 0 #45a501',
+                        },
                       }}
                     >
                       Withdraw Cash
@@ -470,7 +479,7 @@ function AccountInfoPage() {
               onClick={handleWithdraw}
               disabled={!ready || withdrawAmount <= 0}
             >
-              Withdraw 
+              Withdraw
             </Button>
           </DialogActions>
         </Dialog>

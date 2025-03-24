@@ -104,7 +104,7 @@ function PointRewards() {
   return (
     <Box sx={{ backgroundColor: themeColors.background, minHeight: '100vh' }}>
       <Navigation2 />
-      <Box sx={{ padding: 3, color: themeColors.text, fontFamily: 'Feather Bold' }}>
+      <Box sx={{ padding: 3, color: isDarkMode ? '#ffffff' : themeColors.text, fontFamily: 'Feather Bold' }}>
         <h1 style={{ textAlign: 'center' }}>Point Rewards</h1>
         
         {/* New Box for Point Rewards */}
@@ -120,7 +120,7 @@ function PointRewards() {
           }}
         >
           {userInfo?.points !== null ? (
-            <Typography variant="h5" sx={{ color: themeColors.primary }}>
+            <Typography variant="h5" sx={{ color: isDarkMode ? '#ffffff' : themeColors.primary }}>
               Your current points: {userInfo?.points ?? 0}
             </Typography>
           ) : (

@@ -32,7 +32,11 @@ function Navigation() {
             onClick={() => handleNavigate('/rhome')}
             sx={{
               color: isDarkMode ? '#fff' : '#4b4b4b',
-              '&:hover': { backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : '#aff8e5' },
+              '&:hover': {
+                backgroundColor: isDarkMode
+                  ? 'rgba(255, 255, 255, 0.1)'
+                  : '#aff8e5',
+              },
             }}
           >
             Home
@@ -42,7 +46,11 @@ function Navigation() {
             onClick={() => handleNavigate('/create-project')}
             sx={{
               color: isDarkMode ? '#fff' : '#4b4b4b',
-              '&:hover': { backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : '#aff8e5' },
+              '&:hover': {
+                backgroundColor: isDarkMode
+                  ? 'rgba(255, 255, 255, 0.1)'
+                  : '#aff8e5',
+              },
             }}
           >
             Create Project
@@ -52,7 +60,11 @@ function Navigation() {
             onClick={() => handleNavigate('/manage-tasks')}
             sx={{
               color: isDarkMode ? '#fff' : '#4b4b4b',
-              '&:hover': { backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : '#aff8e5' },
+              '&:hover': {
+                backgroundColor: isDarkMode
+                  ? 'rgba(255, 255, 255, 0.1)'
+                  : '#aff8e5',
+              },
             }}
           >
             Manage Tasks

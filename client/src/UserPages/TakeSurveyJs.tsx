@@ -42,9 +42,7 @@ function TakeSurveyJs() {
   const progressSound = React.useRef(
     new Audio('/assets/sounds/correct-answer.mp3'),
   );
-  const completionSound = React.useRef(
-    new Audio('/assets/sounds/Wii-Win.mp3'),
-  );
+  const completionSound = React.useRef(new Audio('/assets/sounds/Wii-Win.mp3'));
 
   useEffect(() => {
     progressRef.current = progress;
@@ -724,28 +722,28 @@ function TakeSurveyJs() {
   return (
     <>
       <Navigation2 />
-    <div className={styles.pageContainer}>
-      <div className={styles.container}>
-        <div className={styles.previewBox}>
-          <div className={styles.surveyContainer}>
-            <Survey model={survey} css={{ root: 'sv_main' }} />
-            <div className={styles.topRightBoxContainer}>
-              <div className={styles.topRightBox}>
-                Q: {(survey?.currentPageNo || 0) + 1}/{survey?.pageCount || 0}
-              </div>
-              <div className={styles.topRightBox}>
-                +
-                {Math.round(
-                  ((formData?.reward || 0) * 100) /
-                    (formData?.respondents || 1),
-                )}{' '}
-                Base XP
+      <div className={styles.pageContainer}>
+        <div className={styles.container}>
+          <div className={styles.previewBox}>
+            <div className={styles.surveyContainer}>
+              <Survey model={survey} css={{ root: 'sv_main' }} />
+              <div className={styles.topRightBoxContainer}>
+                <div className={styles.topRightBox}>
+                  Q: {(survey?.currentPageNo || 0) + 1}/{survey?.pageCount || 0}
+                </div>
+                <div className={styles.topRightBox}>
+                  +
+                  {Math.round(
+                    ((formData?.reward || 0) * 100) /
+                      (formData?.respondents || 1),
+                  )}{' '}
+                  Base XP
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
     </>
   );
 }

@@ -81,7 +81,7 @@
   margin-top: 1rem;
 }
 
-.input[type="number"] {
+.input[type='number'] {
   /* Removes spinner buttons and mousewheel functionality */
   appearance: textfield;
   -moz-appearance: textfield;
@@ -90,4 +90,4 @@
     -webkit-appearance: none;
     margin: 0;
   }
-} 
+}

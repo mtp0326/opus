@@ -7,11 +7,11 @@
 }
 
 .popupContent {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
   padding: 15px 25px;
   border-radius: 4px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 @keyframes slideIn {
@@ -23,4 +23,4 @@
     transform: translateX(0);
     opacity: 1;
   }
-} 
+}

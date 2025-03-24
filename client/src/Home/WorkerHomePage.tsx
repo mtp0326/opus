@@ -5,6 +5,7 @@ import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 import 'survey-core/defaultV2.min.css';
 import { useSpring, animated } from '@react-spring/web';
+import { height } from '@mui/system';
 import IUser from '../util/types/user';
 import styles from '../Projects/SurveyPreview.module.css';
 import {
@@ -22,7 +23,6 @@ import Navigation2 from '../components/Navigation2.tsx';
 import { getData } from '../util/api';
 import fireImage from '../assets/images/fire.png';
 import { useTheme } from '../context/ThemeContext';
-import { height } from '@mui/system';
 
 // Add font styles
 const fontStyles = `

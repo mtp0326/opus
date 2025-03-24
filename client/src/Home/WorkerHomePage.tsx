@@ -11,6 +11,8 @@ import {
   getRandomSurvey,
   submitSurveyCompletion,
   getWorkerByEmail,
+  getPointsForNextLeague,
+  getLeaderboard,
 } from '../Projects/api';
 import { useAppDispatch, useAppSelector } from '../util/redux/hooks.ts';
 import { selectUser } from '../util/redux/userSlice.ts';
@@ -20,6 +22,7 @@ import Navigation2 from '../components/Navigation2.tsx';
 import { getData } from '../util/api';
 import fireImage from '../assets/images/fire.png';
 import { useTheme } from '../context/ThemeContext';
+import { height } from '@mui/system';
 
 // Add font styles
 const fontStyles = `
@@ -139,10 +142,10 @@ function WorkerHomePage() {
   const progressRef = React.useRef(0);
   const startTime = React.useRef(Date.now());
   const progressSound = React.useRef(
-    new Audio('/assets/sounds/duolingo-correct.mp3'),
+    new Audio('/assets/sounds/correct-answer.mp3'),
   );
   const completionSound = React.useRef(
-    new Audio('/assets/sounds/duolingo-completed-lesson.mp3'),
+    new Audio('/assets/sounds/Wii-Win.mp3'),
   );
   const [dailyQuestions, setDailyQuestions] = useState(0);
   const [daily10Xp, setDaily10Xp] = useState(false);
@@ -168,6 +171,8 @@ function WorkerHomePage() {
   const [prevPoints, setPrevPoints] = useState(points);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const { isDarkMode } = useTheme();
+  const [users, setUsers] = useState<IUser[]>([]);
+  const [prevPointsNeeded, setPrevPointsNeeded] = useState(0);
 
   // Idt we need selfpromote for a worker account/nonadmin account
   // const handleSelfPromote = async () => {
@@ -204,9 +209,9 @@ function WorkerHomePage() {
   // }, []);
 
   const themeColors = {
-    background: isDarkMode ? '#141F25' : '#ffffff',
-    text: isDarkMode ? '#ffffff' : '#141F25',
-    primary: '#58CC02',
+    background: isDarkMode ? '#102622' : '#FFFAED',
+    text: isDarkMode ? '#ffffff' : '#ffffff',
+    primary: '#285943',
     secondary: '#1cb0f6',
     accent: '#ce82ff',
   };
@@ -631,19 +636,19 @@ function WorkerHomePage() {
 
         /* Title styling */
         .sd-title {
-          color: #58CC02 !important;
+          color: #285943 !important;
         }
 
         /* Next button styling */
         .sd-btn.sd-navigation__next-btn {
-          background-color: #58CC02 !important;
+          background-color: #66c8b9 !important;
           color: white !important;
           border: none !important;
         }
 
         /* Complete button styling */
         .sd-btn.sd-btn--action.sd-navigation__complete-btn {
-          background-color: #58CC02 !important;
+          background-color: #66c8b9 !important;
           color: white !important;
           border: none !important;
         }
@@ -1008,6 +1013,29 @@ function WorkerHomePage() {
     setPoints(newPoints);
   };
 
+
+  const getCurrentRankDifference = (users: IUser[], currentUserEmail: string): number => {
+    const sortedUsers = [...users].sort((a, b) => b.points - a.points);
+    const currentUserIndex = sortedUsers.findIndex(user => user.email === currentUserEmail);
+    
+    if (currentUserIndex <= 0) return 0;
+    
+    const pointsAhead = sortedUsers[currentUserIndex - 1].points;
+    const currentPoints = sortedUsers[currentUserIndex].points;
+    return pointsAhead - currentPoints + 1;
+  };
+
+  useEffect(() => {
+    if (userInfo?.league) {
+      getLeaderboard().then((data) => {
+        const sameLeagueUsers = data.filter(
+          (user) => user.league === userInfo.league
+        );
+        setUsers(sameLeagueUsers);
+      });
+    }
+  }, [userInfo?.league]);
+
   if (isLoading) {
     return (
       <>
@@ -1064,12 +1092,20 @@ function WorkerHomePage() {
   }
 
   return (
-    <>
+    <Box
+      sx={{
+        margin: 0,
+        padding: 0,
+        backgroundColor: themeColors.background,
+        minHeight: '100vh',
+      }}
+    >
       <Navigation2 />
-      <Box sx={{ width: '100%', padding: '0 20px', marginBottom: '16px' }}>
+      <Box sx={{ width: '100%', padding: '0 20px', marginBottom: '16px', backgroundColor: '#FFFAED'}}>
         <Typography
           sx={{
-            color: '#58CC02',
+            color: '#285943',
+            padding: '10px',
             fontFamily: 'Feather Bold',
             textAlign: 'center',
             mb: 1,
@@ -1080,7 +1116,7 @@ function WorkerHomePage() {
         <Box
           sx={{
             height: '8px',
-            backgroundColor: '#e0e0e0',
+            backgroundColor: '#FEDC97',
             borderRadius: '4px',
             overflow: 'visible',
             position: 'relative',
@@ -1090,7 +1126,7 @@ function WorkerHomePage() {
             sx={{
               width: `${dailyProgress}%`,
               height: '100%',
-              backgroundColor: '#58CC02',
+              backgroundColor: '#66c8b9',
               transition: 'width 0.3s ease',
               position: 'relative',
             }}
@@ -1116,7 +1152,7 @@ function WorkerHomePage() {
               top: 0,
               width: '2px',
               height: '100%',
-              backgroundColor: '#1f1f1f',
+              backgroundColor: '#F87060',
             }}
           />
           <Box
@@ -1126,7 +1162,7 @@ function WorkerHomePage() {
               top: 0,
               width: '2px',
               height: '100%',
-              backgroundColor: '#1f1f1f',
+              backgroundColor: '#F87060',
             }}
           />
           <Box
@@ -1136,7 +1172,7 @@ function WorkerHomePage() {
               top: 0,
               width: '2px',
               height: '100%',
-              backgroundColor: '#1f1f1f',
+              backgroundColor: '#F87060',
             }}
           />
 
@@ -1144,6 +1180,7 @@ function WorkerHomePage() {
           <Box
             sx={{
               position: 'absolute',
+              backgroundColor: '#FFFAED',
               top: '100%',
               left: '0',
               width: '100%',
@@ -1212,7 +1249,14 @@ function WorkerHomePage() {
       </Box>
       <Box sx={{ display: 'flex', height: 'calc(100vh - 100px)' }}>
         {/* Main content */}
-        <Box sx={{ flex: 1 }}>
+        <Box
+          sx={{
+            flex: 1,
+            backgroundColor: isDarkMode ? '#102622' : '#FFFAED',
+            color: '#102622',
+            minHeight: '100vh'
+          }}
+        >
           <div className={styles.pageContainer}>
             <div className={styles.container}>
               <div className={styles.previewBox}>
@@ -1255,6 +1299,7 @@ function WorkerHomePage() {
             display: 'flex',
             flexDirection: 'column',
             gap: '16px',
+            minHeight: '100vh'
           }}
         >
           <Box
@@ -1356,9 +1401,70 @@ function WorkerHomePage() {
               +<Number n1={prevPoints} n2={points} /> XP
             </Typography>
           </Box>
+          <Box
+            sx={{
+              backgroundColor: 'white',
+              padding: '16px',
+              borderRadius: '12px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: '3px solid #ce82ff',
+              marginTop: '16px',
+            }}
+          >
+            <Typography
+              sx={{
+                color: '#ce82ff',
+                fontSize: '1rem',
+                marginBottom: '8px',
+                fontFamily: 'Feather Bold',
+              }}
+            >
+              Progress Tracker
+            </Typography>
+            
+            {/* Points to next league */}
+            <Typography
+              sx={{
+                fontSize: '1.1rem',
+                color: '#666',
+                fontFamily: 'Feather Bold',
+                marginBottom: '4px',
+              }}
+            >
+              <Number n1={prevPointsNeeded} n2={getPointsForNextLeague(userInfo?.points || 0)} /> points until{' '}
+              <span style={{ 
+                color: getLeagueColor(
+                  userInfo?.league === 'Wood' ? 'Bronze' :
+                  userInfo?.league === 'Bronze' ? 'Silver' :
+                  userInfo?.league === 'Silver' ? 'Gold' :
+                  userInfo?.league === 'Gold' ? 'Platinum' :
+                  userInfo?.league === 'Platinum' ? 'Diamond' : 'Diamond'
+                )
+              }}>
+                {userInfo?.league === 'Wood' ? 'Bronze' :
+                 userInfo?.league === 'Bronze' ? 'Silver' :
+                 userInfo?.league === 'Silver' ? 'Gold' :
+                 userInfo?.league === 'Gold' ? 'Platinum' :
+                 userInfo?.league === 'Platinum' ? 'Diamond' : ''}
+              </span> League!
+            </Typography>
+
+            {/* Points to climb rank - only show if we have users data */}
+            {users.length > 0 && (
+              <Typography
+                sx={{
+                  fontSize: '1.1rem',
+                  color: '#666',
+                  fontFamily: 'Feather Bold',
+                }}
+              >
+                {getCurrentRankDifference(users, userInfo?.email || '')} points to climb a rank!
+              </Typography>
+            )}
+          </Box>
         </Box>
       </Box>
-    </>
+    </Box>
   );
 }
 

@@ -135,14 +135,14 @@ function WorkerLoginPage() {
     clearErrorMessages();
     let isValid = true;
 
-    for (const valueTypeString in values) {
-      const valueType = valueTypeString as ValueType;
-      if (!values[valueType]) {
-        setErrorMessage(valueTypeString, InputErrorMessage.MISSING_INPUT);
-        setShowError(valueTypeString, true);
+    // Iterate only over this object's own enumerable keys
+    Object.keys(values).forEach((field) => {
+      if (!values[field as keyof typeof values]) {
+        setErrorMessage(field, InputErrorMessage.MISSING_INPUT);
+        setShowError(field, true);
         isValid = false;
       }
-    }
+    });
 
     if (!values.email.match(emailRegex)) {
       setErrorMessage('email', InputErrorMessage.INVALID_EMAIL);
@@ -194,17 +194,21 @@ function WorkerLoginPage() {
       <Grid
         container
         justifyContent="flex-start"
-        sx={{ position: 'absolute', top: 0, left: 0, p: 2 }}
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          p: 2,
+        }}
       >
         <PrimaryButton
           onClick={() => navigate('/')}
           sx={{
-            color: '#58CC02',
-            backgroundColor: 'transparent',
+            color: 'white',
+            backgroundColor: '#66c8b9',
             boxShadow: 'none',
             '&:hover': {
-              color: '#45a501',
-              backgroundColor: 'transparent',
+              backgroundColor: '#aff8e5',
               boxShadow: 'none',
             },
             fontFamily: 'Feather Bold',
@@ -219,7 +223,7 @@ function WorkerLoginPage() {
             <Typography
               variant="h2"
               textAlign="center"
-              sx={{ color: '#58CC02', fontFamily: 'Feather Bold' }}
+              sx={{ color: '#66c8b9', fontFamily: 'Feather Bold' }}
             >
               Welcome to Opus User
             </Typography>
@@ -235,7 +239,23 @@ function WorkerLoginPage() {
               value={values.email}
               onChange={(e) => setValue('email', e.target.value)}
               InputLabelProps={{
-                style: { fontFamily: 'Feather Bold', color: '#58CC02' },
+                style: { fontFamily: 'Feather Bold', color: '#66c8b9' },
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '&:hover fieldset': {
+                    borderColor: '#66c8b9',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#66c8b9',
+                  },
+                },
+                '& label': {
+                  color: 'black',
+                },
+                '& .MuiInputBase-input': {
+                  color: 'black',
+                },
               }}
             />
           </Grid>
@@ -248,9 +268,25 @@ function WorkerLoginPage() {
               required
               label="Password"
               value={values.password}
-              onChange={(e) => setValue('password', e.target.value)}
               InputLabelProps={{
-                style: { fontFamily: 'Feather Bold', color: '#58CC02' },
+                style: { fontFamily: 'Feather Bold', color: '#66c8b9' },
+              }}
+              onChange={(e) => setValue('password', e.target.value)}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '&:hover fieldset': {
+                    borderColor: '#66c8b9',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#66c8b9',
+                  },
+                },
+                '& label': {
+                  color: 'black',
+                },
+                '& .MuiInputBase-input': {
+                  color: 'black',
+                },
               }}
             />
           </Grid>
@@ -258,10 +294,16 @@ function WorkerLoginPage() {
             <PrimaryButton
               fullWidth
               type="submit"
-              variant="contained"
+              // sx={{
+              //   backgroundColor: '#66c8b9',
+              //   color: 'black',
+              //   '&:hover': {
+              //     backgroundColor: '#aff8e5',
+              //   },
+              // }}
               onClick={() => handleSubmit()}
               sx={{
-                backgroundColor: '#58CC02',
+                backgroundColor: '#66c8b9',
                 '&:hover': { backgroundColor: '#45a501' },
                 fontFamily: 'Feather Bold',
               }}
@@ -274,7 +316,7 @@ function WorkerLoginPage() {
               <Link
                 component={RouterLink}
                 to="/email-reset"
-                sx={{ fontFamily: 'Feather Bold', color: '#58CC02' }}
+                sx={{ color: '#66c8b9' }}
               >
                 Forgot password?
               </Link>
@@ -283,7 +325,7 @@ function WorkerLoginPage() {
               <Link
                 component={RouterLink}
                 to="/wregister"
-                sx={{ fontFamily: 'Feather Bold', color: '#58CC02' }}
+                sx={{ color: '#66c8b9' }}
               >
                 Sign up
               </Link>

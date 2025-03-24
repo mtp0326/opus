@@ -40,10 +40,10 @@ function TakeSurveyJs() {
   const progressRef = React.useRef(0);
   const startTime = React.useRef(Date.now());
   const progressSound = React.useRef(
-    new Audio('/assets/sounds/duolingo-correct.mp3'),
+    new Audio('/assets/sounds/correct-answer.mp3'),
   );
   const completionSound = React.useRef(
-    new Audio('/assets/sounds/duolingo-completed-lesson.mp3'),
+    new Audio('/assets/sounds/Wii-Win.mp3'),
   );
 
   useEffect(() => {
@@ -411,19 +411,19 @@ function TakeSurveyJs() {
 
         /* Title styling */
         .sd-title {
-          color: #58CC02 !important;
+          color: #285943 !important;
         }
 
         /* Next button styling */
         .sd-btn.sd-navigation__next-btn {
-          background-color: #58CC02 !important;
+          background-color: #66c8b9 !important;
           color: white !important;
           border: none !important;
         }
 
         /* Complete button styling */
         .sd-btn.sd-btn--action.sd-navigation__complete-btn {
-          background-color: #58CC02 !important;
+          background-color: #66c8b9 !important;
           color: white !important;
           border: none !important;
         }

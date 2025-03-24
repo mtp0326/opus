@@ -89,9 +89,9 @@ function AccountInfoPage() {
   }, [user]);
 
   const themeColors = {
-    background: isDarkMode ? '#141F25' : '#ffffff',
+    background: isDarkMode ? '#102622' : '#FFFAED',
     text: isDarkMode ? '#ffffff' : '#141F25',
-    primary: '#58CC02',
+    primary: '#285943',
     secondary: '#1cb0f6',
     accent: '#ce82ff',
   };
@@ -190,7 +190,12 @@ function AccountInfoPage() {
 
   return (
     <Box
-      sx={{ margin: 0, padding: 0, backgroundColor: themeColors.background }}
+      sx={{
+        margin: 0,
+        padding: 0,
+        backgroundColor: themeColors.background,
+        minHeight: '100vh',
+      }}
     >
       <Navigation2 />
       <Box sx={{ maxWidth: '1200px', margin: '0 auto', p: 4 }}>

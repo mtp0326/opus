@@ -56,8 +56,8 @@ function RecommendationPage() {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
   const themeColors = {
-    background: isDarkMode ? '#141F25' : '#ffffff',
-    text: isDarkMode ? '#ffffff' : '#141F25',
+    background: isDarkMode ? '#102622' : '#FFFAED',
+    text: isDarkMode ? '#ffffff' : '#ffffff',
     primary: '#58CC02',
     secondary: '#1cb0f6',
     accent: '#ce82ff',
@@ -138,7 +138,7 @@ function RecommendationPage() {
       >
         <Table>
           <TableHead>
-            <TableRow sx={{ backgroundColor: '#58CC02' }}>
+            <TableRow sx={{ backgroundColor: '#66c8b9' }}>
               <TableCell
                 sx={{
                   fontFamily: 'Feather Bold',
@@ -242,7 +242,7 @@ function RecommendationPage() {
                     align="center"
                     sx={{
                       fontFamily: 'Feather Bold',
-                      color: '#58CC02',
+                      color: '#66c8b9',
                       fontSize: '1.1rem',
                     }}
                   >
@@ -254,8 +254,8 @@ function RecommendationPage() {
                         onClick={() => handleAcceptWork(survey)}
                         style={{
                           fontFamily: 'Feather Bold',
-                          backgroundColor: '#58CC02',
-                          color: 'white',
+                          backgroundColor: '#66c8b9 ',
+                          color: 'black',
                           padding: '8px 16px',
                           border: 'none',
                           borderRadius: '12px',
@@ -264,7 +264,7 @@ function RecommendationPage() {
                           transition: 'all 0.2s ease',
                           boxShadow: '0 4px 0 #45a501',
                           '&:hover': {
-                            backgroundColor: '#45a501',
+                            backgroundColor: '#aff8e5',
                             transform: 'translateY(1px)',
                             boxShadow: '0 3px 0 #45a501',
                           },
@@ -307,7 +307,8 @@ function RecommendationPage() {
           variant="h1"
           sx={{
             fontFamily: 'Feather Bold',
-            color: themeColors.primary,
+            // color: themeColors.primary,
+            color: '#285943',
             textAlign: 'center',
             mb: 4,
             fontSize: '2.5rem',

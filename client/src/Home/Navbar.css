@@ -2,7 +2,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #58CC02;
+    /* background-color: #58CC02; */
+    background-color: #66c8b9;
     color: #fff;
     padding: 1rem;
 }

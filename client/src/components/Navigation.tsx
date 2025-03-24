@@ -1,9 +1,11 @@
 import React from 'react';
 import { AppBar, Toolbar, Button, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 
 function Navigation() {
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
 
   const clearStorage = () => {
     sessionStorage.removeItem('surveyFormData');
@@ -18,7 +20,10 @@ function Navigation() {
   return (
     <AppBar
       position="static"
-      sx={{ backgroundColor: '#58CC02', boxShadow: '0 4px 0 #45a501' }}
+      sx={{
+        backgroundColor: isDarkMode ? '#141F25' : '#66c8b9',
+        boxShadow: '0 4px 0 #45a501',
+      }}
     >
       <Toolbar>
         <Box sx={{ flexGrow: 1, display: 'flex', gap: 2 }}>
@@ -26,7 +31,8 @@ function Navigation() {
             color="inherit"
             onClick={() => handleNavigate('/rhome')}
             sx={{
-              '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' },
+              color: isDarkMode ? '#fff' : '#4b4b4b',
+              '&:hover': { backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : '#aff8e5' },
             }}
           >
             Home
@@ -35,7 +41,8 @@ function Navigation() {
             color="inherit"
             onClick={() => handleNavigate('/create-project')}
             sx={{
-              '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' },
+              color: isDarkMode ? '#fff' : '#4b4b4b',
+              '&:hover': { backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : '#aff8e5' },
             }}
           >
             Create Project
@@ -44,7 +51,8 @@ function Navigation() {
             color="inherit"
             onClick={() => handleNavigate('/manage-tasks')}
             sx={{
-              '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' },
+              color: isDarkMode ? '#fff' : '#4b4b4b',
+              '&:hover': { backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : '#aff8e5' },
             }}
           >
             Manage Tasks

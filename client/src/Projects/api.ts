@@ -313,6 +313,15 @@ export const getWorkerByEmail = async (email: string): Promise<IUser> => {
   return response.data;
 };
 
+export const getPointsForNextLeague = (currentPoints: number): number => {
+  if (currentPoints < 1000) return 1000 - currentPoints;
+  if (currentPoints < 2000) return 2000 - currentPoints;
+  if (currentPoints < 3000) return 3000 - currentPoints;
+  if (currentPoints < 5000) return 5000 - currentPoints;
+  if (currentPoints < 8000) return 8000 - currentPoints;
+  return 0; // Already in Diamond league
+};
+
 export {
   publishSurvey,
   getPublishedSurveys,

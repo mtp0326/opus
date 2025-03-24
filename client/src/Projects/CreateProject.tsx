@@ -24,7 +24,7 @@ function CreateProject() {
             variant="h2"
             sx={{
               mb: 4,
-              color: '#58CC02',
+              color: '#285943',
             }}
           >
             Create New Project
@@ -35,7 +35,8 @@ function CreateProject() {
               size="large"
               onClick={() => navigate('/survey-link')}
               sx={{
-                backgroundColor: '#58CC02',
+                backgroundColor: '#66c8b9',
+                color: '#4b4b4b',
                 '&:hover': { backgroundColor: '#45a501' },
               }}
             >
@@ -46,7 +47,8 @@ function CreateProject() {
               size="large"
               onClick={() => navigate('/survey-builder')}
               sx={{
-                backgroundColor: '#58CC02',
+                backgroundColor: '#66c8b9',
+                color: '#4b4b4b',
                 '&:hover': { backgroundColor: '#45a501' },
               }}
             >

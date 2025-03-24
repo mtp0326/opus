@@ -33,9 +33,9 @@ function Leaderboard() {
   const { isDarkMode } = useTheme();
 
   const themeColors = {
-    background: isDarkMode ? '#141F25' : '#ffffff',
+    background: isDarkMode ? '#102622' : '#FFFAED',
     text: isDarkMode ? '#ffffff' : '#141F25',
-    primary: '#58CC02',
+    primary: '#285943',
     secondary: '#1cb0f6',
     accent: '#ce82ff',
   };
@@ -107,7 +107,7 @@ function Leaderboard() {
           variant="h1"
           sx={{
             fontFamily: 'Feather Bold',
-            color: '#58CC02',
+            color: '#285943',
             textAlign: 'center',
             mb: 2,
             fontSize: '2.5rem',
@@ -184,7 +184,7 @@ function Leaderboard() {
               <Typography
                 sx={{
                   fontFamily: 'Feather Bold',
-                  color: '#58CC02',
+                  color: '#285943',
                   fontSize: '1.2rem',
                   display: 'flex',
                   alignItems: 'center',

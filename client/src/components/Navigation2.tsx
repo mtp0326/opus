@@ -44,7 +44,8 @@ function Navigation2() {
     <AppBar
       position="static"
       sx={{
-        backgroundColor: isDarkMode ? '#141F25' : '#fff',
+        backgroundColor: isDarkMode ? '#141F25' : '#66c8b9 ',
+        text: '#ffffff',
         boxShadow: 'none',
       }}
     >
@@ -58,7 +59,7 @@ function Navigation2() {
               '&:hover': {
                 backgroundColor: isDarkMode
                   ? 'rgba(255, 255, 255, 0.1)'
-                  : 'rgba(0, 0, 0, 0.04)',
+                  : '#aff8e5',
               },
             }}
           >
@@ -72,7 +73,7 @@ function Navigation2() {
               '&:hover': {
                 backgroundColor: isDarkMode
                   ? 'rgba(255, 255, 255, 0.1)'
-                  : 'rgba(0, 0, 0, 0.04)',
+                  : '#aff8e5',
               },
             }}
           >
@@ -86,7 +87,7 @@ function Navigation2() {
               '&:hover': {
                 backgroundColor: isDarkMode
                   ? 'rgba(255, 255, 255, 0.1)'
-                  : 'rgba(0, 0, 0, 0.04)',
+                  : '#aff8e5',
               },
             }}
           >
@@ -100,7 +101,7 @@ function Navigation2() {
               '&:hover': {
                 backgroundColor: isDarkMode
                   ? 'rgba(255, 255, 255, 0.1)'
-                  : 'rgba(0, 0, 0, 0.04)',
+                  : '#aff8e5',
               },
             }}
           >
@@ -112,7 +113,7 @@ function Navigation2() {
             onClick={() => handleNavigate('/account-info')}
             sx={{
               cursor: 'pointer',
-              bgcolor: isDarkMode ? '#fff' : '#4b4b4b',
+              bgcolor: isDarkMode ? '#fff' : '#102622',
               color: isDarkMode ? '#4b4b4b' : '#fff',
             }}
           >

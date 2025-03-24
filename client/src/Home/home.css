@@ -1,11 +1,13 @@
 .home-page {
-    background: linear-gradient(to bottom, #92cc66, white);
+    /* background: linear-gradient(to bottom, #92cc66, white); */
+    background-color: #102622;
     text-align: center;
+    color: white;
 }
 
 .home-page button {
-    background-color: #58CC02;
-    color: white;
+    background-color: #66c8b9;
+    color: #102622;
     height: 60px;
     width: 300px;
     padding: 40px 60px;
@@ -14,19 +16,22 @@
     font-size: 18px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    font-weight: bold;
 }
 
 .home-page button:hover {
-    background-color: #439902;
+    background-color: #aff8e5;
 }
 
 .home-page h1 {
     margin-top: 60px;
     font-size: 3rem;
+    font-weight: bold;
 }
 
 .home-page p {
     margin: 0 auto;
     margin-bottom: 20px;
     max-width: 20%;
+    font-weight: bold;
 }

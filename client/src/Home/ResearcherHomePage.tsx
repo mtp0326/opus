@@ -66,7 +66,7 @@ function WorkerHomePage() {
   //   }
   // };
 
-  const message = `Welcome to the Opus, ${user.firstName} ${user.lastName}!`;
+  const message = `Welcome to Opus, ${user.firstName} ${user.lastName}!`;
   return (
     <>
       <Navigation />

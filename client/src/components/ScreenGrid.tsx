@@ -17,7 +17,7 @@ function ScreenGrid({ children }: AnyChildren) {
       justifyContent="center"
       alignItems="center"
       flexDirection="column"
-      sx={{ backgroundColor: '#FFFAED', color: '#102622'}}
+      sx={{ backgroundColor: '#FFFAED', color: '#102622' }}
     >
       {children}
     </Grid>

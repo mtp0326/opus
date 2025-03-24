@@ -90,9 +90,9 @@
   top: 1rem;
   right: 0.5rem;
   display: flex;
-  flex-direction: column;  /* Stack boxes vertically */
-  gap: 0.5rem;      /* Space between the two boxes */
-  z-index: 10;      /* Ensure these boxes are on top of other content */
+  flex-direction: column; /* Stack boxes vertically */
+  gap: 0.5rem; /* Space between the two boxes */
+  z-index: 10; /* Ensure these boxes are on top of other content */
 }
 
 /* Styling for the top-right boxes */
@@ -102,10 +102,10 @@
   padding: 0.5rem;
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  display: flex;              /* Enables flexbox layout */
-  align-items: center;        /* Vertically centers the text */
-  justify-content: center;    /* Horizontally centers the text */
-  text-align: center;         /* Centers multi-line text */
+  display: flex; /* Enables flexbox layout */
+  align-items: center; /* Vertically centers the text */
+  justify-content: center; /* Horizontally centers the text */
+  text-align: center; /* Centers multi-line text */
 }
 
 /* Border and text color for the first box (Box 1) */

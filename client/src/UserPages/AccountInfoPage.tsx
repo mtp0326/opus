@@ -7,17 +7,32 @@ import {
   FormControlLabel,
   Typography,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
 } from '@mui/material';
+import { usePlaidLink } from 'react-plaid-link';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../util/redux/hooks.ts';
-import { logout as logoutAction, selectUser } from '../util/redux/userSlice.ts';
+import {
+  logout as logoutAction,
+  selectUser,
+  updateCashBalance,
+} from '../util/redux/userSlice.ts';
 import Navigation2 from '../components/Navigation2.tsx';
 import { useTheme } from '../context/ThemeContext';
 import { getWorkerByEmail } from '../Projects/api';
 import { logout as logoutApi } from '../Home/api.tsx';
+import {
+  createLinkToken,
+  exchangePublicToken,
+  initiateWithdrawal,
+} from '../api/plaidApi'; // New Plaid API service
 import IUser from '../util/types/user';
 
-// Add font styles
+// Existing font styles and league color function remain the same
 const fontStyles = `
   @font-face {
     font-family: 'Feather Bold';
@@ -35,23 +50,22 @@ const fontStyles = `
   }
 `;
 
-// Function to get color based on league name
 const getLeagueColor = (league: string) => {
   switch (league.toLowerCase()) {
     case 'wood':
-      return '#8B4513'; // Brown color for wood
+      return '#8B4513';
     case 'bronze':
-      return '#CD7F32'; // Bronze color
+      return '#CD7F32';
     case 'silver':
-      return '#C0C0C0'; // Silver color
+      return '#C0C0C0';
     case 'gold':
-      return '#FFD700'; // Gold color
+      return '#FFD700';
     case 'platinum':
-      return '#E5E4E2'; // Platinum color
+      return '#E5E4E2';
     case 'diamond':
-      return '#B9F2FF'; // Diamond color
+      return '#B9F2FF';
     default:
-      return '#000000'; // Default to black if no match
+      return '#000000';
   }
 };
 
@@ -62,6 +76,11 @@ function AccountInfoPage() {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const [userInfo, setUserInfo] = useState<IUser | undefined>(undefined);
 
+  // Plaid withdrawal states
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState<number>(0);
+  const [linkToken, setLinkToken] = useState<string | null>(null);
+
   const logoutDispatch = () => dispatch(logoutAction());
   const handleLogout = async () => {
     if (await logoutApi()) {
@@ -70,23 +89,82 @@ function AccountInfoPage() {
     }
   };
 
+  // Fetch link token and user info
   useEffect(() => {
-    // Add font styles to document head
     const styleElement = document.createElement('style');
     styleElement.textContent = fontStyles;
     document.head.appendChild(styleElement);
 
-    // Fetch user info from the server
+    // Fetch user info
     if (user && user.email) {
       getWorkerByEmail(user.email).then((data) => {
         setUserInfo(data[0]);
       });
+
+      // Fetch Plaid link token
+      const fetchLinkToken = async () => {
+        try {
+          const token = await createLinkToken(user.email);
+          setLinkToken(token);
+        } catch (error) {
+          console.error('Failed to create link token', error);
+        }
+      };
+      fetchLinkToken();
     }
 
     return () => {
       document.head.removeChild(styleElement);
     };
   }, [user]);
+
+  // Plaid Link configuration
+  const { open, ready } = usePlaidLink({
+    token: linkToken,
+    onSuccess: async (public_token, metadata) => {
+      try {
+        // Exchange public token for access token
+        const { access_token, item_id } = await exchangePublicToken(
+          public_token,
+        );
+
+        // Initiate withdrawal
+        const withdrawalResult = await initiateWithdrawal({
+          access_token,
+          item_id,
+          amount: withdrawAmount,
+          email: user?.email || '',
+        });
+
+        // Update local cash balance
+        if (withdrawalResult.success) {
+          dispatch(updateCashBalance(-withdrawAmount));
+
+          // Close modal and reset state
+          setIsWithdrawModalOpen(false);
+          setWithdrawAmount(0);
+        }
+      } catch (error) {
+        console.error('Withdrawal failed', error);
+        // TODO: Add user-friendly error handling
+      }
+    },
+    onExit: (err, metadata) => {
+      if (err) {
+        console.error('Plaid Link error', err);
+      }
+    },
+  });
+
+  // Withdrawal handler
+  const handleWithdraw = () => {
+    const cashBalance = userInfo?.cashBalance ?? 0;
+    if (withdrawAmount > 0 && withdrawAmount <= cashBalance) {
+      open();
+    } else {
+      alert('Invalid withdrawal amount');
+    }
+  };
 
   const themeColors = {
     background: isDarkMode ? '#102622' : '#FFFAED',
@@ -96,48 +174,7 @@ function AccountInfoPage() {
     accent: '#ce82ff',
   };
 
-  if (!user || !user.email) {
-    return (
-      <Box
-        sx={{ margin: 0, padding: 0, backgroundColor: themeColors.background }}
-      >
-        <Navigation2 />
-        <Box
-          sx={{
-            textAlign: 'center',
-            mt: 4,
-            fontFamily: 'Feather Bold',
-            color: themeColors.text,
-          }}
-        >
-          <h2>Please log in to view account information</h2>
-          <button
-            onClick={() => navigate('/wlogin')}
-            style={{
-              fontFamily: 'Feather Bold',
-              backgroundColor: themeColors.primary,
-              color: 'white',
-              padding: '12px 24px',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '1.1rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 4px 0 #45a501',
-              '&:hover': {
-                backgroundColor: '#45a501',
-                transform: 'translateY(1px)',
-                boxShadow: '0 3px 0 #45a501',
-              },
-            }}
-          >
-            Go to Login
-          </button>
-        </Box>
-      </Box>
-    );
-  }
-
+  // Existing StatBox component remains the same
   function StatBox({
     label,
     value,
@@ -185,6 +222,49 @@ function AccountInfoPage() {
           {value}
         </div>
       </Paper>
+    );
+  }
+
+  // Not logged in view remains the same
+  if (!user || !user.email) {
+    return (
+      <Box
+        sx={{ margin: 0, padding: 0, backgroundColor: themeColors.background }}
+      >
+        <Navigation2 />
+        <Box
+          sx={{
+            textAlign: 'center',
+            mt: 4,
+            fontFamily: 'Feather Bold',
+            color: themeColors.text,
+          }}
+        >
+          <h2>Please log in to view account information</h2>
+          <button
+            onClick={() => navigate('/wlogin')}
+            style={{
+              fontFamily: 'Feather Bold',
+              backgroundColor: themeColors.primary,
+              color: 'white',
+              padding: '12px 24px',
+              border: 'none',
+              borderRadius: '12px',
+              fontSize: '1.1rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 4px 0 #45a501',
+              '&:hover': {
+                backgroundColor: '#45a501',
+                transform: 'translateY(1px)',
+                boxShadow: '0 3px 0 #45a501',
+              },
+            }}
+          >
+            Go to Login
+          </button>
+        </Box>
+      </Box>
     );
   }
 
@@ -315,6 +395,32 @@ function AccountInfoPage() {
                     >
                       Logout
                     </Button>
+                    </Grid><Grid item container justifyContent="center" sx={{ mt: 2 }}>
+                    <Button
+                      onClick={handleWithdraw}
+                      disabled={!(userInfo?.cashBalance ?? 0 > 0)}
+                      style={{
+                        fontFamily: 'Feather Bold',
+                        backgroundColor: themeColors.primary,
+                        color: 'white',
+                        padding: '12px 24px',
+                        border: 'none',
+                        borderRadius: '12px',
+                        fontSize: '1.1rem',
+                        cursor: 'pointer',
+                        width: '100%',
+                        transition: 'all 0.2s ease',
+                        boxShadow: '0 4px 0 #45a501',
+                        textTransform: 'none', // This ensures the text is not in uppercase
+                        '&:hover': {
+                          backgroundColor: '#45a501',
+                          transform: 'translateY(1px)',
+                          boxShadow: '0 3px 0 #45a501',
+                        },
+                      }}
+                    >
+                      Withdraw Cash
+                    </Button>
                   </Grid>
                 </Grid>
               </Grid>
@@ -344,6 +450,39 @@ function AccountInfoPage() {
             </Grid>
           </Grid>
         </Grid>
+
+        {/* Withdrawal Modal */}
+        <Dialog
+          open={isWithdrawModalOpen}
+          onClose={() => setIsWithdrawModalOpen(false)}
+        >
+          <DialogTitle>Withdraw Cash Balance</DialogTitle>
+          <DialogContent>
+            <TextField
+              label="Withdrawal Amount"
+              type="number"
+              fullWidth
+              value={withdrawAmount}
+              onChange={(e) => setWithdrawAmount(Number(e.target.value))}
+              inputProps={{
+                max: userInfo?.cashBalance ?? 0,
+                min: 0,
+              }}
+              sx={{ mt: 2 }}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setIsWithdrawModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleWithdraw}
+              disabled={!ready || withdrawAmount <= 0}
+            >
+              Withdraw
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Box>
   );

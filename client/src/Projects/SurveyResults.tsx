@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
+import DownloadIcon from '@mui/icons-material/Download';
 import Navigation from '../components/Navigation';
 import { getData, putData } from '../util/api.tsx';
 
@@ -208,6 +209,62 @@ function SubmissionsTable({
   );
 }
 
+function convertToCSV(
+  submissions: SurveySubmission[],
+  surveyType: 'surveyjs' | 'external' | null,
+): string {
+  // Define CSV headers based on survey type
+  const headers = [
+    'Rank',
+    'Worker',
+    'Submission Time',
+    'Status',
+    ...(surveyType === 'surveyjs' ? ['Attention Score'] : []),
+    ...(surveyType === 'external' ? ['Completion Code'] : []),
+    ...(surveyType === 'surveyjs' ? ['Response Data'] : []),
+  ];
+
+  // Convert submissions to CSV rows
+  const rows = submissions.map((submission) => {
+    const baseRow = [
+      submission.rank || '-',
+      submission.worker,
+      new Date(submission.submittedAt).toLocaleString(),
+      submission.status,
+    ];
+
+    if (surveyType === 'surveyjs') {
+      baseRow.push(submission.attentionCheckScore || 'N/A');
+      baseRow.push(JSON.stringify(submission.responseData));
+    } else if (surveyType === 'external') {
+      baseRow.push(submission.completionCode || '');
+    }
+
+    return baseRow;
+  });
+
+  // Combine headers and rows
+  const csvContent = [
+    headers.join(','),
+    ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
+  ].join('\n');
+
+  return csvContent;
+}
+
+function downloadCSV(csvContent: string, filename: string) {
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
 function SurveyResults() {
   const { surveyId } = useParams();
   const [submissions, setSubmissions] = useState<SurveySubmission[]>([]);
@@ -294,6 +351,16 @@ function SurveyResults() {
     }
   };
 
+  const handleExportCSV = () => {
+    if (!surveyDetails) return;
+
+    const csvContent = convertToCSV(submissions, surveyType);
+    const filename = `${surveyDetails.title
+      .replace(/[^a-z0-9]/gi, '_')
+      .toLowerCase()}_results.csv`;
+    downloadCSV(csvContent, filename);
+  };
+
   if (loading) {
     return (
       <>
@@ -338,9 +405,25 @@ function SurveyResults() {
         <Paper sx={{ p: 3, mt: 3 }}>
           {surveyDetails && (
             <>
-              <Typography variant="h4" gutterBottom>
-                {surveyDetails.title}
-              </Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mb: 2,
+                }}
+              >
+                <Typography variant="h4">{surveyDetails.title}</Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<DownloadIcon />}
+                  onClick={handleExportCSV}
+                  sx={{ ml: 2 }}
+                >
+                  Export CSV
+                </Button>
+              </Box>
               <Typography variant="body1" gutterBottom>
                 {surveyDetails.description}
               </Typography>

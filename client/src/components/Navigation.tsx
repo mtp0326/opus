@@ -31,6 +31,7 @@ function Navigation() {
             color="inherit"
             onClick={() => handleNavigate('/rhome')}
             sx={{
+              fontFamily: 'Feather Bold, sans-serif',
               color: isDarkMode ? '#fff' : '#4b4b4b',
               '&:hover': {
                 backgroundColor: isDarkMode
@@ -45,6 +46,7 @@ function Navigation() {
             color="inherit"
             onClick={() => handleNavigate('/create-project')}
             sx={{
+              fontFamily: 'Feather Bold, sans-serif',
               color: isDarkMode ? '#fff' : '#4b4b4b',
               '&:hover': {
                 backgroundColor: isDarkMode
@@ -59,6 +61,7 @@ function Navigation() {
             color="inherit"
             onClick={() => handleNavigate('/manage-tasks')}
             sx={{
+              fontFamily: 'Feather Bold, sans-serif',
               color: isDarkMode ? '#fff' : '#4b4b4b',
               '&:hover': {
                 backgroundColor: isDarkMode

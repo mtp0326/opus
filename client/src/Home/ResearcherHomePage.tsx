@@ -19,6 +19,24 @@ interface PromoteButtonProps {
   navigator: NavigateFunction;
 }
 
+// // Inject custom fonts similar to WorkerHomePage
+// const fontStyles = `
+//   @font-face {
+//     font-family: 'Feather Bold';
+//     src: url('/fonts/Feather-Bold.woff2') format('woff2'),
+//          url('/fonts/Feather-Bold.woff') format('woff');
+//     font-weight: bold;
+//     font-style: normal;
+//   }
+//   @font-face {
+//     font-family: 'DIN Next Rounded LT W01 Regular';
+//     src: url('/fonts/DINNextRoundedLTW01-Regular.woff2') format('woff2'),
+//          url('/fonts/DINNextRoundedLTW01-Regular.woff') format('woff');
+//     font-weight: normal;
+//     font-style: normal;
+//   }
+// `;
+
 /**
  * A button which, when clicked, will promote the user to admin. If the user is already admin, the button will be a link to the admin dashboard.
  * @param admin - a boolean indicating whether the user is an admin
@@ -83,6 +101,7 @@ function WorkerHomePage() {
               variant="h2"
               sx={{
                 color: '#285943',
+                fontFamily: 'Feather Bold, sans-serif',
               }}
             >
               {message}
@@ -95,6 +114,7 @@ function WorkerHomePage() {
             <Button
               onClick={handleLogout}
               sx={{
+                fontFamily: 'Feather Bold, sans-serif',
                 color: '#285943',
                 '&:hover': { backgroundColor: '#f0f9f0' },
               }}

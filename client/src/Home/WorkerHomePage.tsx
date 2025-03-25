@@ -101,6 +101,26 @@ const getLeagueColor = (league: string) => {
   }
 };
 
+const getLeagueVibrantColor = (league: string) => {
+  // More saturated, vibrant versions of league colors for dark mode
+  switch (league.toLowerCase()) {
+    case 'wood':
+      return '#CD853F'; // Peru
+    case 'bronze':
+      return '#FF6F00'; // Vibrant bronze/orange
+    case 'silver':
+      return '#90A4AE'; // Vibrant silver (a bluish gray)
+    case 'gold':
+      return '#FFC107'; // Vibrant gold (amber)
+    case 'platinum':
+      return '#4DD0E1'; // Vibrant cyan
+    case 'diamond':
+      return '#40C4FF'; // Vibrant blue
+    default:
+      return '#000000';
+  }
+};
+
 const getUserGoalPoints = (league: string) => {
   switch (league.toLowerCase()) {
     case 'wood':
@@ -174,7 +194,7 @@ function WorkerHomePage() {
 
   // Define background colors for the daily progress UI based on dark mode setting
   const dailyProgressContainerBg = isDarkMode ? '#102622' : '#FFFAED';
-  const dailyProgressBarBgColor = isDarkMode ? '#333' : '#FEDC97';
+  const dailyProgressBarBgColor = isDarkMode ? '#d3d3d3' : '#FEDC97';
 
   // Idt we need selfpromote for a worker account/nonadmin account
   // const handleSelfPromote = async () => {
@@ -1119,7 +1139,7 @@ function WorkerHomePage() {
         sx={{
           width: '100%',
           padding: '0 20px',
-          marginBottom: '16px',
+          marginBottom: '20px',
           backgroundColor: dailyProgressContainerBg,
         }}
       >
@@ -1190,7 +1210,7 @@ function WorkerHomePage() {
           <Box
             sx={{
               position: 'absolute',
-              left: '96%',
+              right: 0,
               top: 0,
               width: '2px',
               height: '100%',
@@ -1204,7 +1224,7 @@ function WorkerHomePage() {
               position: 'absolute',
               backgroundColor: dailyProgressContainerBg,
               top: '100%',
-              left: '0',
+              left: 0,
               width: '100%',
               display: 'flex',
               mt: 1,
@@ -1247,8 +1267,9 @@ function WorkerHomePage() {
             <Box
               sx={{
                 position: 'absolute',
-                left: '96%',
-                transform: 'translateX(-50%)',
+                right: 0,
+                textAlign: 'right',
+                paddingRight: '2px',
               }}
             >
               <Typography
@@ -1276,17 +1297,55 @@ function WorkerHomePage() {
         >
           <div className={styles.pageContainer}>
             <div className={styles.container}>
-              <div className={styles.previewBox}>
+              <div className={styles.previewBox}
+                  style={{ backgroundColor: isDarkMode ? '#333' : '#fff' }}>
                 <div className={styles.surveyContainer}>
+                  {isDarkMode && (
+                    <style>{`
+                      /* Make all text within the survey white, except for form fields */
+                      .sv_main * {
+                        color: white !important;
+                      }
+                      
+                      /* Override input, textarea, and select elements for dark mode */
+                      .sv_main input,
+                      .sv_main textarea,
+                      .sv_main select {
+                        background-color: #d3d3d3 !important; /* light grey background */
+                        color: #000 !important; /* black text */
+                      }
+                      
+                      /* Set survey titles and headers to bright green */
+                      .sv_main .sd-page__title,
+                      .sv_main .sd-question__title,
+                      .sv_main .sd-title,
+                      .sv_main h3,
+                      .sv_main h4,
+                      .sv_main h5 {
+                        color: #58CC02 !important;
+                      }
+                    `}</style>
+                  )}
+
                   <Survey model={survey} css={{ root: 'sv_main' }} />
                   <div
                     className={styles.topRightBoxContainer}
                     style={{ top: '0.5rem' }}
                   >
-                    <div className={styles.topRightBox}>
+                    <div
+                      className={styles.topRightBox}
+                      style={{
+                        backgroundColor: isDarkMode ? '#d3d3d3' : '#fff',
+                      }}
+                    >
                       Q: {currentQuestion + 1}/{formData?.content.pages.length}
                     </div>
-                    <div className={styles.topRightBox}>
+                    <div
+                      className={styles.topRightBox}
+                      style={{
+                        backgroundColor: isDarkMode ? '#d3d3d3' : '#fff',
+                      }}
+                    >
                       {(() => {
                         const reward = formData?.reward || 0;
                         const respondents = formData?.respondents || 1;
@@ -1321,7 +1380,7 @@ function WorkerHomePage() {
         >
           <Box
             sx={{
-              backgroundColor: 'white',
+              backgroundColor: isDarkMode ? '#d3d3d3' : 'white',
               padding: '16px',
               borderRadius: '12px',
               boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -1330,7 +1389,7 @@ function WorkerHomePage() {
           >
             <Typography
               sx={{
-                color: '#ff9600',
+                color: isDarkMode ? '#FF6D00' : '#ff9600',
                 fontSize: '1rem',
                 marginBottom: '8px',
                 fontFamily: 'Feather Bold',
@@ -1342,7 +1401,9 @@ function WorkerHomePage() {
               sx={{
                 fontSize: '2rem',
                 fontWeight: 'bold',
-                color: getLeagueColor(userInfo?.league || 'Wood'),
+                color: isDarkMode
+                  ? getLeagueVibrantColor(userInfo?.league || 'wood')
+                  : getLeagueColor(userInfo?.league || 'wood'),
                 fontFamily: 'Feather Bold',
               }}
             >
@@ -1351,7 +1412,7 @@ function WorkerHomePage() {
           </Box>
           <Box
             sx={{
-              backgroundColor: 'white',
+              backgroundColor: isDarkMode ? '#d3d3d3' : 'white',
               padding: '16px',
               borderRadius: '12px',
               boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -1360,7 +1421,7 @@ function WorkerHomePage() {
           >
             <Typography
               sx={{
-                color: '#58CC02',
+                color: isDarkMode ? '#00E676' : '#58CC02',
                 fontSize: '1rem',
                 marginBottom: '8px',
                 fontFamily: 'Feather Bold',
@@ -1372,7 +1433,7 @@ function WorkerHomePage() {
               sx={{
                 fontSize: '2rem',
                 fontWeight: 'bold',
-                color: '#58CC02',
+                color: isDarkMode ? '#00C853' : '#58CC02',
                 fontFamily: 'Feather Bold',
               }}
             >
@@ -1381,7 +1442,7 @@ function WorkerHomePage() {
             <Typography
               sx={{
                 fontSize: '0.9rem',
-                color: '#666',
+                color: isDarkMode ? '#388E3C' : '#666',
                 fontFamily: 'Feather Bold',
               }}
             >
@@ -1390,7 +1451,7 @@ function WorkerHomePage() {
           </Box>
           <Box
             sx={{
-              backgroundColor: 'white',
+              backgroundColor: isDarkMode ? '#d3d3d3' : 'white',
               padding: '16px',
               borderRadius: '12px',
               boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -1399,7 +1460,7 @@ function WorkerHomePage() {
           >
             <Typography
               sx={{
-                color: '#1cb0f6',
+                color: isDarkMode ? '#2979FF' : '#1cb0f6',
                 fontSize: '1rem',
                 marginBottom: '8px',
                 fontFamily: 'Feather Bold',
@@ -1411,7 +1472,7 @@ function WorkerHomePage() {
               sx={{
                 fontSize: '2rem',
                 fontWeight: 'bold',
-                color: '#1cb0f6',
+                color: isDarkMode ? '#2979FF' : '#1cb0f6',
                 fontFamily: 'Feather Bold',
               }}
             >
@@ -1420,7 +1481,7 @@ function WorkerHomePage() {
           </Box>
           <Box
             sx={{
-              backgroundColor: 'white',
+              backgroundColor: isDarkMode ? '#d3d3d3' : 'white',
               padding: '16px',
               borderRadius: '12px',
               boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -1430,7 +1491,7 @@ function WorkerHomePage() {
           >
             <Typography
               sx={{
-                color: '#ce82ff',
+                color: isDarkMode ? '#D500F9' : '#ce82ff',
                 fontSize: '1rem',
                 marginBottom: '8px',
                 fontFamily: 'Feather Bold',
@@ -1438,12 +1499,12 @@ function WorkerHomePage() {
             >
               Progress Tracker
             </Typography>
-
+    
             {/* Points to next league */}
             <Typography
               sx={{
                 fontSize: '1.1rem',
-                color: '#666',
+                color: isDarkMode ? '#666' : '#666',
                 fontFamily: 'Feather Bold',
                 marginBottom: '4px',
               }}
@@ -1455,19 +1516,33 @@ function WorkerHomePage() {
               points until{' '}
               <span
                 style={{
-                  color: getLeagueColor(
-                    userInfo?.league === 'Wood'
-                      ? 'Bronze'
-                      : userInfo?.league === 'Bronze'
-                      ? 'Silver'
-                      : userInfo?.league === 'Silver'
-                      ? 'Gold'
-                      : userInfo?.league === 'Gold'
-                      ? 'Platinum'
-                      : userInfo?.league === 'Platinum'
-                      ? 'Diamond'
-                      : 'Diamond',
-                  ),
+                  color: isDarkMode
+                    ? getLeagueVibrantColor(
+                        userInfo?.league === 'Wood'
+                          ? 'Bronze'
+                          : userInfo?.league === 'Bronze'
+                          ? 'Silver'
+                          : userInfo?.league === 'Silver'
+                          ? 'Gold'
+                          : userInfo?.league === 'Gold'
+                          ? 'Platinum'
+                          : userInfo?.league === 'Platinum'
+                          ? 'Diamond'
+                          : 'Diamond',
+                      )
+                    : getLeagueColor(
+                        userInfo?.league === 'Wood'
+                          ? 'Bronze'
+                          : userInfo?.league === 'Bronze'
+                          ? 'Silver'
+                          : userInfo?.league === 'Silver'
+                          ? 'Gold'
+                          : userInfo?.league === 'Gold'
+                          ? 'Platinum'
+                          : userInfo?.league === 'Platinum'
+                          ? 'Diamond'
+                          : 'Diamond',
+                      ),
                 }}
               >
                 {userInfo?.league === 'Wood'
@@ -1484,13 +1559,13 @@ function WorkerHomePage() {
               </span>{' '}
               League!
             </Typography>
-
+    
             {/* Points to climb rank - only show if we have users data */}
             {users.length > 0 && (
               <Typography
                 sx={{
                   fontSize: '1.1rem',
-                  color: '#666',
+                  color: isDarkMode ? '#666' : '#666',
                   fontFamily: 'Feather Bold',
                 }}
               >

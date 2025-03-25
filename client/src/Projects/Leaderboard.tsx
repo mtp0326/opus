@@ -25,6 +25,23 @@ const fontStyles = `
   }
 `;
 
+function getNextLeague(currentLeague: string): string {
+  switch (currentLeague.toLowerCase()) {
+    case 'wood':
+      return 'Bronze';
+    case 'bronze':
+      return 'Silver';
+    case 'silver':
+      return 'Gold';
+    case 'gold':
+      return 'Platinum';
+    case 'platinum':
+      return 'Diamond';
+    default:
+      return 'Diamond';
+  }
+}
+
 function Leaderboard() {
   const [users, setUsers] = useState<IUser[]>([]);
   const user = useAppSelector(selectUser);
@@ -98,6 +115,21 @@ function Leaderboard() {
     }
   };
 
+  const getCurrentRankDifference = (
+    users: IUser[],
+    currentUserEmail: string,
+  ): number => {
+    const sortedUsers = [...users].sort((a, b) => b.points - a.points);
+    const currentUserIndex = sortedUsers.findIndex(
+      (u) => u.email === currentUserEmail,
+    );
+    if (currentUserIndex <= 0) return 0;
+
+    const pointsAhead = sortedUsers[currentUserIndex - 1].points;
+    const currentPoints = sortedUsers[currentUserIndex].points;
+    return pointsAhead - currentPoints + 1;
+  };
+
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: themeColors.background }}>
       <Navigation2 />
@@ -132,6 +164,7 @@ function Leaderboard() {
             borderRadius: '16px',
             overflow: 'hidden',
             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            backgroundColor: isDarkMode ? '#424242' : 'white'
           }}
         >
           {users.map((user, index) => (

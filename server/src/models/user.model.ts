@@ -234,4 +234,76 @@ export const onSurveyCompletion = async (
   await awardBaseFee(user, survey);
 };
 
+/**
+ * Run a lottery with XP-based weighted probabilities and geometric distribution of prizes.
+ * @param lotteryPool - The total amount of money to distribute in the lottery
+ * @returns The winner's information and their prize amount
+ */
+export const runXPLottery = async (lotteryPool: number) => {
+  // Get all users with non-zero XP
+  const users = await User.find({ points: { $gt: 0 } });
+  if (users.length === 0) {
+    throw new Error('No eligible users found for lottery');
+  }
+
+  // Calculate total XP and weights
+  const totalXP = users.reduce((sum: number, user: IUser) => sum + user.points, 0);
+  const weights = users.map((user: IUser) => user.points / totalXP);
+
+  // Select winner using weighted random selection
+  const random = Math.random();
+  let cumulativeWeight = 0;
+  let winnerIndex = 0;
+  
+  for (let i = 0; i < weights.length; i++) {
+    cumulativeWeight += weights[i];
+    if (random <= cumulativeWeight) {
+      winnerIndex = i;
+      break;
+    }
+  }
+
+  const winner = users[winnerIndex];
+
+  // Calculate geometric distribution of prizes
+  const numPrizes = Math.min(5, users.length); // Award up to 5 prizes
+  const geometricRatio = 0.5; // Each subsequent prize is half of the previous
+  const prizes: { userId: string; amount: number }[] = [];
+
+  let remainingPool = lotteryPool;
+  let currentPrize = lotteryPool * (1 - geometricRatio); // First prize is 50% of pool
+
+  for (let i = 0; i < numPrizes; i++) {
+    if (remainingPool <= 0) break;
+    
+    const prize = Math.min(currentPrize, remainingPool);
+    prizes.push({
+      userId: users[i]._id.toString(),
+      amount: prize
+    });
+    
+    remainingPool -= prize;
+    currentPrize *= geometricRatio;
+  }
+
+  // Update winners' bank balances
+  for (const prize of prizes) {
+    const user = await User.findById(prize.userId);
+    if (user) {
+      user.cashBalance += prize.amount;
+      await (user as mongoose.Document).save();
+    }
+  }
+
+  return {
+    mainWinner: {
+      userId: winner._id.toString(),
+      name: `${winner.firstName} ${winner.lastName}`,
+      xp: winner.points,
+      prize: prizes[0].amount
+    },
+    allPrizes: prizes
+  };
+};
+
 export { User };

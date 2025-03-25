@@ -73,12 +73,16 @@ function RecommendationPage() {
         const response = await getData(`surveys/all-surveys`);
         const allSurveys = response.data;
 
-        // Filter surveys into recommended and recent based on submitterList
+        // Filter surveys into recommended and recent based on submitterList and status
         const recommended = allSurveys.filter(
-          (survey: SurveyData) => !survey.submitterList.includes(user.email),
+          (survey: SurveyData) =>
+            !survey.submitterList.includes(user.email) &&
+            survey.status === 'active',
         );
-        const recent = allSurveys.filter((survey: SurveyData) =>
-          survey.submitterList.includes(user.email),
+        const recent = allSurveys.filter(
+          (survey: SurveyData) =>
+            survey.submitterList.includes(user.email) &&
+            survey.status === 'active',
         );
 
         setRecommendedSurveys(recommended);

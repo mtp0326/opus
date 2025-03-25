@@ -93,7 +93,8 @@ const userSlice = createSlice({
   },
 });
 
-export const { login, logout, toggleAdmin } = userSlice.actions;
+export const { login, logout, toggleAdmin, updateCashBalance } =
+  userSlice.actions;
 export default userSlice.reducer;
 
 /**

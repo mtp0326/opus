@@ -377,6 +377,7 @@ export const submitSurveyCompletion = async (
         0,
         (1 - rank / (survey.respondents || 1)) * 0.05,
       );
+
       // Check attention check questions
       let passedChecks = 0;
       let totalChecks = 0;
@@ -386,21 +387,21 @@ export const submitSurveyCompletion = async (
       const qcPage = surveyContent.pages?.find(
         (page: any) => page.name === 'quality_control',
       );
+
       if (qcPage) {
         totalChecks = qcPage.elements?.length || 0;
         passedChecks =
           qcPage.elements?.reduce((count: number, element: any) => {
             const response = responseData[element.name];
-            // Check if the response matches the correct answer
-            // For now, assuming correct answer is always "Item 1"
-            return count + (response === 'Item 1' ? 1 : 0);
+            // Check if the response matches the correct answer specified in the question
+            return count + (response === element.correctAnswer ? 1 : 0);
           }, 0) || 0;
       }
 
-      // Calculate attention check multiplier
+      // Calculate attention check multiplier (more severe penalty for failing checks)
       const attentionCheckMultiplier =
         totalChecks > 0
-          ? 1 - ((totalChecks - passedChecks) / totalChecks) * 0.5
+          ? Math.max(0, 1 - ((totalChecks - passedChecks) / totalChecks) * 0.75)
           : 1;
 
       // Calculate final XP
@@ -964,7 +965,7 @@ export const addQualityControlQuestions = async (
       messages: [
         {
           role: 'system',
-          content: `You are a survey expert. Generate ${numQCQuestions} quality control questions that will help verify if respondents are paying attention. Return them in a specific JSON format that matches the SurveyJS schema.`,
+          content: `You are a survey expert. Generate ${numQCQuestions} quality control questions that will help verify if respondents are paying attention. Each question should have an obvious correct answer, but the correct answer should be randomly distributed among the choices to prevent pattern recognition. Return them in a specific JSON format that matches the SurveyJS schema.`,
         },
         {
           role: 'user',
@@ -978,18 +979,19 @@ export const addQualityControlQuestions = async (
           "type": "radiogroup",
           "name": "qc_1",
           "title": "Your quality control question here",
+          "correctAnswer": "Item 2", // Can be any of the items
           "choices": [
             {
               "value": "Item 1",
-              "text": "First choice"
+              "text": "An obviously wrong answer"
             },
             {
               "value": "Item 2",
-              "text": "Second choice"
+              "text": "The obviously correct answer"
             },
             {
               "value": "Item 3",
-              "text": "Third choice"
+              "text": "Another obviously wrong answer"
             }
           ]
         }
@@ -1003,17 +1005,17 @@ Important format notes:
 2. The page should have "name": "quality_control"
 3. Each question should be of type "radiogroup"
 4. Question names should be "qc_1", "qc_2", etc.
-5. Make questions that are clear attention checks
+5. Make questions that are clear attention checks with obvious correct answers
 6. Each choice must have both "value" and "text" properties
 7. Values should be "Item 1", "Item 2", etc.
-8. Keep the structure minimal - only include the shown fields`,
+8. The correctAnswer field must match the value of the correct choice
+9. Randomly place the correct answer among the choices - don't always make it Item 1
+10. Make the questions obvious attention checks like "Select 5 for this question" or "Choose the largest number: 1000, 1, 5"`,
         },
       ],
-      temperature: 0.0,
+      temperature: 0.7, // Increased temperature slightly to encourage more variation
     });
-    console.log('✅ Received response from OpenAI');
 
-    // Parse the generated questions
     const { content } = completion.choices[0].message;
     if (!content) {
       console.log('❌ No content received from OpenAI');

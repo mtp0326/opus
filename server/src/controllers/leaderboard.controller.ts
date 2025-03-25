@@ -12,4 +12,4 @@ export const getLeaderboard = async (req: Request, res: Response) => {
     console.error('Error fetching leaderboard data:', error);
     res.status(500).json({ error: 'Failed to fetch leaderboard data' });
   }
-}; 
+};

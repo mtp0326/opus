@@ -16,7 +16,8 @@
   margin-top: 20px;
 }
 
-.leaderboardTable th, .leaderboardTable td {
+.leaderboardTable th,
+.leaderboardTable td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: center;
@@ -34,4 +35,4 @@
 
 .highlightedRow td {
   border-color: #90caf9;
-} 
+}

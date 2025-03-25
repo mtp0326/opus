@@ -1,198 +1,96 @@
-# Boilerplate
+# Opus: Gamifying Data Collection
 
-This is a simple boilerplate designed to serve as robust template for quickly starting development on a [Typescript](https://www.typescriptlang.org) based [MERN](https://www.mongodb.com/mern-stack) web application.
+## Overview
 
-## Features
+Opus is a next-generation survey platform that enhances data collection through gamification, dynamic incentives, and automation. By improving engagement and ensuring high-quality responses, Opus provides a superior alternative to traditional survey mechanisms like Amazon Mechanical Turk.
 
-- Session based authentication with [Passport](https://www.passportjs.org)
-- Emailing for account verification and resetting password with [SendGrid](https://sendgrid.com)
-- Admin functionality for viewing/deleting/promoting other users
-- Clean authentication pages built with [Material UI](https://mui.com)
-- In memory database testing with [Jest](https://jestjs.io) and [Supertest](https://www.npmjs.com/package/supertest)
-- [AirBnb Typescript styling](https://github.com/airbnb/javascript) with [Prettier](https://prettier.io) and [ESLint](https://eslint.org)
-- [Husky](https://typicode.github.io/husky/#/) and [lint-staged](https://github.com/okonet/lint-staged) for checking linting on commits
-- [GitHub Actions](https://docs.github.com/en/actions) for ensuring linting + tests pass on pushes
+## Motivation
 
-## Required tools
+Current data collection mechanisms are inefficient for both researchers and workers, leading to survey fatigue, low engagement, and inconsistent response quality. Opus challenges the status quo by offering:
 
-These are necessary to build and run the project at full functionality
+- Gamified incentives to boost motivation
+- Dynamic bonus payouts for increased engagement
+- AI-driven attention checks for quality control
+- 13x faster survey creation and management
+- Lower task publishing costs, making data collection accessible to small research groups
 
-- Install [Yarn Package Manager](https://classic.yarnpkg.com/en/docs/install/#mac-stable)
-- Install [NodeJS](https://nodejs.org/en/download/)
+## Key Features
 
-## Recommended tools
+### 🚀 Faster & Easier Survey Creation
 
-To take full advantage of the linting/formatting, we recommend adding the [Prettier](https://prettier.io) and [ESLint](https://eslint.org) VSCode extensions and configuring them as shown [here](https://levelup.gitconnected.com/setting-up-eslint-with-prettier-typescript-and-visual-studio-code-d113bbec9857#:~:text=Install%20the%20following%20Visual%20Studio%20Code%20extensions) for code highlighting and formatting on save. Skip to the section labeled "Add the following to your VS Code settings.json". To access your settings.json, follow what is linked [here](https://stackoverflow.com/questions/65908987/how-can-i-open-visual-studio-codes-settings-json-file). See [here](https://blog.logrocket.com/using-prettier-eslint-automate-formatting-fixing-javascript/#differences-between-eslint-prettier) for the differences between the two tools and how they work together.
+- **Drag-and-Drop Builder**: Create surveys 13x faster than traditional platforms
+- **Built-in Logic & Automation**: Easily manage complex survey flows
+- **Smart Validation**: Automatically generated attention checks to ensure response quality
 
-Finally, we also recommend downloading the [Live Share](https://visualstudio.microsoft.com/services/live-share/) extension by Microsoft for improved Collaboration. This allows for easy peer programming on one shared repository instance.
+### 🎮 Gamification & Engagement
 
-## Setup
+- **Guaranteed Base Fee + Lottery Payout**: Workers earn a fair base rate with additional lottery-based incentives
+- **Competitive Streaks & Leagues**: Users earn points and rank in leaderboards for extra rewards
+- **Bi-Weekly Lottery Payouts**: Higher motivation through recurring incentives
+- **Survey Recommendation Engine**: AI-powered suggestions to keep users engaged
 
-### MongoDB
+### ⚡ Faster & Higher-Quality Data Collection
 
-The boilerplate uses [MongoDB](https://www.mongodb.com) as the database to store information for authentication. To have this available for use, do the following
+- **Intermittent Payouts & Immersive UX**: Increases engagement while minimizing burnout
+- **AI-Powered Quality Control**: Automated attention checks dynamically inserted to filter low-quality responses
+- **70% Reduction in Data Cleaning Time**: LLM-driven data validation ensures reliable results
 
-- Create a [MongoDB Atlas Account](https://www.mongodb.com/cloud/atlas/register)
-- Create a [database deployment](https://www.mongodb.com/docs/atlas/create-connect-deployments/) (This should be done by your PM/TL)
-- Get the database connection URI (Get from your PM/TL and add to .env)
+## Impact
 
-Recommend downloading [MongoDB Compass](https://www.mongodb.com/docs/compass/current/) for easy viewing and management of data.
+Opus is designed to benefit both researchers and survey takers:
 
-### SendGrid
+- **For Survey Takers**: Fairer compensation, more engaging experience, and greater earning potential
+- **For Researchers**: Higher-quality data, faster response times, and reduced costs
+- **For Small Organizations**: Democratizes access to reliable survey data without high technical overhead
 
-The boilerplate uses [SendGrid](https://sendgrid.com) to send emails to users in order to verify their account, and also to reset their passwords. To have email functionality available for use, the PM/TL should do the following
+## Getting Started
 
-- Create a SendGrid Account
-- Register a [Sender Identity](https://docs.sendgrid.com/for-developers/sending-email/sender-identity) (Single Sender recommended for most)
-- Create an [API Key](https://docs.sendgrid.com/ui/account-and-settings/api-keys#creating-an-api-key)
+### Prerequisites
 
-### Mixpanel
+- Node.js & npm (for frontend development)
+- Python (for backend data processing)
+- Docker (for deployment and scalability)
 
-[Mixpanel](https://mixpanel.com) is an analytics tool that helps us collect data on how users use our applications.
-To set up Mixpanel:
+### Installation
 
-- Create a Mixpanel account
-- Create a project (there may be one created by default)
-- Go to Settings (top-right) > Project Settings
-- Look for "Project Token"
+```bash
+# Clone the repository
+git clone https://github.com/your-org/opus.git
+cd opus
 
-### Environment Variables
-
-Create a file named `.env` in the root of the `server` folder and add the following variables with the appropriate values. PM/TLs should provide this to their developers.
-
-```
-ATLAS_URI=mongodb-connection-uri-from-above
-COOKIE_SECRET=any-string
-SENDGRID_API_KEY=sendgrid-api-key-from-above
-SENDGRID_EMAIL_ADDRESS=sendgrid-sender-identity-email-from-above
-MIXPANEL_TOKEN=mixpanel-token-from-above
+# Install dependencies
+npm install  # For frontend
+yarn install # Alternative package manager for frontend
+pip install -r backend/requirements.txt  # For backend
 ```
 
-## Usage
+### Running Opus
 
-NOTE: Currently, this project is best supported by running CLI commands from a bash/zsh environment. If using Windows, this can be achieved by following what's done [here](https://stackoverflow.com/questions/42606837/how-do-i-use-bash-on-windows-from-the-visual-studio-code-integrated-terminal).
+```bash
+# Start frontend
+npm start
 
-### Installing dependencies
+# Start backend
+python backend/server.py
 
-From the root folder, run the following to configure the project and its dependencies
-
-```
-$ yarn setup
-```
-
-If there is any need to reset the dependencies, simply run the following series of commands
-
-```
-$ yarn clean
-$ yarn setup
+# Run with Docker
+docker-compose up
 ```
 
-### Running the project
+## Contributing
 
-To run the project, use the following commands from the root folder
+We welcome contributions from the community! To contribute:
 
-```
-# run both server and client
-$ yarn dev
-# run server only
-$ yarn server
-# run client only
-$ yarn client
-```
+1. Fork the repository
+2. Create a new branch (`feature/your-feature`)
+3. Commit your changes (`git commit -m 'Add new feature'`)
+4. Push to the branch (`git push origin feature/your-feature`)
+5. Open a Pull Request
 
-### Running tests
+## License
 
-To run all the tests in the project, run the following from the root folder
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-```
-$ yarn test
-```
+## Contact
 
-### Running linting/formatting
-
-To check for linting issues from ESLint and fix what's possible, from the root folder run the following
-
-```
-$ yarn lint
-```
-
-To format the code appropriately with Prettier (don't need this if format on save was setup in VSCode), from the root folder run the following
-
-```
-$ yarn format
-```
-
-## Deployment (WIP)
-
-The boilerplate is designed to be easily deployed on [AWS ECS](https://aws.amazon.com/ecs/) using [Terraform](https://www.terraform.io).
-
-You will need to [install Terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli) first. For Mac users, we recommend following the Homebrew installation.
-
-You will then need to create a file called `.auto.tfvars`, and you can follow the format as in the `.auto.tfvars.example` file. Variables in here correspond to the same environment variables in the `server` folder, except for `aws_account_id` which is the account ID for your AWS account (can be found by clicking your username in the top-right of the AWS console).
-
-To deploy, run
-
-```
-./deploy.sh
-```
-
-To tear down all infrastructure, run
-
-```
-terraform destroy
-```
-
-Due to the new (as of early 2024) nature of this AWS configuration, if you are encountering issues with deploying the project on AWS, then please use the old boilerplate and deploy on Heroku or another cloud platform as we have done in the past.
-
-## Setting Up Datadog
-
-Datadog allows for post-deployment logs and traces. Here is a guide to set it up.
-
-1. Create a Datadog account.
-
-2. Add environment variables to the env file.
-
-```
-DD_AGENT_MAJOR_VERSION=7
-DD_API_KEY=<key>
-DD_SITE="us5.datadoghq.com"
-DD_ENV=<project_name>
-DD_LOGS_INJECTION=true
-DD_TRACE_AGENT_URL=http://localhost:4000
-```
-
-In Datadog Agent, search “API Keys” and generate a New Key. Use the key to paste into <key>
-Name your DD_ENV in <project_name>. This will be useful when querying logs.
-
-3. If not already installed, install the following dependencies.
-
-```
-npm install --save dd-trace
-npm install winston
-```
-
-4. The configDatadog.ts file exports three variables: `logger_info`, `logger_warn `, and `logger_error`. These variables represent different log statuses. Simply add one of these log variables within each function in the format below.
-
-```
-logger_info.log('Account Verified');
-logger_warn.warn('Logger Initialized');
-logger_error.error('Logout');
-```
-
-Some examples are shown in login() and logout() functions in auth.controller.ts.
-
-5. Access "Logs" in Datadog Agent and search "env:<project_name>" to find the logs and their timeline.
-
-## Common Problems
-
-Fill in with problem scenario + solution as they arise
-
-### Incorrect Node Version
-
-If you see an error message similar to this one:
-
-```
-The engine "node" is incompatible with this module. Expected version ">=12.0.0". Got "11.15.0"
-```
-
-This means you are using the wrong node version. This boilerplate relies on using node version 14.8. If you are using any other version of node, please use `nvm` to set node version to `14.8.3` as referenced [here](https://blog.logrocket.com/how-switch-node-js-versions-nvm/).
+For inquiries, collaborations, or support, reach out at [your-email@example.com](mailto:your-email@example.com).

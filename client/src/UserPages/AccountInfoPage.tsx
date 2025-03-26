@@ -31,7 +31,6 @@ import {
   initiateWithdrawal,
 } from '../api/plaidApi'; // New Plaid API service
 import IUser from '../util/types/user';
-import Lottery from '../components/Lottery';
 
 // Existing font styles and league color function remain the same
 const fontStyles = `
@@ -456,10 +455,6 @@ function AccountInfoPage() {
                 />
               </Grid>
             </Grid>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Lottery />
           </Grid>
         </Grid>
 

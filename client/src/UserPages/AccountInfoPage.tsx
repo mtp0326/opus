@@ -402,7 +402,8 @@ function AccountInfoPage() {
                     >
                       Logout
                     </Button>
-                    </Grid><Grid item container justifyContent="center" sx={{ mt: 2 }}>
+                  </Grid>
+                  <Grid item container justifyContent="center" sx={{ mt: 2 }}>
                     <Button
                       onClick={() => setIsWithdrawModalOpen(true)}
                       disabled={!(userInfo?.cashBalance ?? 0 > 0)}
@@ -490,7 +491,10 @@ function AccountInfoPage() {
             </Button>
             <Button
               onClick={handleWithdraw}
-              disabled={withdrawAmount <= 0 || withdrawAmount > (userInfo?.cashBalance ?? 0)}
+              disabled={
+                withdrawAmount <= 0 ||
+                withdrawAmount > (userInfo?.cashBalance ?? 0)
+              }
             >
               Confirm Withdrawal
             </Button>

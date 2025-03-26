@@ -18,4 +18,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { login, logout, toggleAdmin, updateCashBalance } = userSlice.actions; 
+export const { login, logout, toggleAdmin, updateCashBalance } =
+  userSlice.actions;

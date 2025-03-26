@@ -157,11 +157,17 @@ function AccountInfoPage() {
     },
   });
 
-  // Withdrawal handler
+  // Update the handleWithdraw function
   const handleWithdraw = () => {
     const cashBalance = userInfo?.cashBalance ?? 0;
     if (withdrawAmount > 0 && withdrawAmount <= cashBalance) {
-      open();
+      // Update cash balance
+      dispatch(updateCashBalance(-withdrawAmount));
+      // Open Plaid in new tab
+      window.open('https://plaid.com/', '_blank');
+      // Close modal and reset amount
+      setIsWithdrawModalOpen(false);
+      setWithdrawAmount(0);
     } else {
       alert('Invalid withdrawal amount');
     }
@@ -398,7 +404,7 @@ function AccountInfoPage() {
                     </Button>
                     </Grid><Grid item container justifyContent="center" sx={{ mt: 2 }}>
                     <Button
-                      onClick={handleWithdraw}
+                      onClick={() => setIsWithdrawModalOpen(true)}
                       disabled={!(userInfo?.cashBalance ?? 0 > 0)}
                       style={{
                         fontFamily: 'Feather Bold',
@@ -456,13 +462,16 @@ function AccountInfoPage() {
           </Grid>
         </Grid>
 
-        {/* Withdrawal Modal */}
+        {/* Update the Withdrawal Modal */}
         <Dialog
           open={isWithdrawModalOpen}
           onClose={() => setIsWithdrawModalOpen(false)}
         >
           <DialogTitle>Withdraw Cash Balance</DialogTitle>
           <DialogContent>
+            <Typography sx={{ mb: 2 }}>
+              Available Balance: ${userInfo?.cashBalance ?? 0}
+            </Typography>
             <TextField
               label="Withdrawal Amount"
               type="number"
@@ -473,7 +482,6 @@ function AccountInfoPage() {
                 max: userInfo?.cashBalance ?? 0,
                 min: 0,
               }}
-              sx={{ mt: 2 }}
             />
           </DialogContent>
           <DialogActions>
@@ -482,9 +490,9 @@ function AccountInfoPage() {
             </Button>
             <Button
               onClick={handleWithdraw}
-              disabled={!ready || withdrawAmount <= 0}
+              disabled={withdrawAmount <= 0 || withdrawAmount > (userInfo?.cashBalance ?? 0)}
             >
-              Withdraw
+              Confirm Withdrawal
             </Button>
           </DialogActions>
         </Dialog>

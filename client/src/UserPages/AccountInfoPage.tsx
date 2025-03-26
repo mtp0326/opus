@@ -31,7 +31,6 @@ import {
   initiateWithdrawal,
 } from '../api/plaidApi'; // New Plaid API service
 import IUser from '../util/types/user';
-import Lottery from '../components/Lottery';
 
 // Existing font styles and league color function remain the same
 const fontStyles = `
@@ -402,7 +401,8 @@ function AccountInfoPage() {
                     >
                       Logout
                     </Button>
-                    </Grid><Grid item container justifyContent="center" sx={{ mt: 2 }}>
+                  </Grid>
+                  <Grid item container justifyContent="center" sx={{ mt: 2 }}>
                     <Button
                       onClick={() => setIsWithdrawModalOpen(true)}
                       disabled={!(userInfo?.cashBalance ?? 0 > 0)}
@@ -456,10 +456,6 @@ function AccountInfoPage() {
               </Grid>
             </Grid>
           </Grid>
-
-          <Grid item xs={12}>
-            <Lottery />
-          </Grid>
         </Grid>
 
         {/* Update the Withdrawal Modal */}
@@ -490,7 +486,10 @@ function AccountInfoPage() {
             </Button>
             <Button
               onClick={handleWithdraw}
-              disabled={withdrawAmount <= 0 || withdrawAmount > (userInfo?.cashBalance ?? 0)}
+              disabled={
+                withdrawAmount <= 0 ||
+                withdrawAmount > (userInfo?.cashBalance ?? 0)
+              }
             >
               Confirm Withdrawal
             </Button>

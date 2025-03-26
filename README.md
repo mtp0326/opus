@@ -47,9 +47,8 @@ Opus is designed to benefit both researchers and survey takers:
 
 ### Prerequisites
 
-- Node.js & npm (for frontend development)
-- Python (for backend data processing)
-- Docker (for deployment and scalability)
+- Node.js & yarn (for development)
+- Docker (optional, for containerized deployment)
 
 ### Installation
 
@@ -59,22 +58,18 @@ git clone https://github.com/your-org/opus.git
 cd opus
 
 # Install dependencies
-npm install  # For frontend
-yarn install # Alternative package manager for frontend
-pip install -r backend/requirements.txt  # For backend
+yarn setup
 ```
 
 ### Running Opus
 
 ```bash
-# Start frontend
-npm start
+# Start both frontend and backend in development mode
+yarn dev
 
-# Start backend
-python backend/server.py
-
-# Run with Docker
-docker-compose up
+# Alternatively, run frontend and backend separately:
+yarn client    # For frontend only
+yarn server    # For backend only
 ```
 
 ## Contributing
@@ -89,8 +84,8 @@ We welcome contributions from the community! To contribute:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This software was created as a senior design project at the University of Pennsylvania. All rights are reserved and this code is not available for redistribution or use without explicit permission.
 
 ## Contact
 
-For inquiries, collaborations, or support, reach out at [your-email@example.com](mailto:your-email@example.com).
+For inquiries about the project, please contact the development team at the University of Pennsylvania.

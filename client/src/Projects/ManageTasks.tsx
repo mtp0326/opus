@@ -19,9 +19,10 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PaymentIcon from '@mui/icons-material/Payment';
 import Navigation from '../components/Navigation';
-import { getPublishedSurveys, type SurveyData, putData } from './api';
+import { getPublishedSurveys, type SurveyData } from './api';
 import { deleteSurvey } from './api';
 import styles from './ManageTasks.module.css';
+import issueSurveyPayout from '../api/surveyApi';
 
 interface Survey extends SurveyData {
   createdAt: string;
@@ -101,15 +102,13 @@ function ManageTasks() {
     setPayoutError(null);
 
     try {
-      const response = await putData(`surveys/${selectedSurvey._id}/payout`, {
-        type: 'lottery',
+      console.log('🚀 Initiating payout request:', {
+        surveyId: selectedSurvey._id,
       });
 
-      if (response.error) {
-        throw new Error(response.error.message);
-      }
+      const result = await issueSurveyPayout(selectedSurvey._id, 'lottery');
 
-      // Update the survey's status to reflect the payout
+      // Update surveys list
       setSurveys((prevSurveys) =>
         prevSurveys.map((survey) =>
           survey._id === selectedSurvey._id
@@ -122,6 +121,7 @@ function ManageTasks() {
       setShowPaymentSuccess(true);
       setTimeout(() => setShowPaymentSuccess(false), 3000);
     } catch (error) {
+      console.error('❌ Payout error:', error);
       setPayoutError(
         error instanceof Error ? error.message : 'Failed to process payout',
       );
@@ -287,9 +287,10 @@ function ManageTasks() {
         <DialogTitle>Confirm Payout</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to issue a payout for "{selectedSurvey?.title}
-            "? This will distribute rewards to participants using the XP-based
-            lottery system.
+            Are you sure you want to issue a payout for &quot;
+            {selectedSurvey?.title}
+            &quot;? This will distribute rewards to participants using the
+            XP-based lottery system.
           </Typography>
           {payoutError && (
             <Typography color="error" sx={{ mt: 2 }}>

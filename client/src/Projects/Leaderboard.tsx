@@ -164,7 +164,7 @@ function Leaderboard() {
             borderRadius: '16px',
             overflow: 'hidden',
             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            backgroundColor: isDarkMode ? '#424242' : 'white'
+            backgroundColor: isDarkMode ? '#424242' : 'white',
           }}
         >
           {users.map((user, index) => (

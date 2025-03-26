@@ -13,7 +13,9 @@ interface LotteryResult {
   }>;
 }
 
-export const runLottery = async (lotteryPool: number): Promise<LotteryResult> => {
+export const runLottery = async (
+  lotteryPool: number,
+): Promise<LotteryResult> => {
   const response = await postData('lottery/run', { lotteryPool });
   return response.data as LotteryResult;
-}; 
+};

@@ -58,9 +58,9 @@ export default function Lottery() {
           XP Lottery
         </Typography>
         <Typography variant="body1" paragraph>
-          Run a lottery where users with higher XP have a better chance of winning!
-          Prizes are distributed geometrically, with the first place winner getting
-          50% of the pool.
+          Run a lottery where users with higher XP have a better chance of
+          winning! Prizes are distributed geometrically, with the first place
+          winner getting 50% of the pool.
         </Typography>
 
         <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
@@ -68,7 +68,9 @@ export default function Lottery() {
             label="Lottery Pool Amount"
             type="number"
             value={lotteryPool}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setLotteryPool(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setLotteryPool(e.target.value)
+            }
             sx={{ flexGrow: 1 }}
           />
           <Button
@@ -92,7 +94,10 @@ export default function Lottery() {
             <Typography variant="h6" gutterBottom>
               Main Winner
             </Typography>
-            <Paper variant="outlined" sx={{ p: 2, mb: 2, bgcolor: 'primary.light' }}>
+            <Paper
+              variant="outlined"
+              sx={{ p: 2, mb: 2, bgcolor: 'primary.light' }}
+            >
               <Typography variant="h5" color="primary.contrastText">
                 {result.mainWinner.name}
               </Typography>
@@ -108,21 +113,25 @@ export default function Lottery() {
               All Winners
             </Typography>
             <List>
-              {result.allPrizes.map((prize: { userId: string; amount: number }, index: number) => (
-                <React.Fragment key={prize.userId}>
-                  <ListItem>
-                    <ListItemText
-                      primary={`${index + 1}. Prize: $${prize.amount.toFixed(2)}`}
-                      secondary={`User ID: ${prize.userId}`}
-                    />
-                  </ListItem>
-                  {index < result.allPrizes.length - 1 && <Divider />}
-                </React.Fragment>
-              ))}
+              {result.allPrizes.map(
+                (prize: { userId: string; amount: number }, index: number) => (
+                  <React.Fragment key={prize.userId}>
+                    <ListItem>
+                      <ListItemText
+                        primary={`${index + 1}. Prize: $${prize.amount.toFixed(
+                          2,
+                        )}`}
+                        secondary={`User ID: ${prize.userId}`}
+                      />
+                    </ListItem>
+                    {index < result.allPrizes.length - 1 && <Divider />}
+                  </React.Fragment>
+                ),
+              )}
             </List>
           </Box>
         )}
       </Paper>
     </Box>
   );
-} 
+}

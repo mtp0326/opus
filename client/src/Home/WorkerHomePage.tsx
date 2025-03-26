@@ -1297,8 +1297,10 @@ function WorkerHomePage() {
         >
           <div className={styles.pageContainer}>
             <div className={styles.container}>
-              <div className={styles.previewBox}
-                  style={{ backgroundColor: isDarkMode ? '#333' : '#fff' }}>
+              <div
+                className={styles.previewBox}
+                style={{ backgroundColor: isDarkMode ? '#333' : '#fff' }}
+              >
                 <div className={styles.surveyContainer}>
                   {isDarkMode && (
                     <style>{`
@@ -1499,7 +1501,7 @@ function WorkerHomePage() {
             >
               Progress Tracker
             </Typography>
-    
+
             {/* Points to next league */}
             <Typography
               sx={{
@@ -1559,7 +1561,7 @@ function WorkerHomePage() {
               </span>{' '}
               League!
             </Typography>
-    
+
             {/* Points to climb rank - only show if we have users data */}
             {users.length > 0 && (
               <Typography

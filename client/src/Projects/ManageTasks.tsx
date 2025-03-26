@@ -22,6 +22,7 @@ import Navigation from '../components/Navigation';
 import { getPublishedSurveys, type SurveyData } from './api';
 import { deleteSurvey } from './api';
 import styles from './ManageTasks.module.css';
+import { issueSurveyPayout } from '../api/surveyApi';
 
 interface Survey extends SurveyData {
   createdAt: string;
@@ -101,24 +102,13 @@ function ManageTasks() {
     setPayoutError(null);
 
     try {
-      const response = await fetch(
-        `/api/surveys/${selectedSurvey._id}/payout`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ type: 'lottery' }),
-        },
-      );
+      console.log('🚀 Initiating payout request:', {
+        surveyId: selectedSurvey._id,
+      });
 
-      const data = await response.json();
+      const result = await issueSurveyPayout(selectedSurvey._id, 'lottery');
 
-      if (!response.ok) {
-        throw new Error(data.error?.message || 'Failed to process payout');
-      }
-
-      // Update the survey's status to reflect the payout
+      // Update surveys list
       setSurveys((prevSurveys) =>
         prevSurveys.map((survey) =>
           survey._id === selectedSurvey._id
@@ -131,6 +121,7 @@ function ManageTasks() {
       setShowPaymentSuccess(true);
       setTimeout(() => setShowPaymentSuccess(false), 3000);
     } catch (error) {
+      console.error('❌ Payout error:', error);
       setPayoutError(
         error instanceof Error ? error.message : 'Failed to process payout',
       );

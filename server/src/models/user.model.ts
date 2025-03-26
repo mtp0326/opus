@@ -247,14 +247,17 @@ export const runXPLottery = async (lotteryPool: number) => {
   }
 
   // Calculate total XP and weights
-  const totalXP = users.reduce((sum: number, user: IUser) => sum + user.points, 0);
+  const totalXP = users.reduce(
+    (sum: number, user: IUser) => sum + user.points,
+    0,
+  );
   const weights = users.map((user: IUser) => user.points / totalXP);
 
   // Select winner using weighted random selection
   const random = Math.random();
   let cumulativeWeight = 0;
   let winnerIndex = 0;
-  
+
   for (let i = 0; i < weights.length; i++) {
     cumulativeWeight += weights[i];
     if (random <= cumulativeWeight) {
@@ -275,13 +278,13 @@ export const runXPLottery = async (lotteryPool: number) => {
 
   for (let i = 0; i < numPrizes; i++) {
     if (remainingPool <= 0) break;
-    
+
     const prize = Math.min(currentPrize, remainingPool);
     prizes.push({
       userId: users[i]._id.toString(),
-      amount: prize
+      amount: prize,
     });
-    
+
     remainingPool -= prize;
     currentPrize *= geometricRatio;
   }
@@ -300,9 +303,9 @@ export const runXPLottery = async (lotteryPool: number) => {
       userId: winner._id.toString(),
       name: `${winner.firstName} ${winner.lastName}`,
       xp: winner.points,
-      prize: prizes[0].amount
+      prize: prizes[0].amount,
     },
-    allPrizes: prizes
+    allPrizes: prizes,
   };
 };
 

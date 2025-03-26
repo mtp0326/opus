@@ -19,7 +19,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PaymentIcon from '@mui/icons-material/Payment';
 import Navigation from '../components/Navigation';
-import { getPublishedSurveys, type SurveyData, putData } from './api';
+import { getPublishedSurveys, type SurveyData } from './api';
 import { deleteSurvey } from './api';
 import styles from './ManageTasks.module.css';
 
@@ -101,12 +101,21 @@ function ManageTasks() {
     setPayoutError(null);
 
     try {
-      const response = await putData(`surveys/${selectedSurvey._id}/payout`, {
-        type: 'lottery',
-      });
+      const response = await fetch(
+        `/api/surveys/${selectedSurvey._id}/payout`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ type: 'lottery' }),
+        },
+      );
 
-      if (response.error) {
-        throw new Error(response.error.message);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || 'Failed to process payout');
       }
 
       // Update the survey's status to reflect the payout
@@ -287,9 +296,10 @@ function ManageTasks() {
         <DialogTitle>Confirm Payout</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to issue a payout for "{selectedSurvey?.title}
-            "? This will distribute rewards to participants using the XP-based
-            lottery system.
+            Are you sure you want to issue a payout for &quot;
+            {selectedSurvey?.title}
+            &quot;? This will distribute rewards to participants using the
+            XP-based lottery system.
           </Typography>
           {payoutError && (
             <Typography color="error" sx={{ mt: 2 }}>

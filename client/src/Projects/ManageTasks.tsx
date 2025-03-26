@@ -9,12 +9,17 @@ import {
   CircularProgress,
   Box,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import PaymentIcon from '@mui/icons-material/Payment';
 import Navigation from '../components/Navigation';
-import { getPublishedSurveys, type SurveyData } from './api';
+import { getPublishedSurveys, type SurveyData, putData } from './api';
 import { deleteSurvey } from './api';
 import styles from './ManageTasks.module.css';
 
@@ -31,6 +36,10 @@ function ManageTasks() {
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(true);
   const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
+  const [showPayoutDialog, setShowPayoutDialog] = useState(false);
+  const [selectedSurvey, setSelectedSurvey] = useState<Survey | null>(null);
+  const [payoutLoading, setPayoutLoading] = useState(false);
+  const [payoutError, setPayoutError] = useState<string | null>(null);
 
   useEffect(() => {
     console.log('🎯 ManageTasks component mounted - fetching surveys...');
@@ -80,6 +89,47 @@ function ManageTasks() {
     }
   };
 
+  const handlePayoutClick = (survey: Survey) => {
+    setSelectedSurvey(survey);
+    setShowPayoutDialog(true);
+  };
+
+  const handlePayoutConfirm = async () => {
+    if (!selectedSurvey) return;
+
+    setPayoutLoading(true);
+    setPayoutError(null);
+
+    try {
+      const response = await putData(`surveys/${selectedSurvey._id}/payout`, {
+        type: 'lottery',
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      // Update the survey's status to reflect the payout
+      setSurveys((prevSurveys) =>
+        prevSurveys.map((survey) =>
+          survey._id === selectedSurvey._id
+            ? { ...survey, status: 'completed' }
+            : survey,
+        ),
+      );
+
+      setShowPayoutDialog(false);
+      setShowPaymentSuccess(true);
+      setTimeout(() => setShowPaymentSuccess(false), 3000);
+    } catch (error) {
+      setPayoutError(
+        error instanceof Error ? error.message : 'Failed to process payout',
+      );
+    } finally {
+      setPayoutLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <Box
@@ -98,7 +148,7 @@ function ManageTasks() {
       {showPaymentSuccess && (
         <div className={styles.popup}>
           <div className={styles.popupContent}>
-            <p>✅ Payment completed successfully!</p>
+            <p>✅ Payout completed successfully!</p>
           </div>
         </div>
       )}
@@ -141,7 +191,7 @@ function ManageTasks() {
                             sx={{
                               display: 'flex',
                               flexDirection: 'column',
-                              alignItems: 'flex-end', // Align content to the right
+                              alignItems: 'flex-end',
                             }}
                           >
                             <Typography variant="body2" color="textSecondary">
@@ -157,7 +207,7 @@ function ManageTasks() {
                                   display: 'flex',
                                   gap: 1,
                                   mt: 1,
-                                  justifyContent: 'flex-end', // Align buttons to the right
+                                  justifyContent: 'flex-end',
                                 }}
                               >
                                 <Button
@@ -199,6 +249,16 @@ function ManageTasks() {
                                 >
                                   Review Results
                                 </Button>
+                                {survey.status === 'active' && (
+                                  <Button
+                                    variant="contained"
+                                    color="primary"
+                                    startIcon={<PaymentIcon />}
+                                    onClick={() => handlePayoutClick(survey)}
+                                  >
+                                    Issue Payout
+                                  </Button>
+                                )}
                               </Box>
                             )}
                           </Box>
@@ -219,6 +279,36 @@ function ManageTasks() {
           </Paper>
         </Container>
       </Box>
+
+      <Dialog
+        open={showPayoutDialog}
+        onClose={() => setShowPayoutDialog(false)}
+      >
+        <DialogTitle>Confirm Payout</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to issue a payout for "{selectedSurvey?.title}
+            "? This will distribute rewards to participants using the XP-based
+            lottery system.
+          </Typography>
+          {payoutError && (
+            <Typography color="error" sx={{ mt: 2 }}>
+              {payoutError}
+            </Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowPayoutDialog(false)}>Cancel</Button>
+          <Button
+            onClick={handlePayoutConfirm}
+            variant="contained"
+            color="primary"
+            disabled={payoutLoading}
+          >
+            {payoutLoading ? <CircularProgress size={24} /> : 'Confirm Payout'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

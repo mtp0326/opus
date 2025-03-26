@@ -13,6 +13,7 @@ import authRouter from './auth.route.ts';
 import surveyRouter from './survey.route.ts';
 import leaderboardRouter from './leaderboard.route.ts';
 import workerRouter from './worker.route.ts';
+import lotteryRouter from './lottery.route.ts';
 
 const prefixToRouterMap: { prefix: string; router: Router }[] = [
   {
@@ -38,6 +39,10 @@ const prefixToRouterMap: { prefix: string; router: Router }[] = [
   {
     prefix: '/api/leaderboard',
     router: leaderboardRouter,
+  },
+  {
+    prefix: '/api/lottery',
+    router: lotteryRouter,
   },
 ];
 

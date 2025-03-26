@@ -7,7 +7,7 @@ interface PayoutResult {
   // ... other fields
 }
 
-export const issueSurveyPayout = async (
+const issueSurveyPayout = async (
   surveyId: string,
   payoutType: 'lottery',
 ): Promise<PayoutResult> => {
@@ -16,3 +16,5 @@ export const issueSurveyPayout = async (
   });
   return response.data;
 };
+
+export default issueSurveyPayout;

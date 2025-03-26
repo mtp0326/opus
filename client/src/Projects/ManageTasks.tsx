@@ -22,7 +22,7 @@ import Navigation from '../components/Navigation';
 import { getPublishedSurveys, type SurveyData } from './api';
 import { deleteSurvey } from './api';
 import styles from './ManageTasks.module.css';
-import { issueSurveyPayout } from '../api/surveyApi';
+import issueSurveyPayout from '../api/surveyApi';
 
 interface Survey extends SurveyData {
   createdAt: string;

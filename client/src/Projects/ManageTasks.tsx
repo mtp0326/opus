@@ -249,7 +249,7 @@ function ManageTasks() {
                                 >
                                   Review Results
                                 </Button>
-                                {survey.status === 'active' && (
+                                {survey.status === 'completed' && (
                                   <Button
                                     variant="contained"
                                     color="primary"

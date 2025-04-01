@@ -93,12 +93,18 @@ export const getResearcherSurveys = async (
     const [externalSurveys, jsSurveys] = await Promise.all([
       Survey.find({
         createdBy: req.user?._id,
-      }).sort({ createdAt: -1 }),
+      })
+        .select(
+          '_id title description content createdAt status respondents reward',
+        )
+        .sort({ createdAt: -1 }),
 
       SurveyJs.find({
         createdBy: req.user?._id,
       })
-        .select('_id title description content createdAt status') // Explicitly select content
+        .select(
+          '_id title description content createdAt status respondents reward',
+        )
         .sort({ createdAt: -1 }),
     ]);
 
@@ -112,6 +118,16 @@ export const getResearcherSurveys = async (
     ];
 
     console.log('🔍 Found surveys:', allSurveys.length);
+    console.log(
+      '📊 Survey data:',
+      allSurveys.map((s) => ({
+        id: s._id,
+        title: s.title,
+        status: s.status,
+        respondents: s.respondents,
+        reward: s.reward,
+      })),
+    );
 
     return res.json(allSurveys);
   } catch (error) {
@@ -501,12 +517,24 @@ export const saveSurveyJs = async (
       return res.status(401).json({ error: { message: 'Unauthorized' } });
     }
 
-    const { title, description, content } = req.body;
-    console.log(' Received survey data:', { title, description });
+    const { title, description, content, respondents } = req.body;
+    console.log('📝 Received survey data:', {
+      title,
+      description,
+      respondents,
+    });
 
     if (!content) {
       return res.status(400).json({
         error: { message: 'Survey content is required' },
+      });
+    }
+
+    if (!respondents || respondents < 1) {
+      return res.status(400).json({
+        error: {
+          message: 'Number of respondents is required and must be at least 1',
+        },
       });
     }
 
@@ -516,6 +544,7 @@ export const saveSurveyJs = async (
       content,
       createdBy: req.user._id,
       status: 'draft',
+      respondents,
     });
 
     await survey.save();
@@ -526,6 +555,7 @@ export const saveSurveyJs = async (
         _id: survey._id.toString(),
         title: survey.title,
         description: survey.description,
+        respondents: survey.respondents,
       },
     };
     console.log('📤 Sending response:', responseData);
@@ -1252,5 +1282,43 @@ ${text}`,
             : 'Failed to handle file upload',
       },
     });
+  }
+};
+
+export const getSurveyResponses = async (
+  req: Request & { user?: IUser },
+  res: Response,
+) => {
+  try {
+    if (!req.user?._id) {
+      throw new Error('User not authenticated');
+    }
+
+    const { surveyId } = req.params;
+
+    // Check if the survey exists and belongs to the user
+    const [survey, surveyJs] = await Promise.all([
+      Survey.findOne({ _id: surveyId, createdBy: req.user._id }),
+      SurveyJs.findOne({ _id: surveyId, createdBy: req.user._id }),
+    ]);
+
+    if (!survey && !surveyJs) {
+      return res
+        .status(404)
+        .json({ error: { message: 'Survey not found or unauthorized' } });
+    }
+
+    // Get response counts from both submission collections
+    const [externalResponses, jsResponses] = await Promise.all([
+      SurveySubmission.countDocuments({ survey: surveyId }),
+      SurveyJsSubmission.countDocuments({ survey: surveyId }),
+    ]);
+
+    const totalResponses = externalResponses + jsResponses;
+
+    return res.json(totalResponses);
+  } catch (error: any) {
+    console.error('❌ Error fetching survey responses:', error.message);
+    res.status(400).json({ error: { message: error.message } });
   }
 };

@@ -20,6 +20,7 @@ import {
   getStripePayment,
   getRandomSurvey,
   processDocument,
+  getSurveyResponses,
 } from '../controllers/survey.controller.ts';
 import { IUser } from '../models/user.model.ts';
 
@@ -170,6 +171,16 @@ router.post(
   '/process-document',
   isAuthenticated,
   processDocument as express.RequestHandler,
+);
+
+/**
+ * A GET route to fetch the total number of responses for a survey
+ * Expects surveyId in URL params
+ */
+router.get(
+  '/:surveyId/responses',
+  isAuthenticated,
+  getSurveyResponses as express.RequestHandler,
 );
 
 export default router;

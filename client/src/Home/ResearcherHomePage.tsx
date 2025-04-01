@@ -20,7 +20,11 @@ import { logout as logoutApi } from './api.tsx';
 import ScreenGrid from '../components/ScreenGrid.tsx';
 import PrimaryButton from '../components/buttons/PrimaryButton.tsx';
 import Navigation from '../components/Navigation.tsx';
-import { getPublishedSurveys, getLeaderboard } from '../Projects/api';
+import {
+  getPublishedSurveys,
+  getLeaderboard,
+  getSurveyResponses,
+} from '../Projects/api';
 import { SurveyData, IUser } from '../Projects/api';
 import AddIcon from '@mui/icons-material/Add';
 import AssessmentIcon from '@mui/icons-material/Assessment';
@@ -87,6 +91,12 @@ function ResearcherHomePage() {
   const [surveys, setSurveys] = useState<SurveyData[]>([]);
   const [leaderboard, setLeaderboard] = useState<IUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    activeSurveys: 0,
+    totalResponses: 0,
+    totalRewards: 0,
+    completionRate: 0,
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -97,6 +107,68 @@ function ResearcherHomePage() {
         ]);
         setSurveys(surveysData);
         setLeaderboard(leaderboardData);
+
+        console.log(
+          '📊 Fetched surveys:',
+          surveysData.map((s) => ({
+            id: s._id,
+            title: s.title,
+            status: s.status,
+            respondents: s.respondents,
+            reward: s.reward,
+          })),
+        );
+
+        // Calculate stats
+        const activeSurveys = surveysData.filter(
+          (s) => s.status === 'active',
+        ).length;
+        console.log('📊 Active surveys:', activeSurveys);
+
+        // Get total responses for each survey
+        console.log(
+          '📊 Fetching responses for surveys:',
+          surveysData.map((s) => ({ id: s._id, title: s.title })),
+        );
+        const responsePromises = surveysData.map((survey) =>
+          getSurveyResponses(survey._id),
+        );
+        const responses = await Promise.all(responsePromises);
+        console.log('📊 Individual survey responses:', responses);
+        const totalResponses = responses.reduce((acc, count) => acc + count, 0);
+        console.log('📊 Total responses:', totalResponses);
+
+        // Calculate total rewards and completion rate
+        const totalRewards = surveysData.reduce(
+          (acc, s) => acc + (s.reward || 0),
+          0,
+        );
+
+        // Calculate completion rate based on responses vs target respondents
+        const totalTargetRespondents = surveysData.reduce(
+          (acc, s) => acc + (s.respondents || 0),
+          0,
+        );
+        console.log('📊 Total target respondents:', totalTargetRespondents);
+        const completionRate =
+          totalTargetRespondents > 0
+            ? (totalResponses / totalTargetRespondents) * 100
+            : 0;
+
+        console.log('📊 Stats calculated:', {
+          activeSurveys,
+          totalResponses,
+          totalRewards,
+          completionRate,
+          totalTargetRespondents,
+        });
+
+        setStats({
+          activeSurveys,
+          totalResponses,
+          totalRewards,
+          completionRate,
+        });
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {
@@ -124,18 +196,6 @@ function ResearcherHomePage() {
   // };
 
   const message = `Welcome to Opus, ${user.firstName} ${user.lastName}!`;
-
-  const stats = {
-    activeSurveys: surveys.filter((s) => s.status === 'active').length,
-    totalResponses: surveys.reduce((acc, s) => acc + (s.respondents || 0), 0),
-    totalRewards: surveys.reduce((acc, s) => acc + (s.reward || 0), 0),
-    completionRate:
-      surveys.length > 0
-        ? (surveys.filter((s) => s.status === 'completed').length /
-            surveys.length) *
-          100
-        : 0,
-  };
 
   const QuickActionCard = ({
     title,

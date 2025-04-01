@@ -2,10 +2,15 @@ import React from 'react';
 import { AppBar, Toolbar, Button, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+import { useAppDispatch, useAppSelector } from '../util/redux/hooks';
+import { logout as logoutAction, selectUser } from '../util/redux/userSlice';
+import { logout as logoutApi } from '../Home/api';
 
 function Navigation() {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
+  const user = useAppSelector(selectUser);
+  const dispatch = useAppDispatch();
 
   const clearStorage = () => {
     sessionStorage.removeItem('surveyFormData');
@@ -15,6 +20,13 @@ function Navigation() {
   const handleNavigate = (path: string) => {
     clearStorage();
     navigate(path);
+  };
+
+  const handleLogout = async () => {
+    if (await logoutApi()) {
+      dispatch(logoutAction());
+      navigate('/rlogin', { replace: true });
+    }
   };
 
   return (
@@ -73,6 +85,21 @@ function Navigation() {
             Manage Tasks
           </Button>
         </Box>
+        <Button
+          color="inherit"
+          onClick={handleLogout}
+          sx={{
+            fontFamily: 'Feather Bold, sans-serif',
+            color: isDarkMode ? '#fff' : '#4b4b4b',
+            '&:hover': {
+              backgroundColor: isDarkMode
+                ? 'rgba(255, 255, 255, 0.1)'
+                : '#aff8e5',
+            },
+          }}
+        >
+          Logout
+        </Button>
       </Toolbar>
     </AppBar>
   );

@@ -27,7 +27,7 @@ interface SurveyCompletionData {
   isSurveyJs: boolean;
 }
 
-interface IUser {
+export interface IUser {
   _id: string;
   firstName: string;
   lastName: string;

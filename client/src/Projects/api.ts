@@ -27,7 +27,7 @@ interface SurveyCompletionData {
   isSurveyJs: boolean;
 }
 
-interface IUser {
+export interface IUser {
   _id: string;
   firstName: string;
   lastName: string;
@@ -170,28 +170,26 @@ export const handleSurveyJsSave = async (
     const description = creatorRef.current.survey.description || '';
 
     const savedSurveyId = localStorage.getItem('currentSurveyId');
-    console.log('📝 Current saved survey ID:', savedSurveyId);
+
+    // Get the respondents from localStorage
+    const formData = JSON.parse(localStorage.getItem('surveyFormData') || '{}');
 
     const saveData = {
       title,
       description,
       content: surveyJSON,
       status: 'draft',
+      respondents: formData.respondents || 1, // Default to 1 if not set
     };
 
     let response;
     if (savedSurveyId) {
-      console.log('🔄 Updating existing survey:', savedSurveyId);
       response = await putData(`surveys/js/${savedSurveyId}/edit`, saveData);
     } else {
       response = await postData('surveys/js/save', saveData);
-      console.log('📦 Save response:', response);
       if (response.data?.data?._id) {
         const surveyId = response.data.data._id.toString();
-        console.log('💾 Storing new survey ID:', surveyId);
         localStorage.setItem('currentSurveyId', surveyId);
-      } else {
-        console.warn('⚠️ No survey ID in response:', response);
       }
     }
 
@@ -320,6 +318,25 @@ export const getPointsForNextLeague = (currentPoints: number): number => {
   if (currentPoints < 5000) return 5000 - currentPoints;
   if (currentPoints < 8000) return 8000 - currentPoints;
   return 0; // Already in Diamond league
+};
+
+/**
+ * Gets the total number of responses for a survey
+ * @param surveyId The ID of the survey
+ * @returns A promise that resolves to the total number of responses
+ */
+export const getSurveyResponses = async (surveyId: string): Promise<number> => {
+  const response = await getData(`surveys/${surveyId}/responses`);
+
+  if (response.error) {
+    console.error('❌ Failed to fetch survey responses:', response.error);
+    throw new Error(
+      response.error.message || 'Failed to fetch survey responses',
+    );
+  }
+
+  // The server returns the number directly, not wrapped in a data object
+  return response.data;
 };
 
 export {

@@ -66,24 +66,26 @@ function SurveyBuilderSetup() {
         const surveyId = localStorage.getItem('currentSurveyId');
         const surveyContent = savedSurvey ? JSON.parse(savedSurvey) : {};
 
-        console.log('📝 Current survey ID:', surveyId);
-        console.log('📦 Survey content:', surveyContent);
+        // Store form data in localStorage
+        const formDataToStore = {
+          reward: Number(formData.reward),
+          respondents: Number(formData.respondents),
+          timeToComplete: Number(formData.timeToComplete),
+          expiresIn: Number(formData.expiresIn),
+          workerQualifications: formData.workerQualifications,
+        };
+        localStorage.setItem('surveyFormData', JSON.stringify(formDataToStore));
 
         let response;
         if (surveyId) {
           // Edit existing survey
-          console.log('🔄 Editing existing survey...');
-          response = await handleSurveyJsEdit(surveyId, surveyContent, {
-            reward: Number(formData.reward),
-            respondents: Number(formData.respondents),
-            timeToComplete: Number(formData.timeToComplete),
-            expiresIn: Number(formData.expiresIn),
-            workerQualifications: formData.workerQualifications,
-          });
-          console.log('✅ Survey edited successfully:', response);
+          response = await handleSurveyJsEdit(
+            surveyId,
+            surveyContent,
+            formDataToStore,
+          );
         } else {
           // Save new survey
-          console.log('✨ Creating new survey...');
           const showAlert = (
             message: string,
             type: 'success' | 'error' | 'info',
@@ -94,18 +96,13 @@ function SurveyBuilderSetup() {
             { current: { JSON: surveyContent } },
             showAlert,
           );
-          console.log('✅ Survey saved successfully:', response);
         }
 
         // Navigate to payment review page with all necessary data
         navigate('/create-publish-test', {
           state: {
             formData: {
-              ...formData,
-              reward: Number(formData.reward),
-              respondents: Number(formData.respondents),
-              timeToComplete: Number(formData.timeToComplete),
-              expiresIn: Number(formData.expiresIn),
+              ...formDataToStore,
               title: surveyContent.title || 'Untitled Survey',
               description: surveyContent.description || '',
               surveyType: 'surveyjs',

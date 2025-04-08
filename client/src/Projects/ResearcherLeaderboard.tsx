@@ -6,6 +6,24 @@ import Navigation from '../components/Navigation';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import IUser from '../util/types/user';
 
+// Add font styles
+const fontStyles = `
+  @font-face {
+    font-family: 'Feather Bold';
+    src: url('/fonts/Feather-Bold.woff2') format('woff2'),
+         url('/fonts/Feather-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'DIN Next Rounded LT W01 Regular';
+    src: url('/fonts/DINNextRoundedLTW01-Regular.woff2') format('woff2'),
+         url('/fonts/DINNextRoundedLTW01-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+`;
+
 const getLeagueColor = (league: string) => {
   switch (league.toLowerCase()) {
     case 'diamond':
@@ -30,6 +48,11 @@ function ResearcherLeaderboard() {
   const { isDarkMode } = useTheme();
 
   useEffect(() => {
+    // Add font styles to document head
+    const styleElement = document.createElement('style');
+    styleElement.textContent = fontStyles;
+    document.head.appendChild(styleElement);
+
     const fetchLeaderboardData = async () => {
       try {
         const response = await getData('leaderboard/');
@@ -44,6 +67,10 @@ function ResearcherLeaderboard() {
     };
 
     fetchLeaderboardData();
+
+    return () => {
+      document.head.removeChild(styleElement);
+    };
   }, []);
 
   // Group users by league
@@ -55,15 +82,23 @@ function ResearcherLeaderboard() {
       .sort((a, b) => b.points - a.points)
   }));
 
+  const themeColors = {
+    background: isDarkMode ? '#102622' : '#FFFAED',
+    text: isDarkMode ? '#ffffff' : '#141F25',
+    primary: '#285943',
+    secondary: '#1cb0f6',
+    accent: '#ce82ff',
+  };
+
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: isDarkMode ? '#102622' : '#FFFAED' }}>
+    <Box sx={{ minHeight: '100vh', backgroundColor: themeColors.background }}>
       <Navigation />
       <Box sx={{ maxWidth: '1200px', margin: '0 auto', p: 4 }}>
         <Typography
           variant="h1"
           sx={{
             fontFamily: 'Feather Bold',
-            color: isDarkMode ? '#ffffff' : '#285943',
+            color: themeColors.text,
             textAlign: 'center',
             mb: 4,
             fontSize: '2.5rem',
@@ -96,7 +131,7 @@ function ResearcherLeaderboard() {
                 sx={{
                   fontFamily: 'Feather Bold',
                   fontSize: '1.5rem',
-                  color: '#285943',
+                  color: themeColors.primary,
                 }}
               >
                 {leagueData.league} League ({leagueData.users.length} users)
@@ -108,6 +143,7 @@ function ResearcherLeaderboard() {
                   borderRadius: '8px',
                   overflow: 'hidden',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                  backgroundColor: isDarkMode ? '#424242' : 'white',
                 }}
               >
                 {leagueData.users.map((user, index) => (
@@ -118,7 +154,7 @@ function ResearcherLeaderboard() {
                       alignItems: 'center',
                       padding: '1rem 2rem',
                       borderBottom: '1px solid #E5E5E5',
-                      backgroundColor: 'white',
+                      backgroundColor: isDarkMode ? '#424242' : 'white',
                       '&:last-child': {
                         borderBottom: 'none',
                       },
@@ -129,7 +165,7 @@ function ResearcherLeaderboard() {
                         fontFamily: 'Feather Bold',
                         fontSize: '1.2rem',
                         width: '50px',
-                        color: '#285943',
+                        color: themeColors.primary,
                       }}
                     >
                       {index + 1}
@@ -138,7 +174,7 @@ function ResearcherLeaderboard() {
                       <Typography
                         sx={{
                           fontFamily: 'Feather Bold',
-                          color: '#4b4b4b',
+                          color: themeColors.text,
                           fontSize: '1.1rem',
                         }}
                       >
@@ -147,7 +183,7 @@ function ResearcherLeaderboard() {
                       <Typography
                         sx={{
                           fontFamily: 'DIN Next Rounded LT W01 Regular',
-                          color: '#757575',
+                          color: isDarkMode ? '#b0b0b0' : '#757575',
                           fontSize: '0.9rem',
                         }}
                       >
@@ -158,7 +194,7 @@ function ResearcherLeaderboard() {
                       <Typography
                         sx={{
                           fontFamily: 'Feather Bold',
-                          color: '#285943',
+                          color: themeColors.primary,
                           fontSize: '1.1rem',
                         }}
                       >
@@ -167,7 +203,7 @@ function ResearcherLeaderboard() {
                       <Typography
                         sx={{
                           fontFamily: 'Feather Bold',
-                          color: '#285943',
+                          color: themeColors.primary,
                           fontSize: '1.1rem',
                         }}
                       >

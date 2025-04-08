@@ -299,7 +299,7 @@ function ResearcherHomePage() {
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <QuickActionCard
-                  title="Manage Workers"
+                  title="Manage Tasks"
                   icon={<PeopleIcon />}
                   onClick={() => navigator('/manage-tasks')}
                 />

@@ -46,6 +46,7 @@ import OnboardingPage from './UserPages/OnboardingPage.tsx';
 import TakeSurveyLink from './UserPages/TakeSurveyLink';
 import TakeSurveyJs from './UserPages/TakeSurveyJs';
 import SurveyResults from './Projects/SurveyResults';
+import SurveyResultsSummary from './Projects/SurveyResultsSummary';
 import AccountInfoPage from './UserPages/AccountInfoPage.tsx';
 import { ThemeProvider as CustomThemeProvider } from './context/ThemeContext';
 import PointRewards from './Projects/PointRewards';
@@ -99,6 +100,7 @@ function App() {
                       <Route path="/surveys" element={<SurveyBuilderSetup />} />
                       <Route path="/surveys/:surveyId" element={<SurveyBuilderSetup />} />
                       <Route path="/surveys/:surveyId/results" element={<SurveyResults />} />
+                      <Route path="/survey-results" element={<SurveyResultsSummary />} />
                       <Route path="/account-info" element={<AccountInfoPage />} />
                       <Route
                         path="/create-project"

@@ -49,6 +49,7 @@ import SurveyResults from './Projects/SurveyResults';
 import AccountInfoPage from './UserPages/AccountInfoPage.tsx';
 import { ThemeProvider as CustomThemeProvider } from './context/ThemeContext';
 import PointRewards from './Projects/PointRewards';
+import ResearcherLeaderboard from './Projects/ResearcherLeaderboard.tsx';
 
 function App() {
   return (
@@ -92,6 +93,13 @@ function App() {
                     {/* Routes accessed only if user is authenticated and researcher */}
                     <Route element={<ResearcherRoutesWrapper />}>
                       <Route path="/rhome" element={<ResearcherHomePage />} />
+                      <Route path="/rleaderboard" element={<ResearcherLeaderboard />} />
+                      <Route path="/ronboard" element={<OnboardingPage />} />
+                      <Route path="/rrecommended" element={<RecommendationPage />} />
+                      <Route path="/surveys" element={<SurveyBuilderSetup />} />
+                      <Route path="/surveys/:surveyId" element={<SurveyBuilderSetup />} />
+                      <Route path="/surveys/:surveyId/results" element={<SurveyResults />} />
+                      <Route path="/account-info" element={<AccountInfoPage />} />
                       <Route
                         path="/create-project"
                         element={<CreateProject />}

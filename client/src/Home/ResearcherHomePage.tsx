@@ -308,7 +308,7 @@ function ResearcherHomePage() {
                 <QuickActionCard
                   title="Leaderboard"
                   icon={<TrendingUpIcon />}
-                  onClick={() => navigator('/leaderboard')}
+                  onClick={() => navigator('/rleaderboard')}
                 />
               </Grid>
             </Grid>

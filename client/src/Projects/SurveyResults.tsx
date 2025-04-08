@@ -43,8 +43,12 @@ function SurveyResults() {
   const [submissions, setSubmissions] = useState<SurveySubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [surveyType, setSurveyType] = useState<'surveyjs' | 'external' | null>(null);
-  const [surveyDetails, setSurveyDetails] = useState<SurveyDetails | null>(null);
+  const [surveyType, setSurveyType] = useState<'surveyjs' | 'external' | null>(
+    null,
+  );
+  const [surveyDetails, setSurveyDetails] = useState<SurveyDetails | null>(
+    null,
+  );
   const [selectedSubmissions, setSelectedSubmissions] = useState<string[]>([]);
   const [processingAction, setProcessingAction] = useState(false);
   const { isDarkMode } = useTheme();
@@ -60,7 +64,9 @@ function SurveyResults() {
         setSurveyType(response.data.data.surveyType);
         setSurveyDetails(response.data.data.surveyDetails);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch results');
+        setError(
+          err instanceof Error ? err.message : 'Failed to fetch results',
+        );
       } finally {
         setLoading(false);
       }
@@ -88,7 +94,9 @@ function SurveyResults() {
       );
       setSelectedSubmissions([]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to process submissions');
+      setError(
+        err instanceof Error ? err.message : 'Failed to process submissions',
+      );
     } finally {
       setProcessingAction(false);
     }
@@ -108,16 +116,23 @@ function SurveyResults() {
     return (
       <>
         <Navigation />
-        <Box sx={{ 
-          backgroundColor: '#FFFAED', 
-          minHeight: '100vh', 
-          p: 2,
-          '& .MuiContainer-root': {
+        <Box
+          sx={{
             backgroundColor: '#FFFAED',
-          },
-        }}>
+            minHeight: '100vh',
+            p: 2,
+            '& .MuiContainer-root': {
+              backgroundColor: '#FFFAED',
+            },
+          }}
+        >
           <Container>
-            <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              minHeight="400px"
+            >
               <CircularProgress />
             </Box>
           </Container>
@@ -130,14 +145,16 @@ function SurveyResults() {
     return (
       <>
         <Navigation />
-        <Box sx={{ 
-          backgroundColor: '#FFFAED', 
-          minHeight: '100vh', 
-          p: 2,
-          '& .MuiContainer-root': {
+        <Box
+          sx={{
             backgroundColor: '#FFFAED',
-          },
-        }}>
+            minHeight: '100vh',
+            p: 2,
+            '& .MuiContainer-root': {
+              backgroundColor: '#FFFAED',
+            },
+          }}
+        >
           <Container>
             <Card sx={{ p: 3, mt: 3, backgroundColor: '#FFFAED' }}>
               <Typography color="error">{error}</Typography>
@@ -157,32 +174,36 @@ function SurveyResults() {
   return (
     <>
       <Navigation />
-      <Box sx={{ 
-        backgroundColor: '#FFFAED', 
-        minHeight: '100vh', 
-        p: 2,
-        '& .MuiContainer-root': {
+      <Box
+        sx={{
           backgroundColor: '#FFFAED',
-        },
-        '& .MuiCard-root': {
-          backgroundColor: '#FFFAED',
-        },
-        '& .MuiCardContent-root': {
-          backgroundColor: '#FFFAED',
-        },
-        '& .MuiGrid-root': {
-          backgroundColor: '#FFFAED',
-        },
-        '& .MuiBox-root': {
-          backgroundColor: '#FFFAED',
-        },
-      }}>
-        <Container maxWidth="lg">
-          <Card sx={{ 
-            p: 3, 
-            mt: 2, 
+          minHeight: '100vh',
+          p: 2,
+          '& .MuiContainer-root': {
             backgroundColor: '#FFFAED',
-          }}>
+          },
+          '& .MuiCard-root': {
+            backgroundColor: '#FFFAED',
+          },
+          '& .MuiCardContent-root': {
+            backgroundColor: '#FFFAED',
+          },
+          '& .MuiGrid-root': {
+            backgroundColor: '#FFFAED',
+          },
+          '& .MuiBox-root': {
+            backgroundColor: '#FFFAED',
+          },
+        }}
+      >
+        <Container maxWidth="lg">
+          <Card
+            sx={{
+              p: 3,
+              mt: 2,
+              backgroundColor: '#FFFAED',
+            }}
+          >
             {surveyDetails && (
               <>
                 <Box
@@ -235,7 +256,10 @@ function SurveyResults() {
                       sx={{ fontFamily: 'Feather Bold' }}
                     >
                       Submissions:{' '}
-                      {submissions.filter((s) => s.status !== 'rejected').length}{' '}
+                      {
+                        submissions.filter((s) => s.status !== 'rejected')
+                          .length
+                      }{' '}
                       / {surveyDetails.respondents}
                     </Typography>
                     <Typography
@@ -253,7 +277,8 @@ function SurveyResults() {
                       borderRadius: 5,
                       backgroundColor: '#e0e0e0',
                       '& .MuiLinearProgress-bar': {
-                        backgroundColor: progress === 100 ? '#58CC02' : '#1cb0f6',
+                        backgroundColor:
+                          progress === 100 ? '#58CC02' : '#1cb0f6',
                       },
                     }}
                   />
@@ -270,7 +295,11 @@ function SurveyResults() {
                     }}
                   >
                     <CardContent>
-                      <Grid container justifyContent="space-between" alignItems="center">
+                      <Grid
+                        container
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
                         <Grid item xs={8}>
                           <Typography
                             variant="h6"
@@ -282,19 +311,26 @@ function SurveyResults() {
                           <Typography
                             variant="body2"
                             color="textSecondary"
-                            sx={{ fontFamily: 'DIN Next Rounded LT W01 Regular' }}
+                            sx={{
+                              fontFamily: 'DIN Next Rounded LT W01 Regular',
+                            }}
                           >
-                            Submitted: {new Date(submission.submittedAt).toLocaleString()}
+                            Submitted:{' '}
+                            {new Date(submission.submittedAt).toLocaleString()}
                           </Typography>
-                          {surveyType === 'surveyjs' && submission.attentionCheckScore && (
-                            <Typography
-                              variant="body2"
-                              color="textSecondary"
-                              sx={{ fontFamily: 'DIN Next Rounded LT W01 Regular' }}
-                            >
-                              Attention Score: {submission.attentionCheckScore}
-                            </Typography>
-                          )}
+                          {surveyType === 'surveyjs' &&
+                            submission.attentionCheckScore && (
+                              <Typography
+                                variant="body2"
+                                color="textSecondary"
+                                sx={{
+                                  fontFamily: 'DIN Next Rounded LT W01 Regular',
+                                }}
+                              >
+                                Attention Score:{' '}
+                                {submission.attentionCheckScore}
+                              </Typography>
+                            )}
                         </Grid>
                         <Grid item xs={4}>
                           <Box

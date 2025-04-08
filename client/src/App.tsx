@@ -94,14 +94,32 @@ function App() {
                     {/* Routes accessed only if user is authenticated and researcher */}
                     <Route element={<ResearcherRoutesWrapper />}>
                       <Route path="/rhome" element={<ResearcherHomePage />} />
-                      <Route path="/rleaderboard" element={<ResearcherLeaderboard />} />
+                      <Route
+                        path="/rleaderboard"
+                        element={<ResearcherLeaderboard />}
+                      />
                       <Route path="/ronboard" element={<OnboardingPage />} />
-                      <Route path="/rrecommended" element={<RecommendationPage />} />
+                      <Route
+                        path="/rrecommended"
+                        element={<RecommendationPage />}
+                      />
                       <Route path="/surveys" element={<SurveyBuilderSetup />} />
-                      <Route path="/surveys/:surveyId" element={<SurveyBuilderSetup />} />
-                      <Route path="/surveys/:surveyId/results" element={<SurveyResults />} />
-                      <Route path="/survey-results" element={<SurveyResultsSummary />} />
-                      <Route path="/account-info" element={<AccountInfoPage />} />
+                      <Route
+                        path="/surveys/:surveyId"
+                        element={<SurveyBuilderSetup />}
+                      />
+                      <Route
+                        path="/surveys/:surveyId/results"
+                        element={<SurveyResults />}
+                      />
+                      <Route
+                        path="/survey-results"
+                        element={<SurveyResultsSummary />}
+                      />
+                      <Route
+                        path="/account-info"
+                        element={<AccountInfoPage />}
+                      />
                       <Route
                         path="/create-project"
                         element={<CreateProject />}

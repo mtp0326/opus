@@ -45,7 +45,9 @@ function SurveyResultsSummary() {
         }
         setSurveys(response.data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch surveys');
+        setError(
+          err instanceof Error ? err.message : 'Failed to fetch surveys',
+        );
       } finally {
         setLoading(false);
       }
@@ -161,4 +163,4 @@ function SurveyResultsSummary() {
   );
 }
 
-export default SurveyResultsSummary; 
+export default SurveyResultsSummary;

@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Paper, Typography, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import {
+  Box,
+  Paper,
+  Typography,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from '@mui/material';
 import { getData } from '../util/api';
 import { useTheme } from '../context/ThemeContext';
 import Navigation from '../components/Navigation';
@@ -75,11 +82,11 @@ function ResearcherLeaderboard() {
 
   // Group users by league
   const leagues = ['Diamond', 'Platinum', 'Gold', 'Silver', 'Bronze', 'Wood'];
-  const usersByLeague = leagues.map(league => ({
+  const usersByLeague = leagues.map((league) => ({
     league,
     users: users
-      .filter(user => user.league === league)
-      .sort((a, b) => b.points - a.points)
+      .filter((user) => user.league === league)
+      .sort((a, b) => b.points - a.points),
   }));
 
   const themeColors = {
@@ -221,4 +228,4 @@ function ResearcherLeaderboard() {
   );
 }
 
-export default ResearcherLeaderboard; 
+export default ResearcherLeaderboard;

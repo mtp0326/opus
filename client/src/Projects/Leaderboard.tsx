@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Paper, Typography } from '@mui/material';
+import {
+  Box,
+  Paper,
+  Typography,
+  Table,
+  TableCell,
+  TableRow,
+  Avatar,
+} from '@mui/material';
 import { getLeaderboard, getWorkerByEmail } from './api';
 import IUser from '../util/types/user';
 import Navigation2 from '../components/Navigation2';
@@ -116,18 +124,46 @@ function Leaderboard() {
   };
 
   const getCurrentRankDifference = (
-    users: IUser[],
+    leaderboardUsers: IUser[],
     currentUserEmail: string,
   ): number => {
-    const sortedUsers = [...users].sort((a, b) => b.points - a.points);
-    const currentUserIndex = sortedUsers.findIndex(
-      (u) => u.email === currentUserEmail,
+    const currentUserIndex = leaderboardUsers.findIndex(
+      (leaderboardUser) => leaderboardUser.email === currentUserEmail,
     );
-    if (currentUserIndex <= 0) return 0;
+    return currentUserIndex >= 0 ? currentUserIndex + 1 : 0;
+  };
 
-    const pointsAhead = sortedUsers[currentUserIndex - 1].points;
-    const currentPoints = sortedUsers[currentUserIndex].points;
-    return pointsAhead - currentPoints + 1;
+  const renderUserRow = (leaderboardUser: IUser, index: number) => {
+    const isCurrentUser = leaderboardUser.email === userInfo?.email;
+    const position = index + 1;
+    const positionStyle = getPositionStyle(position);
+
+    return (
+      <TableRow
+        key={leaderboardUser.email}
+        sx={{
+          backgroundColor: isCurrentUser ? '#FFFAED' : 'inherit',
+          '&:hover': {
+            backgroundColor: isCurrentUser ? '#FFF5D6' : '#f5f5f5',
+          },
+        }}
+      >
+        <TableCell sx={positionStyle}>{position}</TableCell>
+        <TableCell>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Avatar
+              src={leaderboardUser.profilePicture}
+              alt={leaderboardUser.firstName}
+              sx={{ mr: 2 }}
+            />
+            <Typography>
+              {leaderboardUser.firstName} {leaderboardUser.lastName}
+            </Typography>
+          </Box>
+        </TableCell>
+        <TableCell>{leaderboardUser.points}</TableCell>
+      </TableRow>
+    );
   };
 
   return (
@@ -167,69 +203,11 @@ function Leaderboard() {
             backgroundColor: isDarkMode ? '#424242' : 'white',
           }}
         >
-          {users.map((user, index) => (
-            <Box
-              key={user._id}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '1rem 2rem',
-                borderBottom: '1px solid #E5E5E5',
-                backgroundColor:
-                  user.email === userInfo?.email ? '#f0f9f0' : 'white',
-                transition: 'transform 0.2s ease',
-                '&:hover': {
-                  transform: 'scale(1.002)',
-                  backgroundColor: '#f8f8f8',
-                },
-                '&:last-child': {
-                  borderBottom: 'none',
-                },
-              }}
-            >
-              {/* Position Number */}
-              <Typography
-                sx={{
-                  fontFamily: 'Feather Bold',
-                  fontSize: '1.5rem',
-                  width: '50px',
-                  ...getPositionStyle(index + 1),
-                }}
-              >
-                {index + 1}
-              </Typography>
-
-              {/* User Info */}
-              <Box sx={{ flex: 1 }}>
-                <Typography
-                  sx={{
-                    fontFamily: 'Feather Bold',
-                    color: '#4b4b4b',
-                    fontSize: '1.1rem',
-                  }}
-                >
-                  {user.firstName} {user.lastName}
-                </Typography>
-              </Box>
-
-              {/* Points */}
-              <Typography
-                sx={{
-                  fontFamily: 'Feather Bold',
-                  color: '#285943',
-                  fontSize: '1.2rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                }}
-              >
-                {user.points}
-                <span style={{ fontSize: '0.9rem', color: '#757575' }}>
-                  pts
-                </span>
-              </Typography>
-            </Box>
-          ))}
+          <Table>
+            <TableCell>
+              {users.map((user, index) => renderUserRow(user, index))}
+            </TableCell>
+          </Table>
         </Paper>
 
         {users.length === 0 && (

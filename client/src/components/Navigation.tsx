@@ -6,11 +6,38 @@ import { useAppDispatch, useAppSelector } from '../util/redux/hooks';
 import { logout as logoutAction, selectUser } from '../util/redux/userSlice';
 import { logout as logoutApi } from '../Home/api';
 
+// Add font styles
+const fontStyles = `
+  @font-face {
+    font-family: 'Feather Bold';
+    src: url('/fonts/Feather-Bold.woff2') format('woff2'),
+         url('/fonts/Feather-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+  }
+  @font-face {
+    font-family: 'DIN Next Rounded LT W01 Regular';
+    src: url('/fonts/DINNextRoundedLTW01-Regular.woff2') format('woff2'),
+         url('/fonts/DINNextRoundedLTW01-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+`;
+
 function Navigation() {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
   const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
+
+  React.useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = fontStyles;
+    document.head.appendChild(styleElement);
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
 
   const clearStorage = () => {
     sessionStorage.removeItem('surveyFormData');
@@ -43,12 +70,15 @@ function Navigation() {
             color="inherit"
             onClick={() => handleNavigate('/rhome')}
             sx={{
-              fontFamily: 'Feather Bold, sans-serif',
+              fontFamily: 'Feather Bold',
               color: isDarkMode ? '#fff' : '#4b4b4b',
+              fontSize: '1.1rem',
               '&:hover': {
                 backgroundColor: isDarkMode
                   ? 'rgba(255, 255, 255, 0.1)'
                   : '#aff8e5',
+                transform: 'translateY(-2px)',
+                transition: 'transform 0.2s ease',
               },
             }}
           >
@@ -58,12 +88,15 @@ function Navigation() {
             color="inherit"
             onClick={() => handleNavigate('/create-project')}
             sx={{
-              fontFamily: 'Feather Bold, sans-serif',
+              fontFamily: 'Feather Bold',
               color: isDarkMode ? '#fff' : '#4b4b4b',
+              fontSize: '1.1rem',
               '&:hover': {
                 backgroundColor: isDarkMode
                   ? 'rgba(255, 255, 255, 0.1)'
                   : '#aff8e5',
+                transform: 'translateY(-2px)',
+                transition: 'transform 0.2s ease',
               },
             }}
           >
@@ -73,12 +106,15 @@ function Navigation() {
             color="inherit"
             onClick={() => handleNavigate('/manage-tasks')}
             sx={{
-              fontFamily: 'Feather Bold, sans-serif',
+              fontFamily: 'Feather Bold',
               color: isDarkMode ? '#fff' : '#4b4b4b',
+              fontSize: '1.1rem',
               '&:hover': {
                 backgroundColor: isDarkMode
                   ? 'rgba(255, 255, 255, 0.1)'
                   : '#aff8e5',
+                transform: 'translateY(-2px)',
+                transition: 'transform 0.2s ease',
               },
             }}
           >
@@ -89,12 +125,15 @@ function Navigation() {
           color="inherit"
           onClick={handleLogout}
           sx={{
-            fontFamily: 'Feather Bold, sans-serif',
+            fontFamily: 'Feather Bold',
             color: isDarkMode ? '#fff' : '#4b4b4b',
+            fontSize: '1.1rem',
             '&:hover': {
               backgroundColor: isDarkMode
                 ? 'rgba(255, 255, 255, 0.1)'
                 : '#aff8e5',
+              transform: 'translateY(-2px)',
+              transition: 'transform 0.2s ease',
             },
           }}
         >

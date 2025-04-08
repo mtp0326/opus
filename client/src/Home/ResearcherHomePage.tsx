@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import { NavigateFunction, useNavigate } from 'react-router-dom';
 import {
@@ -10,6 +10,11 @@ import {
   IconButton,
   LinearProgress,
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import PeopleIcon from '@mui/icons-material/People';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import BarChartIcon from '@mui/icons-material/BarChart';
 import { useAppDispatch, useAppSelector } from '../util/redux/hooks.ts';
 import {
   logout as logoutAction,
@@ -24,37 +29,15 @@ import {
   getPublishedSurveys,
   getLeaderboard,
   getSurveyResponses,
+  SurveyData,
+  IUser,
 } from '../Projects/api';
-import { SurveyData, IUser } from '../Projects/api';
-import AddIcon from '@mui/icons-material/Add';
-import AssessmentIcon from '@mui/icons-material/Assessment';
-import PeopleIcon from '@mui/icons-material/People';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import BarChartIcon from '@mui/icons-material/BarChart';
 
 interface PromoteButtonProps {
   admin: boolean | null;
   handleSelfPromote?: () => void;
   navigator: NavigateFunction;
 }
-
-// // Inject custom fonts similar to WorkerHomePage
-// const fontStyles = `
-//   @font-face {
-//     font-family: 'Feather Bold';
-//     src: url('/fonts/Feather-Bold.woff2') format('woff2'),
-//          url('/fonts/Feather-Bold.woff') format('woff');
-//     font-weight: bold;
-//     font-style: normal;
-//   }
-//   @font-face {
-//     font-family: 'DIN Next Rounded LT W01 Regular';
-//     src: url('/fonts/DINNextRoundedLTW01-Regular.woff2') format('woff2'),
-//          url('/fonts/DINNextRoundedLTW01-Regular.woff') format('woff');
-//     font-weight: normal;
-//     font-style: normal;
-//   }
-// `;
 
 /**
  * A button which, when clicked, will promote the user to admin. If the user is already admin, the button will be a link to the admin dashboard.
@@ -79,6 +62,45 @@ function PromoteButton({
     </PrimaryButton>
   ) : null;
 }
+
+interface QuickActionCardProps {
+  title: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+}
+
+const QuickActionCard = ({ title, icon, onClick }: QuickActionCardProps) => (
+  <Card
+    sx={{
+      cursor: 'pointer',
+      '&:hover': { transform: 'scale(1.02)', transition: 'transform 0.2s' },
+    }}
+    onClick={onClick}
+  >
+    <CardContent sx={{ textAlign: 'center', p: 2 }}>
+      <IconButton sx={{ mb: 1 }}>{icon}</IconButton>
+      <Typography variant="h6">{title}</Typography>
+    </CardContent>
+  </Card>
+);
+
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  icon: React.ReactNode;
+}
+
+const StatCard = ({ title, value, icon }: StatCardProps) => (
+  <Card>
+    <CardContent>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+        <IconButton sx={{ mr: 1 }}>{icon}</IconButton>
+        <Typography variant="h6">{title}</Typography>
+      </Box>
+      <Typography variant="h4">{value}</Typography>
+    </CardContent>
+  </Card>
+);
 
 /**
  * The HomePage of the user dashboard. Displays a welcome message, a logout button and a button to promote the user to admin if they are not already an admin. If the user is an admin, the button will navigate them to the admin dashboard. This utilizes redux to access the current user's information.
@@ -197,49 +219,6 @@ function ResearcherHomePage() {
 
   const message = `Welcome to Opus, ${user.firstName} ${user.lastName}!`;
 
-  const QuickActionCard = ({
-    title,
-    icon,
-    onClick,
-  }: {
-    title: string;
-    icon: React.ReactNode;
-    onClick: () => void;
-  }) => (
-    <Card
-      sx={{
-        cursor: 'pointer',
-        '&:hover': { transform: 'scale(1.02)', transition: 'transform 0.2s' },
-      }}
-      onClick={onClick}
-    >
-      <CardContent sx={{ textAlign: 'center', p: 2 }}>
-        <IconButton sx={{ mb: 1 }}>{icon}</IconButton>
-        <Typography variant="h6">{title}</Typography>
-      </CardContent>
-    </Card>
-  );
-
-  const StatCard = ({
-    title,
-    value,
-    icon,
-  }: {
-    title: string;
-    value: string | number;
-    icon: React.ReactNode;
-  }) => (
-    <Card>
-      <CardContent>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-          <IconButton sx={{ mr: 1 }}>{icon}</IconButton>
-          <Typography variant="h6">{title}</Typography>
-        </Box>
-        <Typography variant="h4">{value}</Typography>
-      </CardContent>
-    </Card>
-  );
-
   if (loading) {
     return (
       <>
@@ -299,7 +278,7 @@ function ResearcherHomePage() {
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <QuickActionCard
-                  title="Manage Workers"
+                  title="Manage Tasks"
                   icon={<PeopleIcon />}
                   onClick={() => navigator('/manage-tasks')}
                 />
@@ -308,7 +287,7 @@ function ResearcherHomePage() {
                 <QuickActionCard
                   title="Leaderboard"
                   icon={<TrendingUpIcon />}
-                  onClick={() => navigator('/leaderboard')}
+                  onClick={() => navigator('/rleaderboard')}
                 />
               </Grid>
             </Grid>

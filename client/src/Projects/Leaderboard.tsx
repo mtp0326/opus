@@ -6,7 +6,6 @@ import {
   Table,
   TableCell,
   TableRow,
-  Avatar,
 } from '@mui/material';
 import { getLeaderboard, getWorkerByEmail } from './api';
 import IUser from '../util/types/user';
@@ -72,10 +71,18 @@ function Leaderboard() {
 
     // Fetch user info from the server
     if (user && user.email) {
-      getWorkerByEmail(user.email).then((data) => {
-        console.log('🔍 User info:', data);
-        setUserInfo(data[0]);
-      });
+      getWorkerByEmail(user.email)
+        .then((userData) => {
+          console.log('🔍 User info response:', userData);
+          if (userData) {
+            setUserInfo(userData);
+          } else {
+            console.error('Invalid user data received:', userData);
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching user info:', error);
+        });
     }
 
     return () => {
@@ -90,16 +97,28 @@ function Leaderboard() {
 
     const fetchLeaderboardData = async () => {
       try {
-        const data = await getLeaderboard();
-        // Filter users to only show those in the same league as current user
-        const sameLeagueUsers = data.filter(
-          (user: IUser) => user.league === userInfo?.league,
-        );
-        // Sort by points in descending order
-        const sortedUsers = sameLeagueUsers.sort((a, b) => b.points - a.points);
-        setUsers(sortedUsers);
+        console.log('🔍 Current userInfo:', userInfo);
+        if (!userInfo?.league) {
+          console.error('User league not available');
+          return;
+        }
+
+        console.log('📊 Fetching leaderboard for league:', userInfo.league);
+        const data = await getLeaderboard(userInfo.league);
+        console.log('📊 Leaderboard data received:', data);
+
+        if (data && Array.isArray(data)) {
+          // Sort by points in descending order
+          const sortedUsers = data.sort((a, b) => b.points - a.points);
+          console.log('📊 Sorted users:', sortedUsers);
+          setUsers(sortedUsers);
+        } else {
+          console.error('Invalid leaderboard data received:', data);
+          setUsers([]);
+        }
       } catch (error) {
         console.error('Error fetching leaderboard data:', error);
+        setUsers([]);
       }
     };
 
@@ -140,28 +159,52 @@ function Leaderboard() {
 
     return (
       <TableRow
-        key={leaderboardUser.email}
+        key={leaderboardUser._id}
         sx={{
           backgroundColor: isCurrentUser ? '#FFFAED' : 'inherit',
           '&:hover': {
             backgroundColor: isCurrentUser ? '#FFF5D6' : '#f5f5f5',
           },
+          borderBottom: '1px solid #E5E5E5',
+          '&:last-child': {
+            borderBottom: 'none',
+          },
         }}
       >
-        <TableCell sx={positionStyle}>{position}</TableCell>
-        <TableCell>
+        <TableCell
+          sx={{
+            ...positionStyle,
+            fontFamily: 'Feather Bold',
+            fontSize: '1.2rem',
+            width: '50px',
+            padding: '1rem 2rem',
+          }}
+        >
+          {position}
+        </TableCell>
+        <TableCell sx={{ padding: '1rem 2rem' }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Avatar
-              src={leaderboardUser.profilePicture}
-              alt={leaderboardUser.firstName}
-              sx={{ mr: 2 }}
-            />
-            <Typography>
+            <Typography
+              sx={{
+                fontFamily: 'Feather Bold',
+                color: themeColors.text,
+                fontSize: '1.1rem',
+              }}
+            >
               {leaderboardUser.firstName} {leaderboardUser.lastName}
             </Typography>
           </Box>
         </TableCell>
-        <TableCell>{leaderboardUser.points}</TableCell>
+        <TableCell
+          sx={{
+            fontFamily: 'Feather Bold',
+            color: themeColors.primary,
+            fontSize: '1.1rem',
+            padding: '1rem 2rem',
+          }}
+        >
+          {leaderboardUser.points} pts
+        </TableCell>
       </TableRow>
     );
   };
@@ -201,12 +244,36 @@ function Leaderboard() {
             overflow: 'hidden',
             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
             backgroundColor: isDarkMode ? '#424242' : 'white',
+            padding: '1rem',
           }}
         >
           <Table>
-            <TableCell>
-              {users.map((user, index) => renderUserRow(user, index))}
-            </TableCell>
+            <TableRow
+              sx={{
+                backgroundColor: isDarkMode ? '#1C2B34' : '#f5f5f5',
+                '& th': {
+                  padding: '1rem 2rem',
+                  borderBottom: '2px solid #E5E5E5',
+                },
+              }}
+            >
+              <TableCell
+                sx={{ fontFamily: 'Feather Bold', color: themeColors.primary }}
+              >
+                Rank
+              </TableCell>
+              <TableCell
+                sx={{ fontFamily: 'Feather Bold', color: themeColors.primary }}
+              >
+                User
+              </TableCell>
+              <TableCell
+                sx={{ fontFamily: 'Feather Bold', color: themeColors.primary }}
+              >
+                Points
+              </TableCell>
+            </TableRow>
+            {users.map((user, index) => renderUserRow(user, index))}
           </Table>
         </Paper>
 

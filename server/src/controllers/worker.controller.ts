@@ -24,7 +24,12 @@ const getWorkerInfo = async (
   return (
     getWorkerInfoFromDB(userEmail)
       .then((worker) => {
-        res.status(StatusCode.OK).send(worker);
+        if (!worker) {
+          return res
+            .status(StatusCode.NOT_FOUND)
+            .json({ error: 'Worker not found' });
+        }
+        res.status(StatusCode.OK).json(worker);
       })
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       .catch((e) => {

@@ -32,10 +32,20 @@ export interface IUser {
   firstName: string;
   lastName: string;
   email: string;
+  password: string;
+  verified: boolean;
+  verificationToken?: string;
+  resetPasswordToken?: string;
+  resetPasswordTokenExpiryDate?: Date;
+  admin: boolean;
+  league: 'Wood' | 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond';
+  cashBalance: number;
+  streak?: number;
+  tickets?: number;
+  lastSurveyDate?: Date | null;
+  userType: 'researcher' | 'worker';
   points: number;
   surveysCompleted: number;
-  cashBalance: number;
-  league: string;
 }
 
 /**
@@ -208,18 +218,20 @@ export const handleSurveyJsSave = async (
 
 /**
  * Fetches the leaderboard data from the server
+ * @param league Optional league to filter by
  * @returns A promise that resolves to an array of users
  * @throws An {@link Error} with a `message` field describing any issues in fetching
  */
-export const getLeaderboard = async (): Promise<IUser[]> => {
-  const response = await getData('leaderboard/');
+export const getLeaderboard = async (league?: string): Promise<IUser[]> => {
+  const url = league ? `leaderboard/?league=${league}` : 'leaderboard/';
+  const response = await getData(url);
 
   if (response.error) {
     console.error('❌ Failed to fetch leaderboard:', response.error);
     throw new Error(response.error.message);
   }
 
-  return response.data; // Ensure this matches the expected data structure
+  return response.data;
 };
 
 export const getSurveyById = async (surveyId: string) => {
@@ -308,7 +320,7 @@ export const getWorkerByEmail = async (email: string): Promise<IUser> => {
   }
 
   console.log('✅ Worker information fetched successfully:', response.data);
-  return response.data; // Return the single user object
+  return response.data;
 };
 
 export const getPointsForNextLeague = (currentPoints: number): number => {

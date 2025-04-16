@@ -134,7 +134,9 @@ const getAllUsersFromDB = async () => {
  */
 const getWorkerInfoFromDB = async (userEmail: string) => {
   const worker = await User.findOne({ userType: 'worker', email: userEmail })
-    .select(removeSensitiveDataQuery)
+    .select(
+      '_id firstName lastName email points league cashBalance surveysCompleted userType',
+    )
     .exec();
   return worker;
 };

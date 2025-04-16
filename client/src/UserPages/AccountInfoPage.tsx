@@ -113,7 +113,8 @@ function AccountInfoPage() {
       // Fetch Plaid link token
       const fetchLinkToken = async () => {
         try {
-          if (user.email) { // Add null check for email
+          if (user.email) {
+            // Add null check for email
             const token = await createLinkToken(user.email);
             setLinkToken(token);
           }

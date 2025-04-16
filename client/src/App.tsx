@@ -117,10 +117,6 @@ function App() {
                         element={<SurveyResultsSummary />}
                       />
                       <Route
-                        path="/account-info"
-                        element={<AccountInfoPage />}
-                      />
-                      <Route
                         path="/create-project"
                         element={<CreateProject />}
                       />

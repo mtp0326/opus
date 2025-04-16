@@ -70,13 +70,13 @@ function ResearcherRoutesWrapper() {
   }
 
   const { data } = response;
-  if (!data.error && data.user?.userType === 'researcher') {
-    console.log('User is researcher, allowing access');
-    return <Outlet />;
+  if (!data || !data.user || data.user.userType !== 'researcher') {
+    console.log('User is not researcher, redirecting');
+    return <Navigate to="/" />;
   }
 
-  console.log('User is not researcher, redirecting');
-  return <Navigate to="/" />;
+  console.log('User is researcher, allowing access');
+  return <Outlet />;
 }
 
 /**

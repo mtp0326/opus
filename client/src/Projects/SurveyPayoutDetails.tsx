@@ -52,13 +52,17 @@ function SurveyPayoutDetails() {
         });
 
         // Fetch payout details
-        const payoutsResponse = await getData(`surveys/${surveyId}/payout-details`);
+        const payoutsResponse = await getData(
+          `surveys/${surveyId}/payout-details`,
+        );
         if (payoutsResponse.error) {
           throw new Error(payoutsResponse.error.message);
         }
         setPayouts(payoutsResponse.data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch payout details');
+        setError(
+          err instanceof Error ? err.message : 'Failed to fetch payout details',
+        );
       } finally {
         setLoading(false);
       }
@@ -130,7 +134,9 @@ function SurveyPayoutDetails() {
                   <TableRow key={payout._id}>
                     <TableCell>{payout.worker.email}</TableCell>
                     <TableCell align="right">{payout.xpEarned}</TableCell>
-                    <TableCell align="right">{payout.attentionCheckScore}</TableCell>
+                    <TableCell align="right">
+                      {payout.attentionCheckScore}
+                    </TableCell>
                     <TableCell align="right">{payout.status}</TableCell>
                   </TableRow>
                 ))}
@@ -143,4 +149,4 @@ function SurveyPayoutDetails() {
   );
 }
 
-export default SurveyPayoutDetails; 
+export default SurveyPayoutDetails;

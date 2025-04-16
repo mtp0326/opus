@@ -245,7 +245,7 @@ export const approve = (req: express.Request, res: express.Response) => {
   console.log('User data in approve:', req.user);
   res.status(200).json({
     error: false,
-    user: req.user
+    user: req.user,
   });
 };
 

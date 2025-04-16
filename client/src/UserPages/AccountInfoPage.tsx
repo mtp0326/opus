@@ -97,15 +97,26 @@ function AccountInfoPage() {
 
     // Fetch user info
     if (user && user.email) {
-      getWorkerByEmail(user.email).then((data) => {
-        setUserInfo(data[0]);
-      });
+      getWorkerByEmail(user.email)
+        .then((workerInfo) => {
+          console.log('User info response:', workerInfo); // Add logging to debug
+          if (workerInfo) {
+            setUserInfo(workerInfo);
+          } else {
+            console.error('No user data found');
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to fetch user info:', error);
+        });
 
       // Fetch Plaid link token
       const fetchLinkToken = async () => {
         try {
-          const token = await createLinkToken(user.email);
-          setLinkToken(token);
+          if (user.email) { // Add null check for email
+            const token = await createLinkToken(user.email);
+            setLinkToken(token);
+          }
         } catch (error) {
           console.error('Failed to create link token', error);
         }

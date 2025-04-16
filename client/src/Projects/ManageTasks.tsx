@@ -254,17 +254,31 @@ function ManageTasks() {
                                   <Button
                                     variant="contained"
                                     sx={{
-                                      backgroundColor: survey.payoutIssued ? 'grey.300' : 'primary.main',
-                                      color: survey.payoutIssued ? 'text.secondary' : 'white',
+                                      backgroundColor: survey.payoutIssued
+                                        ? 'grey.300'
+                                        : 'primary.main',
+                                      color: survey.payoutIssued
+                                        ? 'text.secondary'
+                                        : 'white',
                                       '&:hover': {
-                                        backgroundColor: survey.payoutIssued ? 'grey.300' : 'primary.dark',
+                                        backgroundColor: survey.payoutIssued
+                                          ? 'grey.300'
+                                          : 'primary.dark',
                                       },
                                     }}
                                     startIcon={<PaymentIcon />}
-                                    onClick={() => survey.payoutIssued ? navigate(`/survey-payouts/${survey._id}`) : handlePayoutClick(survey)}
+                                    onClick={() =>
+                                      survey.payoutIssued
+                                        ? navigate(
+                                            `/survey-payouts/${survey._id}`,
+                                          )
+                                        : handlePayoutClick(survey)
+                                    }
                                     disabled={false}
                                   >
-                                    {survey.payoutIssued ? "Payment Issued" : "Issue Payout"}
+                                    {survey.payoutIssued
+                                      ? 'Payment Issued'
+                                      : 'Issue Payout'}
                                   </Button>
                                 )}
                               </Box>

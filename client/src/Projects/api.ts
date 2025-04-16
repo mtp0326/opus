@@ -308,7 +308,7 @@ export const getWorkerByEmail = async (email: string): Promise<IUser> => {
   }
 
   console.log('✅ Worker information fetched successfully:', response.data);
-  return response.data;
+  return response.data[0]; // The server sends the worker data in an array
 };
 
 export const getPointsForNextLeague = (currentPoints: number): number => {

@@ -3,6 +3,7 @@
  * for project and survey-related operations.
  */
 import { SurveyCreator } from 'survey-creator-react';
+import axios from 'axios';
 import { postData, getData, putData } from '../util/api.tsx';
 
 interface SurveyData {
@@ -172,43 +173,33 @@ export const submitSurveyCompletion = async (data: SurveyCompletionData) => {
 export const handleSurveyJsSave = async (
   creatorRef: React.RefObject<SurveyCreator>,
   showAlert: (message: string, type: 'success' | 'error' | 'info') => void,
-) => {
+): Promise<void> => {
   try {
-    if (!creatorRef.current) return;
-    const surveyJSON = creatorRef.current.JSON;
+    if (!creatorRef.current) {
+      throw new Error('Survey creator reference is not available');
+    }
+
+    const surveyContent = creatorRef.current.JSON;
     const title = creatorRef.current.survey.title || 'Untitled Survey';
     const description = creatorRef.current.survey.description || '';
 
-    const savedSurveyId = localStorage.getItem('currentSurveyId');
-
-    // Get the respondents from localStorage
-    const formData = JSON.parse(localStorage.getItem('surveyFormData') || '{}');
-
-    const saveData = {
+    const response = await axios.post('/api/surveys/save', {
+      content: surveyContent,
       title,
       description,
-      content: surveyJSON,
       status: 'draft',
-      respondents: formData.respondents || 1, // Default to 1 if not set
-    };
+    });
 
-    let response;
-    if (savedSurveyId) {
-      response = await putData(`surveys/js/${savedSurveyId}/edit`, saveData);
-    } else {
-      response = await postData('surveys/js/save', saveData);
-      if (response.data?.data?._id) {
-        const surveyId = response.data.data._id.toString();
-        localStorage.setItem('currentSurveyId', surveyId);
-      }
+    if (response.data?.data?._id) {
+      const surveyId = response.data.data._id.toString();
+      localStorage.setItem('currentSurveyId', surveyId);
     }
 
-    if (response.error) {
-      throw new Error(response.error.message);
+    if (response.data?.error) {
+      throw new Error(response.data.error.message);
     }
 
     showAlert('Survey saved successfully!', 'success');
-    return response;
   } catch (error) {
     console.error('Failed to save survey:', error);
     showAlert('Failed to save survey', 'error');

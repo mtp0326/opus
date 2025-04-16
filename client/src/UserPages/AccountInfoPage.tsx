@@ -69,6 +69,67 @@ const getLeagueColor = (league: string) => {
   }
 };
 
+// Move StatBox component outside of AccountInfoPage
+function StatBox({
+  label,
+  value,
+  isDarkMode,
+}: {
+  label: string;
+  value: string | number;
+  isDarkMode: boolean;
+}) {
+  const themeColors = {
+    background: isDarkMode ? '#102622' : '#FFFAED',
+    text: isDarkMode ? '#ffffff' : '#141F25',
+    primary: '#285943',
+    secondary: '#1cb0f6',
+    accent: '#ce82ff',
+  };
+
+  return (
+    <Paper
+      elevation={0}
+      sx={{
+        p: 3,
+        borderRadius: '12px',
+        border: '3px solid #E5E5E5',
+        textAlign: 'center',
+        transition: 'transform 0.2s ease',
+        backgroundColor: isDarkMode ? '#1C2B34' : '#fff',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+        },
+      }}
+    >
+      <div
+        style={{
+          color: themeColors.text,
+          fontFamily: 'DIN Next Rounded LT W01 Regular',
+          marginBottom: '8px',
+          fontSize: '1rem',
+        }}
+      >
+        {label}
+      </div>
+      <div
+        style={{
+          color: (() => {
+            if (typeof value === 'string' && label === 'League') {
+              return getLeagueColor(value);
+            }
+            return isDarkMode ? '#fff' : themeColors.primary;
+          })(),
+          fontFamily: 'Feather Bold',
+          fontSize: '1.5rem',
+        }}
+      >
+        {value}
+      </div>
+    </Paper>
+  );
+}
+
 function AccountInfoPage() {
   const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
@@ -80,6 +141,8 @@ function AccountInfoPage() {
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState<number>(0);
   const [linkToken, setLinkToken] = useState<string | null>(null);
+  const [linkSuccess, setLinkSuccess] = useState(false);
+  const [linkError, setLinkError] = useState<string | null>(null);
 
   const logoutDispatch = () => dispatch(logoutAction());
   const handleLogout = async () => {
@@ -133,38 +196,27 @@ function AccountInfoPage() {
   // Plaid Link configuration
   const { open, ready } = usePlaidLink({
     token: linkToken,
-    onSuccess: async (public_token, metadata) => {
+    onSuccess: async (publicToken: string, metadata: any) => {
       try {
-        // Exchange public token for access token
-        const { access_token, item_id } = await exchangePublicToken(
-          public_token,
-        );
+        const response = await exchangePublicToken(publicToken);
+        const { accessToken, itemId } = response.data;
 
-        // Initiate withdrawal
-        const withdrawalResult = await initiateWithdrawal({
-          access_token,
-          item_id,
-          amount: withdrawAmount,
-          email: user?.email || '',
-        });
+        // Store the access token and item ID
+        localStorage.setItem('plaidAccessToken', accessToken);
+        localStorage.setItem('plaidItemId', itemId);
 
-        // Update local cash balance
-        if (withdrawalResult.success) {
-          dispatch(updateCashBalance(-withdrawAmount));
-
-          // Close modal and reset state
-          setIsWithdrawModalOpen(false);
-          setWithdrawAmount(0);
-        }
+        setLinkSuccess(true);
+        setLinkToken(null);
       } catch (error) {
-        console.error('Withdrawal failed', error);
-        // TODO: Add user-friendly error handling
+        console.error('Error exchanging public token:', error);
+        setLinkError('Failed to link bank account');
       }
     },
-    onExit: (err, metadata) => {
-      if (err) {
-        console.error('Plaid Link error', err);
+    onExit: (error: any) => {
+      if (error) {
+        setLinkError(error.message);
       }
+      setLinkToken(null);
     },
   });
 
@@ -193,55 +245,98 @@ function AccountInfoPage() {
   };
 
   // Existing StatBox component remains the same
-  function StatBox({
-    label,
-    value,
-  }: {
-    label: string;
-    value: string | number;
-  }) {
+  const renderWithdrawButton = () => {
+    if (user?.cashBalance === undefined || user.cashBalance <= 0) {
+      return (
+        <Button
+          type="button"
+          variant="contained"
+          disabled
+          sx={{
+            backgroundColor: themeColors.primary,
+            color: themeColors.text,
+            '&:disabled': {
+              backgroundColor: '#cccccc',
+              color: '#666666',
+            },
+          }}
+        >
+          Withdraw
+        </Button>
+      );
+    }
+
     return (
-      <Paper
-        elevation={0}
+      <Button
+        type="button"
+        variant="contained"
+        onClick={handleWithdraw}
         sx={{
-          p: 3,
-          borderRadius: '12px',
-          border: '3px solid #E5E5E5',
-          textAlign: 'center',
-          transition: 'transform 0.2s ease',
-          backgroundColor: isDarkMode ? '#1C2B34' : '#fff',
-          '&:hover': {
-            transform: 'translateY(-4px)',
-          },
+          backgroundColor: themeColors.primary,
+          color: themeColors.text,
         }}
       >
-        <div
-          style={{
-            color: themeColors.text,
-            fontFamily: 'DIN Next Rounded LT W01 Regular',
-            marginBottom: '8px',
-            fontSize: '1rem',
-          }}
-        >
-          {label}
-        </div>
-        <div
-          style={{
-            color:
-              typeof value === 'string' && label === 'League'
-                ? getLeagueColor(value)
-                : isDarkMode
-                ? '#fff'
-                : themeColors.primary,
-            fontFamily: 'Feather Bold',
-            fontSize: '1.5rem',
-          }}
-        >
-          {value}
-        </div>
-      </Paper>
+        Withdraw
+      </Button>
     );
-  }
+  };
+
+  const getLeagueProgress = (currentLeague: string, nextLeague: string) => {
+    const leaguePoints = {
+      Wood: 0,
+      Bronze: 100,
+      Silver: 500,
+      Gold: 1000,
+      Platinum: 2500,
+      Diamond: 5000,
+    };
+
+    const currentPoints =
+      leaguePoints[currentLeague as keyof typeof leaguePoints] || 0;
+    const nextPoints =
+      leaguePoints[nextLeague as keyof typeof leaguePoints] || 0;
+    const userPoints = user?.points || 0;
+
+    if (currentPoints === nextPoints) return 100;
+    return Math.min(
+      100,
+      ((userPoints - currentPoints) / (nextPoints - currentPoints)) * 100,
+    );
+  };
+
+  const renderLeagueProgress = () => {
+    const currentLeague = user?.league || 'Wood';
+    const nextLeague = getNextLeague(currentLeague);
+    const progress = getLeagueProgress(currentLeague, nextLeague);
+
+    return (
+      <Box sx={{ width: '100%', mb: 2 }}>
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          Progress to {nextLeague} League
+        </Typography>
+        <Box
+          sx={{
+            width: '100%',
+            height: 8,
+            backgroundColor: '#e0e0e0',
+            borderRadius: 4,
+            overflow: 'hidden',
+          }}
+        >
+          <Box
+            sx={{
+              width: `${progress}%`,
+              height: '100%',
+              backgroundColor: getLeagueColor(nextLeague),
+            }}
+          />
+        </Box>
+        <Typography variant="caption" sx={{ mt: 1 }}>
+          {Math.round(progress)}% complete
+        </Typography>
+      </Box>
+    );
+  };
 
   // Not logged in view remains the same
   if (!user || !user.email) {
@@ -260,6 +355,7 @@ function AccountInfoPage() {
         >
           <h2>Please log in to view account information</h2>
           <button
+            type="button"
             onClick={() => navigate('/wlogin')}
             style={{
               fontFamily: 'Feather Bold',
@@ -371,6 +467,7 @@ function AccountInfoPage() {
 
                 <Grid item xs={12} md={6}>
                   <button
+                    type="button"
                     onClick={() => navigate('/email-reset')}
                     style={{
                       fontFamily: 'Feather Bold',
@@ -416,8 +513,11 @@ function AccountInfoPage() {
                   </Grid>
                   <Grid item container justifyContent="center" sx={{ mt: 2 }}>
                     <Button
+                      type="button"
                       onClick={() => setIsWithdrawModalOpen(true)}
-                      disabled={!(userInfo?.cashBalance ?? 0 > 0)}
+                      disabled={
+                        !userInfo?.cashBalance || userInfo.cashBalance <= 0
+                      }
                       style={{
                         fontFamily: 'Feather Bold',
                         backgroundColor: themeColors.primary,
@@ -430,7 +530,7 @@ function AccountInfoPage() {
                         width: '100%',
                         transition: 'all 0.2s ease',
                         boxShadow: '0 4px 0 #45a501',
-                        textTransform: 'none', // This ensures the text is not in uppercase
+                        textTransform: 'none',
                         '&:hover': {
                           backgroundColor: '#45a501',
                           transform: 'translateY(1px)',
@@ -449,21 +549,31 @@ function AccountInfoPage() {
           <Grid item xs={12}>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6} md={3}>
-                <StatBox label="League" value={userInfo?.league || 'Wood'} />
+                <StatBox
+                  label="League"
+                  value={userInfo?.league || 'Wood'}
+                  isDarkMode={isDarkMode}
+                />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
-                <StatBox label="Points" value={userInfo?.points ?? 0} />
+                <StatBox
+                  label="Points"
+                  value={userInfo?.points ?? 0}
+                  isDarkMode={isDarkMode}
+                />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <StatBox
                   label="Cash Balance"
                   value={`$${userInfo?.cashBalance ?? 0}`}
+                  isDarkMode={isDarkMode}
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
                 <StatBox
                   label="Surveys Completed"
                   value={userInfo?.surveysCompleted ?? 0}
+                  isDarkMode={isDarkMode}
                 />
               </Grid>
             </Grid>

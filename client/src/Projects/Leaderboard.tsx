@@ -127,7 +127,7 @@ function Leaderboard() {
     return () => {
       document.head.removeChild(styleElement);
     };
-  }, [userInfo?.league]);
+  }, [userInfo?.league, userInfo]);
 
   const getPositionStyle = (position: number) => {
     switch (position) {
@@ -153,7 +153,12 @@ function Leaderboard() {
   };
 
   const renderUserRow = (leaderboardUser: IUser, index: number) => {
-    const isCurrentUser = leaderboardUser.email === userInfo?.email;
+    const isCurrentUser = leaderboardUser.email === user?.email;
+    const currentUser = user;
+    const rankDifference = getCurrentRankDifference(
+      users,
+      currentUser?.email || '',
+    );
     const position = index + 1;
     const positionStyle = getPositionStyle(position);
 
@@ -273,7 +278,9 @@ function Leaderboard() {
                 Points
               </TableCell>
             </TableRow>
-            {users.map((user, index) => renderUserRow(user, index))}
+            {users.map((leaderboardUser, index) =>
+              renderUserRow(leaderboardUser, index),
+            )}
           </Table>
         </Paper>
 

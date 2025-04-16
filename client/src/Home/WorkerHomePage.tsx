@@ -253,7 +253,7 @@ function WorkerHomePage() {
     if (user && user.email) {
       getWorkerByEmail(user.email).then((data) => {
         console.log('🔍 User info:', data);
-        setUserInfo(data[0]);
+        setUserInfo(data);
         setUserGoalPoints(getUserGoalPoints(userInfo?.league ?? 'wood'));
       });
     }

@@ -192,15 +192,12 @@ export const distributeBiWeeklyPayout = async () => {
  */
 export const generateLeaderboard = async (league?: IUser['league']) => {
   const filter = league ? { league } : {};
-  const users = await User.find(filter).sort({ points: -1 });
-  return users.map((user, idx) => ({
-    rank: idx + 1,
-    userId: user._id,
-    name: `${user.firstName} ${user.lastName}`,
-    points: user.points,
-    cashBalance: user.cashBalance,
-    league: user.league,
-  }));
+  const users = await User.find(filter)
+    .select(
+      '_id firstName lastName email points league cashBalance surveysCompleted',
+    )
+    .sort({ points: -1 });
+  return users;
 };
 
 /**

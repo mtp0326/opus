@@ -83,16 +83,17 @@ function ResearcherRoutesWrapper() {
  * A wrapper component whose children routes can only be accessed by workers
  */
 function WorkerRoutesWrapper() {
-  const response = useData('auth/authstatus') as {
-    data: AuthResponse;
-    error: null;
-  } | null;
+  const response = useData('auth/authstatus');
   if (response === null) {
     return null;
   }
 
-  const { data } = response;
-  if (!data.error && data.user?.userType === 'worker') {
+  if (response.error) {
+    console.log('Authentication error:', response.error);
+    return <Navigate to="/" />;
+  }
+
+  if (response.data?.user?.userType === 'worker') {
     console.log('User is worker, allowing access');
     return <Outlet />;
   }

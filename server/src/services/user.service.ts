@@ -133,8 +133,10 @@ const getAllUsersFromDB = async () => {
  * @returns The {@link User}s in the database without their passwords.
  */
 const getWorkerInfoFromDB = async (userEmail: string) => {
-  const worker = await User.find({ userType: 'worker', email: userEmail })
-    .select(removeSensitiveDataQuery)
+  const worker = await User.findOne({ userType: 'worker', email: userEmail })
+    .select(
+      '_id firstName lastName email points league cashBalance surveysCompleted userType',
+    )
     .exec();
   return worker;
 };

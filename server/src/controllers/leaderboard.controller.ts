@@ -1,12 +1,34 @@
 import { Request, Response } from 'express';
-import { User } from '../models/user.model.ts';
+import { generateLeaderboard, IUser } from '../models/user.model.ts';
 
 export const getLeaderboard = async (req: Request, res: Response) => {
   try {
-    console.log('TRYING');
+    console.log('Fetching leaderboard data');
+    const { league } = req.query;
 
-    // const users = await User.find().sort({ points: -1 }).limit(10); // Fetch top 10 users
-    const users = await User.find().sort({ points: -1 }); // Fetch all users
+    // Validate league parameter if provided
+    const validLeagues = [
+      'Wood',
+      'Bronze',
+      'Silver',
+      'Gold',
+      'Platinum',
+      'Diamond',
+    ] as const;
+    if (
+      league &&
+      !validLeagues.includes(league as (typeof validLeagues)[number])
+    ) {
+      return res.status(400).json({ error: 'Invalid league specified' });
+    }
+
+    // If league is provided, filter by league, otherwise get all users
+    const users = await generateLeaderboard(league as IUser['league']);
+
+    if (!users || users.length === 0) {
+      return res.status(404).json({ error: 'No users found' });
+    }
+
     res.json(users);
   } catch (error) {
     console.error('Error fetching leaderboard data:', error);

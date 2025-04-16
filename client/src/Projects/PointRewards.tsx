@@ -48,9 +48,18 @@ function PointRewards() {
     document.head.appendChild(styleElement);
 
     if (user && user.email) {
-      getWorkerByEmail(user.email).then((data) => {
-        setUserInfo(data[0]);
-      });
+      getWorkerByEmail(user.email)
+        .then((userData) => {
+          console.log('🔍 User info response:', userData);
+          if (userData) {
+            setUserInfo(userData);
+          } else {
+            console.error('Invalid user data received:', userData);
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching user info:', error);
+        });
     }
 
     return () => {

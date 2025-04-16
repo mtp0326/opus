@@ -162,7 +162,7 @@ function WorkerHomePage() {
   const progressRef = React.useRef(0);
   const startTime = React.useRef(Date.now());
   const progressSound = React.useRef(
-    new Audio('/assets/sounds/correct-answer.mp3'),
+    new Audio('/assets/sounds/duolingo-correct.mp3'),
   );
   const completionSound = React.useRef(new Audio('/assets/sounds/Wii-Win.mp3'));
   const [dailyQuestions, setDailyQuestions] = useState(0);
@@ -313,17 +313,6 @@ function WorkerHomePage() {
       setError('Failed to load survey content.');
     }
   }, [formData, isLoading, isFound, setError, setSurvey]);
-
-  useEffect(() => {
-    if (admin && navigator) {
-      const checkAdminStatus = () => {
-        if (admin) {
-          navigator('/admin');
-        }
-      };
-      checkAdminStatus();
-    }
-  }, [admin, navigator]);
 
   useEffect(() => {
     // Get the current date as YYYY-MM-DD

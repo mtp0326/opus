@@ -16,6 +16,7 @@ export interface ISurvey extends mongoose.Document {
   createdAt: Date;
   submitterList: string[];
   instructions: string;
+  payoutIssued: boolean;
 }
 
 const SurveySchema = new mongoose.Schema<ISurvey>({
@@ -49,6 +50,7 @@ const SurveySchema = new mongoose.Schema<ISurvey>({
     default: 'active',
   },
   instructions: { type: String, required: true },
+  payoutIssued: { type: Boolean, default: false },
 });
 
 export default mongoose.model<ISurvey>('Survey', SurveySchema);

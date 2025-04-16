@@ -29,6 +29,7 @@ interface Survey extends SurveyData {
   _id: string;
   surveyType?: 'surveyjs';
   content?: any;
+  payoutIssued?: boolean;
 }
 
 function ManageTasks() {
@@ -112,7 +113,7 @@ function ManageTasks() {
       setSurveys((prevSurveys) =>
         prevSurveys.map((survey) =>
           survey._id === selectedSurvey._id
-            ? { ...survey, status: 'completed' }
+            ? { ...survey, payoutIssued: true }
             : survey,
         ),
       );
@@ -252,11 +253,18 @@ function ManageTasks() {
                                 {survey.status === 'completed' && (
                                   <Button
                                     variant="contained"
-                                    color="primary"
+                                    sx={{
+                                      backgroundColor: survey.payoutIssued ? 'grey.300' : 'primary.main',
+                                      color: survey.payoutIssued ? 'text.secondary' : 'white',
+                                      '&:hover': {
+                                        backgroundColor: survey.payoutIssued ? 'grey.300' : 'primary.dark',
+                                      },
+                                    }}
                                     startIcon={<PaymentIcon />}
-                                    onClick={() => handlePayoutClick(survey)}
+                                    onClick={() => survey.payoutIssued ? navigate(`/survey-payouts/${survey._id}`) : handlePayoutClick(survey)}
+                                    disabled={false}
                                   >
-                                    Issue Payout
+                                    {survey.payoutIssued ? "Payment Issued" : "Issue Payout"}
                                   </Button>
                                 )}
                               </Box>

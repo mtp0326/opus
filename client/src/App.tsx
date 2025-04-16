@@ -51,6 +51,7 @@ import AccountInfoPage from './UserPages/AccountInfoPage.tsx';
 import { ThemeProvider as CustomThemeProvider } from './context/ThemeContext';
 import PointRewards from './Projects/PointRewards';
 import ResearcherLeaderboard from './Projects/ResearcherLeaderboard.tsx';
+import SurveyPayoutDetails from './Projects/SurveyPayoutDetails';
 
 function App() {
   return (
@@ -145,6 +146,10 @@ function App() {
                       <Route
                         path="/survey-results/:surveyId"
                         element={<SurveyResults />}
+                      />
+                      <Route
+                        path="/survey-payouts/:surveyId"
+                        element={<SurveyPayoutDetails />}
                       />
                     </Route>
 

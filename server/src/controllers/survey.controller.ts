@@ -6,7 +6,7 @@ import multer from 'multer';
 import mammoth from 'mammoth';
 import ApiError from '../util/apiError.ts';
 import Survey from '../models/survey.model.ts';
-import { User, IUser } from '../models/user.model.ts';
+import { User, IUser, distributeSurveyLottery } from '../models/user.model.ts';
 import SurveySubmission from '../models/surveySubmission.model.ts';
 import SurveyJs from '../models/surveyJs.model.ts';
 import SurveyJsSubmission from '../models/surveyJsSubmission.model.ts';
@@ -95,7 +95,7 @@ export const getResearcherSurveys = async (
         createdBy: req.user?._id,
       })
         .select(
-          '_id title description content createdAt status respondents reward',
+          '_id title description content createdAt status respondents reward payoutIssued',
         )
         .sort({ createdAt: -1 }),
 
@@ -103,7 +103,7 @@ export const getResearcherSurveys = async (
         createdBy: req.user?._id,
       })
         .select(
-          '_id title description content createdAt status respondents reward',
+          '_id title description content createdAt status respondents reward payoutIssued',
         )
         .sort({ createdAt: -1 }),
     ]);
@@ -1319,6 +1319,96 @@ export const getSurveyResponses = async (
     return res.json(totalResponses);
   } catch (error: any) {
     console.error('❌ Error fetching survey responses:', error.message);
+    res.status(400).json({ error: { message: error.message } });
+  }
+};
+
+export const issueSurveyPayout = async (
+  req: Request & { user?: IUser },
+  res: Response,
+) => {
+  try {
+    const { surveyId } = req.params;
+    const { type } = req.body;
+
+    if (!req.user?._id) {
+      throw new Error('User not authenticated');
+    }
+
+    // Find the survey and check ownership
+    const [externalSurvey, jsSurvey] = await Promise.all([
+      Survey.findOne({ _id: surveyId, createdBy: req.user._id }),
+      SurveyJs.findOne({ _id: surveyId, createdBy: req.user._id }),
+    ]);
+
+    const survey = externalSurvey || jsSurvey;
+    if (!survey) {
+      return res.status(404).json({
+        error: { message: 'Survey not found or unauthorized' },
+      });
+    }
+
+    // Check if payout has already been issued
+    if (survey.payoutIssued) {
+      return res.status(400).json({
+        error: { message: 'Payout has already been issued for this survey' },
+      });
+    }
+
+    // Update the survey to mark payout as issued
+    survey.payoutIssued = true;
+    await survey.save();
+
+    // Distribute the payout based on type
+    if (type === 'lottery') {
+      await distributeSurveyLottery(surveyId, survey.reward || 0);
+    }
+
+    return res.json({
+      message: 'Payout issued successfully',
+      data: survey,
+    });
+  } catch (error: any) {
+    console.error('❌ Error issuing payout:', error.message);
+    res.status(400).json({ error: { message: error.message } });
+  }
+};
+
+export const getSurveyPayoutDetails = async (
+  req: Request & { user?: IUser },
+  res: Response,
+) => {
+  try {
+    const { surveyId } = req.params;
+
+    if (!req.user?._id) {
+      throw new Error('User not authenticated');
+    }
+
+    // Check if survey exists and belongs to the user
+    const [externalSurvey, jsSurvey] = await Promise.all([
+      Survey.findOne({ _id: surveyId, createdBy: req.user._id }),
+      SurveyJs.findOne({ _id: surveyId, createdBy: req.user._id }),
+    ]);
+
+    if (!externalSurvey && !jsSurvey) {
+      return res.status(404).json({
+        error: { message: 'Survey not found or unauthorized' },
+      });
+    }
+
+    // Get all submissions for the survey
+    const submissions = jsSurvey
+      ? await SurveyJsSubmission.find({ survey: surveyId })
+          .populate('worker', 'email')
+          .select('worker xpEarned attentionCheckScore status')
+      : await SurveySubmission.find({ survey: surveyId })
+          .populate('worker', 'email')
+          .select('worker xpEarned status');
+
+    return res.json(submissions);
+  } catch (error: any) {
+    console.error('❌ Error fetching payout details:', error.message);
     res.status(400).json({ error: { message: error.message } });
   }
 };

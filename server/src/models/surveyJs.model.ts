@@ -15,6 +15,7 @@ interface ISurveyJs {
   workerQualifications?: 'basic' | 'intermediate' | 'expert';
   status: 'active' | 'completed' | 'expired' | 'draft';
   submitterList?: string[];
+  payoutIssued?: boolean;
 }
 
 const surveyJsSchema = new mongoose.Schema<ISurveyJs>({
@@ -76,6 +77,10 @@ const surveyJsSchema = new mongoose.Schema<ISurveyJs>({
     type: String,
     enum: ['active', 'completed', 'expired', 'draft'],
     default: 'draft',
+  },
+  payoutIssued: {
+    type: Boolean,
+    default: false,
   },
 });
 

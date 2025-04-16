@@ -21,6 +21,8 @@ import {
   getRandomSurvey,
   processDocument,
   getSurveyResponses,
+  issueSurveyPayout,
+  getSurveyPayoutDetails,
 } from '../controllers/survey.controller.ts';
 import { IUser } from '../models/user.model.ts';
 
@@ -181,6 +183,19 @@ router.get(
   '/:surveyId/responses',
   isAuthenticated,
   getSurveyResponses as express.RequestHandler,
+);
+
+// Add payout route
+router.put(
+  '/:surveyId/payout',
+  isAuthenticated,
+  issueSurveyPayout as express.RequestHandler,
+);
+
+router.get(
+  '/:surveyId/payout-details',
+  isAuthenticated,
+  getSurveyPayoutDetails as express.RequestHandler,
 );
 
 export default router;

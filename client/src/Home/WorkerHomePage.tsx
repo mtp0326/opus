@@ -20,7 +20,7 @@ import { selectUser } from '../util/redux/userSlice.ts';
 import ScreenGrid from '../components/ScreenGrid.tsx';
 import PrimaryButton from '../components/buttons/PrimaryButton.tsx';
 import Navigation2 from '../components/Navigation2.tsx';
-import { getData } from '../util/api';
+import { getData, putData } from '../util/api';
 import fireImage from '../assets/images/fire.png';
 import { useTheme } from '../context/ThemeContext';
 
@@ -140,6 +140,26 @@ const getUserGoalPoints = (league: string) => {
   }
 };
 
+// Create getNextLeague() which returns the next league based on the current league
+const getNextLeague = (currentLeague: string): string => {
+  switch (currentLeague.toLowerCase()) {
+    case 'wood':
+      return 'Bronze';
+    case 'bronze':
+      return 'Silver';
+    case 'silver':
+      return 'Gold';
+    case 'gold':
+      return 'Platinum';
+    case 'platinum':
+      return 'Diamond';
+    case 'diamond':
+      return 'Diamond'; // Already at the highest level
+    default:
+      return 'Bronze';
+  }
+};
+
 /**
  * The HomePage of the user dashboard. Displays a welcome message, a logout button and a button to promote the user to admin if they are not already an admin. If the user is an admin, the button will navigate them to the admin dashboard. This utilizes redux to access the current user's information.
  */
@@ -166,9 +186,18 @@ function WorkerHomePage() {
   );
   const completionSound = React.useRef(new Audio('/assets/sounds/Wii-Win.mp3'));
   const [dailyQuestions, setDailyQuestions] = useState(0);
-  const [daily10Xp, setDaily10Xp] = useState(false);
-  const [daily15Xp, setDaily15Xp] = useState(false);
-  const [daily20Xp, setDaily20Xp] = useState(false);
+  const [daily10Xp, setDaily10Xp] = useState(() => {
+    const stored = localStorage.getItem('daily10xp');
+    return stored ? JSON.parse(stored) : false;
+  });
+  const [daily15Xp, setDaily15Xp] = useState(() => {
+    const stored = localStorage.getItem('daily15xp');
+    return stored ? JSON.parse(stored) : false;
+  });
+  const [daily20Xp, setDaily20Xp] = useState(() => {
+    const stored = localStorage.getItem('daily20xp');
+    return stored ? JSON.parse(stored) : false;
+  });
   const [userGoalPoints, setUserGoalPoints] = useState(10);
   const [dailyProgress, setDailyProgress] = useState(() => {
     const stored = localStorage.getItem('dailyQuestions');
@@ -191,6 +220,7 @@ function WorkerHomePage() {
   const { isDarkMode } = useTheme();
   const [users, setUsers] = useState<IUser[]>([]);
   const [prevPointsNeeded, setPrevPointsNeeded] = useState(0);
+  const [refreshUser, setRefreshUser] = useState(0);
 
   // Define background colors for the daily progress UI based on dark mode setting
   const dailyProgressContainerBg = isDarkMode ? '#102622' : '#FFFAED';
@@ -254,14 +284,14 @@ function WorkerHomePage() {
       getWorkerByEmail(user.email).then((data) => {
         console.log('🔍 User info:', data);
         setUserInfo(data);
-        setUserGoalPoints(getUserGoalPoints(userInfo?.league ?? 'wood'));
+        setUserGoalPoints(getUserGoalPoints(data?.league ?? 'wood'));
       });
     }
 
     return () => {
       document.head.removeChild(styleElement);
     };
-  }, [user]);
+  }, [user, refreshUser]);
 
   // get survey in random from surveyJs
   useEffect(() => {
@@ -359,6 +389,48 @@ function WorkerHomePage() {
       surveyModel.progressBarShowPageTitles = false;
       surveyModel.showProgressText = false;
 
+      // Disable copy and paste for questions that require typing.
+      surveyModel.onAfterRenderQuestion.add((sender, options) => {
+        const questionType = options.question.getType();
+        if (questionType === 'text' || questionType === 'comment') {
+          const inputElements = options.htmlElement.querySelectorAll(
+            'input, textarea'
+          );
+
+          // Helper function to show the notification near the target element.
+          const showNotification = (target: HTMLElement) => {
+            const notification = document.createElement('div');
+            notification.textContent = 'copy-paste is disabled';
+            notification.style.position = 'absolute';
+            notification.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
+            notification.style.color = 'white';
+            notification.style.padding = '4px 8px';
+            notification.style.borderRadius = '4px';
+            notification.style.fontSize = '12px';
+            notification.style.zIndex = '9999';
+            // Position the notification under the target element.
+            const rect = target.getBoundingClientRect();
+            notification.style.top = rect.bottom + 5 + 'px';
+            notification.style.left = rect.left + 'px';
+            document.body.appendChild(notification);
+            setTimeout(() => {
+              notification.remove();
+            }, 3000);
+          };
+
+          inputElements.forEach((input) => {
+            input.addEventListener('copy', (e) => {
+              e.preventDefault();
+              showNotification(input as HTMLElement);
+            });
+            input.addEventListener('paste', (e) => {
+              e.preventDefault();
+              showNotification(input as HTMLElement);
+            });
+          });
+        }
+      });
+
       // Add custom rendering
       surveyModel.onAfterRenderSurvey.add((sender, options) => {
         const descriptionElement =
@@ -366,7 +438,7 @@ function WorkerHomePage() {
         if (descriptionElement) {
           // Remove any existing progress bars first
           const existingProgressBars = options.htmlElement.querySelectorAll(
-            '.progress-bar-container',
+            '.progress-bar-container'
           );
           existingProgressBars.forEach((bar) => bar.remove());
 
@@ -390,10 +462,68 @@ function WorkerHomePage() {
           `;
           descriptionElement.parentNode?.insertBefore(
             progressBarContainer,
-            descriptionElement.nextSibling,
+            descriptionElement.nextSibling
           );
         }
       });
+
+      // Update progress when pages change.
+      surveyModel.onCurrentPageChanged.add((sender, options) => {
+        console.log('Page Change Details:', {
+          isNextPage: options.isNextPage,
+          isPrevPage: options.isPrevPage,
+          isGoingForward: options.isGoingForward,
+          isGoingBackward: options.isGoingBackward,
+          oldPage: options.oldCurrentPage?.name,
+          newPage: options.newCurrentPage?.name,
+        });
+        if (options.isGoingForward && options.newCurrentPage) {
+          updateProgress();
+        }
+      });
+
+      // **** New: Prevent navigation if text-based questions are empty ****
+      surveyModel.onCurrentPageChanging.add((sender, options) => {
+        let hasEmptyTextField = false;
+        const currentPage = sender.currentPage;
+
+        currentPage.questions.forEach((question) => {
+          if (
+            (question.getType() === 'text' || question.getType() === 'comment') &&
+            (!question.value ||
+              (typeof question.value === 'string' && question.value.trim() === ''))
+          ) {
+            hasEmptyTextField = true;
+
+            // Show custom error notification
+            if (question.htmlElement) {
+              const inputEl = question.htmlElement.querySelector('input, textarea');
+              if (inputEl) {
+                const notification = document.createElement('div');
+                notification.textContent = 'Please fill in this field before proceeding.';
+                notification.style.position = 'absolute';
+                notification.style.backgroundColor = 'rgba(255, 0, 0, 0.75)';
+                notification.style.color = 'white';
+                notification.style.padding = '4px 8px';
+                notification.style.borderRadius = '4px';
+                notification.style.fontSize = '12px';
+                notification.style.zIndex = '9999';
+
+                const rect = inputEl.getBoundingClientRect();
+                notification.style.top = `${rect.bottom + 5}px`;
+                notification.style.left = `${rect.left}px`;
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 3000);
+              }
+            }
+          }
+        });
+
+        if (hasEmptyTextField) {
+          options.cancel = true;
+        }
+      });
+      // **** End new event handler ****
 
       // Each question is answered
       const updateProgress = () => {
@@ -789,21 +919,27 @@ function WorkerHomePage() {
                   console.log('🔍 User goal points:', userGoalPoints);
 
                   let bonusXp = 0;
+                  console.log("DAILY 10 XP", daily10Xp);
+                  console.log("DAILY 15 XP", daily15Xp);
+                  console.log("DAILY 20 XP", daily20Xp);
                   if (newDailyCount >= userGoalPoints && !daily10Xp) {
                     bonusXp = 20;
                     setDaily10Xp(true);
+                    localStorage.setItem('daily10xp', JSON.stringify(true));
                   } else if (
                     newDailyCount >= 0.75 * userGoalPoints &&
                     !daily15Xp
                   ) {
                     bonusXp = 15;
                     setDaily15Xp(true);
+                    localStorage.setItem('daily15xp', JSON.stringify(true));
                   } else if (
                     newDailyCount >= userGoalPoints / 2 &&
                     !daily20Xp
                   ) {
                     bonusXp = 10;
                     setDaily20Xp(true);
+                    localStorage.setItem('daily20xp', JSON.stringify(true));
                   }
                   console.log('🔍 Bonus XP:', bonusXp);
                   const totalXp =
@@ -909,14 +1045,18 @@ function WorkerHomePage() {
                     btn.style.backgroundColor = '#58CC02';
                   });
                   button.onclick = () => {
-                    // Reset survey state to render a new survey
-                    setIsFound(false); // Reset the survey found flag
-                    setProgress(0); // Reset the progress bar
-                    setFormData(null); // Clear the current survey data
-                    setSurveyId(undefined); // Clear the survey ID
+                    // Reset survey state to render a new survey.
+                    setIsFound(false); // Reset the survey found flag.
+                    setProgress(0); // Reset the progress bar.
+                    setFormData(null); // Clear the current survey data.
+                    setSurveyId(undefined); // Clear the survey ID.
 
-                    // Update points and count with bonus XP logic
-                    updatePointsAndCount();
+                    // Update points and count with bonus XP logic.
+                    console.log('Updating points and count...');
+                    updatePointsAndCount(totalXp);
+
+                    // Trigger a refresh of user info.
+                    setRefreshUser(prev => prev + 1);
                   };
                   completionPage.appendChild(button);
                 }
@@ -946,7 +1086,9 @@ function WorkerHomePage() {
       setError(null);
 
       return () => {
-        document.head.removeChild(surveyStyles);
+        if (surveyStyles && surveyStyles.parentNode) {
+          surveyStyles.parentNode.removeChild(surveyStyles);
+        }
         surveyModel.onCurrentPageChanged.remove(updateProgress);
       };
     } catch (err) {
@@ -957,37 +1099,38 @@ function WorkerHomePage() {
   }, [formData?.content, navigate, surveyId, isLoading, isFound]);
 
   useEffect(() => {
-    // Get the current date as YYYY-MM-DD
     const today = new Date().toISOString().split('T')[0];
-
-    // Get stored count and date
     const stored = localStorage.getItem('dailyQuestions');
     const storedData = stored ? JSON.parse(stored) : { date: '', count: 0 };
 
-    // Reset count if it's a new day
     if (storedData.date !== today) {
       localStorage.setItem(
         'dailyQuestions',
         JSON.stringify({ date: today, count: 0 }),
       );
       setDailyQuestions(0);
+      
+      // Reset daily bonus flags
       setDaily10Xp(false);
       setDaily15Xp(false);
       setDaily20Xp(false);
+      localStorage.setItem('daily10xp', JSON.stringify(false));
+      localStorage.setItem('daily15xp', JSON.stringify(false));
+      localStorage.setItem('daily20xp', JSON.stringify(false));
     } else {
       setDailyQuestions(storedData.count);
     }
   }, []);
 
-  const updateDailyQuestions = () => {
-    const today = new Date().toISOString().split('T')[0];
-    const newCount = dailyQuestions + 1;
-    localStorage.setItem(
-      'dailyQuestions',
-      JSON.stringify({ date: today, count: newCount }),
-    );
-    setDailyQuestions(newCount);
-  };
+  // const updateDailyQuestions = () => {
+  //   const today = new Date().toISOString().split('T')[0];
+  //   const newCount = dailyQuestions + 1;
+  //   localStorage.setItem(
+  //     'dailyQuestions',
+  //     JSON.stringify({ date: today, count: newCount }),
+  //   );
+  //   setDailyQuestions(newCount);
+  // };
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -1005,24 +1148,24 @@ function WorkerHomePage() {
     }
   }, []);
 
-  const updatePointsAndCount = () => {
+  // Add this helper for calling our promotion endpoint.
+  const promoteUser = async (league: string) => {
+    if (!userInfo?._id) return;
+    try {
+      const response = await putData(`worker/${userInfo.email}/promote`, {
+        league,
+      });
+      console.log('Promotion response:', response);
+    } catch (err) {
+      console.error('Promotion error:', err);
+    }
+  };
+
+  const updatePointsAndCount = (increaseXP: number) => {
     const today = new Date().toISOString().split('T')[0];
     const newDailyCount = dailyQuestions + 1;
 
-    // Compute bonus XP based on the new daily count:
-    let bonusXp = 0;
-    if (newDailyCount >= userGoalPoints) {
-      bonusXp = 20;
-    } else if (newDailyCount >= 0.75 * userGoalPoints) {
-      bonusXp = 15;
-    } else if (newDailyCount >= userGoalPoints / 2) {
-      bonusXp = 10;
-    }
-
-    const xpReward = (formData?.reward || 0) + bonusXp;
-    const newPoints = points + xpReward;
-
-    // Update daily survey count in local storage and state:
+    // Update daily survey count in local storage and state
     localStorage.setItem(
       'dailyQuestions',
       JSON.stringify({ date: today, count: newDailyCount }),
@@ -1030,17 +1173,30 @@ function WorkerHomePage() {
     setDailyQuestions(newDailyCount);
     const progressPercentage =
       newDailyCount <= userGoalPoints
-        ? Math.ceil((newDailyCount / userGoalPoints) * 100) || 0
+        ? Math.ceil(
+            (newDailyCount / getUserGoalPoints(userInfo?.league ?? 'wood')) * 100,
+          ) || 0
         : 100;
     setDailyProgress(progressPercentage);
 
     // Update points in local storage and state:
     localStorage.setItem(
       'dailyPoints',
-      JSON.stringify({ date: today, points: newPoints }),
+      JSON.stringify({ date: today, points: points + increaseXP }),
     );
     setPrevPoints(points);
-    setPoints(newPoints);
+    setPoints(points + increaseXP);
+
+    console.log("DOES THIS CHANGE?", userInfo?.points, increaseXP, points, points + increaseXP, dailyQuestions, userGoalPoints, getUserGoalPoints(userInfo?.league ?? 'wood'));
+    
+    const pointsNeeded = getPointsForNextLeague(userInfo?.points ?? 0, userInfo?.league ?? 'wood');
+    console.log('Points needed:', pointsNeeded, dailyQuestions, userGoalPoints);
+    // Call promoteUser to check and update the user's league if appropriate.
+    if (pointsNeeded < 0) {
+      console.log('Promoting user to next league:', getNextLeague(userInfo?.league ?? 'wood'));
+      
+      promoteUser(getNextLeague(userInfo?.league ?? 'wood'));
+    }
   };
 
   const getCurrentRankDifference = (
@@ -1513,7 +1669,7 @@ function WorkerHomePage() {
             >
               <Number
                 n1={prevPointsNeeded}
-                n2={getPointsForNextLeague(userInfo?.points || 0)}
+                n2={getPointsForNextLeague(userInfo?.points ?? 0, userInfo?.league ?? 'wood')}
               />{' '}
               points until{' '}
               <span
@@ -1561,20 +1717,6 @@ function WorkerHomePage() {
               </span>{' '}
               League!
             </Typography>
-
-            {/* Points to climb rank - only show if we have users data */}
-            {users.length > 0 && (
-              <Typography
-                sx={{
-                  fontSize: '1.1rem',
-                  color: isDarkMode ? '#666' : '#666',
-                  fontFamily: 'Feather Bold',
-                }}
-              >
-                {getCurrentRankDifference(users, userInfo?.email || '')} points
-                to climb a rank!
-              </Typography>
-            )}
           </Box>
         </Box>
       </Box>

@@ -359,6 +359,18 @@ function WorkerHomePage() {
       surveyModel.progressBarShowPageTitles = false;
       surveyModel.showProgressText = false;
 
+      // Disable copy and paste for survey questions that require typing
+      surveyModel.onAfterRenderQuestion.add((sender, options) => {
+        const questionType = options.question.getType();
+        if (questionType === 'text' || questionType === 'comment') {
+          const inputElements = options.htmlElement.querySelectorAll('input, textarea');
+          inputElements.forEach((input) => {
+            input.addEventListener('copy', (e) => e.preventDefault());
+            input.addEventListener('paste', (e) => e.preventDefault());
+          });
+        }
+      });
+
       // Add custom rendering
       surveyModel.onAfterRenderSurvey.add((sender, options) => {
         const descriptionElement =

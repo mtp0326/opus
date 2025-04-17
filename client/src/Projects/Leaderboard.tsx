@@ -57,7 +57,7 @@ function Leaderboard() {
 
   const themeColors = {
     background: isDarkMode ? '#102622' : '#FFFAED',
-    text: isDarkMode ? '#ffffff' : '#141F25',
+    text: isDarkMode ? '#808080' : '#141F25',
     primary: '#285943',
     secondary: '#1cb0f6',
     accent: '#ce82ff',

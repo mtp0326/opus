@@ -979,15 +979,15 @@ function WorkerHomePage() {
     }
   }, []);
 
-  const updateDailyQuestions = () => {
-    const today = new Date().toISOString().split('T')[0];
-    const newCount = dailyQuestions + 1;
-    localStorage.setItem(
-      'dailyQuestions',
-      JSON.stringify({ date: today, count: newCount }),
-    );
-    setDailyQuestions(newCount);
-  };
+  // const updateDailyQuestions = () => {
+  //   const today = new Date().toISOString().split('T')[0];
+  //   const newCount = dailyQuestions + 1;
+  //   localStorage.setItem(
+  //     'dailyQuestions',
+  //     JSON.stringify({ date: today, count: newCount }),
+  //   );
+  //   setDailyQuestions(newCount);
+  // };
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -1030,7 +1030,10 @@ function WorkerHomePage() {
     setDailyQuestions(newDailyCount);
     const progressPercentage =
       newDailyCount <= userGoalPoints
-        ? Math.ceil((newDailyCount / userGoalPoints) * 100) || 0
+        ? Math.ceil(
+            (newDailyCount / getUserGoalPoints(userInfo?.league ?? 'wood')) *
+              100,
+          ) || 0
         : 100;
     setDailyProgress(progressPercentage);
 

@@ -40,7 +40,7 @@ function TakeSurveyJs() {
   const progressRef = React.useRef(0);
   const startTime = React.useRef(Date.now());
   const progressSound = React.useRef(
-    new Audio('/assets/sounds/correct-answer.mp3'),
+    new Audio('/assets/sounds/duolingo-correct.mp3'),
   );
   const completionSound = React.useRef(new Audio('/assets/sounds/Wii-Win.mp3'));
 

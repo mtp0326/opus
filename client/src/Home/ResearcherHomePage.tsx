@@ -33,11 +33,11 @@ import {
   IUser,
 } from '../Projects/api';
 
-interface PromoteButtonProps {
-  admin: boolean | null;
-  handleSelfPromote?: () => void;
-  navigator: NavigateFunction;
-}
+// interface PromoteButtonProps {
+//   admin: boolean | null;
+//   handleSelfPromote?: () => void;
+//   navigator: NavigateFunction;
+// }
 
 /**
  * A button which, when clicked, will promote the user to admin. If the user is already admin, the button will be a link to the admin dashboard.
@@ -45,23 +45,23 @@ interface PromoteButtonProps {
  * @param handleSelfPromote - a function which promotes the user to admin
  * @param navigator - a function which navigates to a new page (passed in from parent function)
  */
-function PromoteButton({
-  admin,
-  handleSelfPromote,
-  navigator,
-}: PromoteButtonProps) {
-  if (admin === null) {
-    return null;
-  }
-  return admin ? (
-    <PrimaryButton
-      variant="contained"
-      onClick={() => navigator('/users', { replace: true })}
-    >
-      View all users
-    </PrimaryButton>
-  ) : null;
-}
+// function PromoteButton({
+//   admin,
+//   handleSelfPromote,
+//   navigator,
+// }: PromoteButtonProps) {
+//   if (admin === null) {
+//     return null;
+//   }
+//   return admin ? (
+//     <PrimaryButton
+//       variant="contained"
+//       onClick={() => navigator('/users', { replace: true })}
+//     >
+//       View all users
+//     </PrimaryButton>
+//   ) : null;
+// }
 
 interface QuickActionCardProps {
   title: string;
@@ -362,9 +362,9 @@ function ResearcherHomePage() {
           </Grid>
 
           {/* Admin Section */}
-          <Grid item xs={12} container justifyContent="center">
+          {/* <Grid item xs={12} container justifyContent="center">
             <PromoteButton admin={admin} navigator={navigator} />
-          </Grid>
+          </Grid> */}
         </Grid>
       </Box>
     </>

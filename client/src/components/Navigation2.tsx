@@ -93,20 +93,6 @@ function Navigation2() {
           >
             Leagues
           </Button>
-          <Button
-            onClick={() => handleNavigate('/point-rewards')}
-            sx={{
-              color: isDarkMode ? '#fff' : '#4b4b4b',
-              fontFamily: 'Feather Bold',
-              '&:hover': {
-                backgroundColor: isDarkMode
-                  ? 'rgba(255, 255, 255, 0.1)'
-                  : '#aff8e5',
-              },
-            }}
-          >
-            Point Rewards
-          </Button>
         </Box>
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Avatar

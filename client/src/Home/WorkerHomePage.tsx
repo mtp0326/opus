@@ -359,14 +359,43 @@ function WorkerHomePage() {
       surveyModel.progressBarShowPageTitles = false;
       surveyModel.showProgressText = false;
 
-      // Disable copy and paste for survey questions that require typing
+      // Disable copy and paste for survey questions that require typing,
+      // and show a notification when the user attempts to copy or paste.
       surveyModel.onAfterRenderQuestion.add((sender, options) => {
         const questionType = options.question.getType();
         if (questionType === 'text' || questionType === 'comment') {
           const inputElements = options.htmlElement.querySelectorAll('input, textarea');
+
+          // Helper function to show the notification near the target element.
+          const showNotification = (target: HTMLElement) => {
+            const notification = document.createElement('div');
+            notification.textContent = 'copy-paste is disabled';
+            notification.style.position = 'absolute';
+            notification.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
+            notification.style.color = 'white';
+            notification.style.padding = '4px 8px';
+            notification.style.borderRadius = '4px';
+            notification.style.fontSize = '12px';
+            notification.style.zIndex = '9999';
+            // Position the notification under the target element.
+            const rect = target.getBoundingClientRect();
+            notification.style.top = rect.bottom + 5 + 'px';
+            notification.style.left = rect.left + 'px';
+            document.body.appendChild(notification);
+            setTimeout(() => {
+              notification.remove();
+            }, 3000);
+          };
+
           inputElements.forEach((input) => {
-            input.addEventListener('copy', (e) => e.preventDefault());
-            input.addEventListener('paste', (e) => e.preventDefault());
+            input.addEventListener('copy', (e) => {
+              e.preventDefault();
+              showNotification(input as HTMLElement);
+            });
+            input.addEventListener('paste', (e) => {
+              e.preventDefault();
+              showNotification(input as HTMLElement);
+            });
           });
         }
       });
@@ -958,7 +987,9 @@ function WorkerHomePage() {
       setError(null);
 
       return () => {
-        document.head.removeChild(surveyStyles);
+        if (surveyStyles && surveyStyles.parentNode) {
+          surveyStyles.parentNode.removeChild(surveyStyles);
+        }
         surveyModel.onCurrentPageChanged.remove(updateProgress);
       };
     } catch (err) {

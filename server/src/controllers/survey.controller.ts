@@ -1323,6 +1323,16 @@ export const getSurveyResponses = async (
   }
 };
 
+interface Submission {
+  worker: {
+    email: string;
+    xp: number;
+  };
+  xpEarned: number;
+  attentionCheckScore?: string;
+  status: string;
+}
+
 export const issueSurveyPayout = async (
   req: Request & { user?: IUser },
   res: Response,
@@ -1397,16 +1407,46 @@ export const getSurveyPayoutDetails = async (
       });
     }
 
+    const survey = externalSurvey || jsSurvey;
+    if (!survey) {
+      return res.status(404).json({
+        error: { message: 'Survey not found' },
+      });
+    }
+
+    const totalReward = survey.reward || 0;
+
     // Get all submissions for the survey
     const submissions = jsSurvey
       ? await SurveyJsSubmission.find({ survey: surveyId })
-          .populate('worker', 'email')
+          .populate<{ worker: { email: string; xp: number } }>('worker', 'email xp')
           .select('worker xpEarned attentionCheckScore status')
       : await SurveySubmission.find({ survey: surveyId })
-          .populate('worker', 'email')
+          .populate<{ worker: { email: string; xp: number } }>('worker', 'email xp')
           .select('worker xpEarned status');
 
-    return res.json(submissions);
+    const totalRespondents = submissions.length;
+    if (totalRespondents === 0) {
+      return res.json([]);
+    }
+
+    // Calculate base payment (half of total reward split evenly)
+    const basePaymentPerRespondent = (totalReward / 2) / totalRespondents;
+
+    // Calculate XP-weighted payments
+    const totalXP = submissions.reduce((sum, submission) => sum + (submission.worker?.xp || 0), 0);
+    
+    const payoutDetails = submissions.map(submission => {
+      const xpWeightedPayment = (totalReward / 2) * ((submission.worker?.xp || 0) / totalXP);
+      const monetaryPayment = basePaymentPerRespondent + xpWeightedPayment;
+
+      return {
+        ...submission.toObject(),
+        monetaryPayment,
+      };
+    });
+
+    return res.json(payoutDetails);
   } catch (error: any) {
     console.error('❌ Error fetching payout details:', error.message);
     res.status(400).json({ error: { message: error.message } });

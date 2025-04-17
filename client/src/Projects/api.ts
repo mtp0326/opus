@@ -342,6 +342,54 @@ export const getSurveyResponses = async (surveyId: string): Promise<number> => {
   return response.data;
 };
 
+export const calculateSurveyPayouts = async (surveyId: string) => {
+  console.log('💰 Calculating survey payouts:', surveyId);
+
+  // Get survey details and responses
+  const surveyResponse = await getData(`surveys/js/${surveyId}`);
+  if (surveyResponse.error) {
+    throw new Error(surveyResponse.error.message);
+  }
+
+  const survey = surveyResponse.data;
+  const totalReward = survey.reward;
+  
+  // Get all responses for the survey
+  const responsesResponse = await getData(`surveys/${surveyId}/responses`);
+  if (responsesResponse.error) {
+    throw new Error(responsesResponse.error.message);
+  }
+
+  const responses = responsesResponse.data;
+  const totalRespondents = responses.length;
+
+  if (totalRespondents === 0) {
+    throw new Error('No responses found for this survey');
+  }
+
+  // Calculate base payment (half of total reward split evenly)
+  const basePaymentPerRespondent = (totalReward / 2) / totalRespondents;
+
+  // Calculate XP-weighted payments
+  const totalXP = responses.reduce((sum: number, response: any) => sum + response.worker.xp, 0);
+  const xpWeightedPayments = responses.map((response: any) => ({
+    ...response,
+    monetaryPayment: basePaymentPerRespondent + 
+      ((totalReward / 2) * (response.worker.xp / totalXP))
+  }));
+
+  // Update the payouts in the database
+  const updateResponse = await putData(`surveys/${surveyId}/update-payouts`, {
+    payouts: xpWeightedPayments
+  });
+
+  if (updateResponse.error) {
+    throw new Error(updateResponse.error.message);
+  }
+
+  return updateResponse.data;
+};
+
 export {
   publishSurvey,
   getPublishedSurveys,

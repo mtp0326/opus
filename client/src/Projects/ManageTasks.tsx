@@ -19,8 +19,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PaymentIcon from '@mui/icons-material/Payment';
 import Navigation from '../components/Navigation';
-import { getPublishedSurveys, type SurveyData } from './api';
-import { deleteSurvey } from './api';
+import { getPublishedSurveys, type SurveyData, deleteSurvey, calculateSurveyPayouts } from './api';
 import styles from './ManageTasks.module.css';
 import issueSurveyPayout from '../api/surveyApi';
 
@@ -107,7 +106,8 @@ function ManageTasks() {
         surveyId: selectedSurvey._id,
       });
 
-      const result = await issueSurveyPayout(selectedSurvey._id, 'lottery');
+      // Calculate and distribute payments
+      await calculateSurveyPayouts(selectedSurvey._id);
 
       // Update surveys list
       setSurveys((prevSurveys) =>
@@ -267,14 +267,14 @@ function ManageTasks() {
                                       },
                                     }}
                                     startIcon={<PaymentIcon />}
-                                    onClick={() =>
-                                      survey.payoutIssued
-                                        ? navigate(
-                                            `/survey-payouts/${survey._id}`,
-                                          )
-                                        : handlePayoutClick(survey)
-                                    }
-                                    disabled={false}
+                                    onClick={() => {
+                                      if (survey.payoutIssued) {
+                                        navigate(`/survey-payouts/${survey._id}`);
+                                      } else {
+                                        handlePayoutClick(survey);
+                                      }
+                                    }}
+                                    disabled={!survey._id}
                                   >
                                     {survey.payoutIssued
                                       ? 'Payment Issued'

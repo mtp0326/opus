@@ -175,6 +175,13 @@ const deleteUserById = async (id: string) => {
   return user;
 };
 
+const updateUserLeague = async (id: string, league: string) => {
+  const user = await User.findByIdAndUpdate(id, {
+    $set: { league },
+  }).exec();
+  return user;
+};
+
 export {
   passwordHashSaltRounds,
   createUser,
@@ -189,4 +196,5 @@ export {
   postWorkerTagsFromDB,
   upgradeUserToAdmin,
   deleteUserById,
+  updateUserLeague,
 };

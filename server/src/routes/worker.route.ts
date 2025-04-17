@@ -6,6 +6,7 @@ import express from 'express';
 import { isAuthenticated } from '../controllers/auth.middleware.ts';
 import {
   getWorkerInfo,
+  promoteUser,
   putWorkerTags,
 } from '../controllers/worker.controller.ts';
 import 'dotenv/config';
@@ -23,5 +24,10 @@ router.get('/:userEmail', isAuthenticated, getWorkerInfo);
  * authenticated and is an admin.
  */
 router.put('/:userEmail/tags', isAuthenticated, putWorkerTags);
+
+/**
+ * A PUT route to promote a user to the next league.
+ */
+router.put('/:userEmail/promote', isAuthenticated, promoteUser);
 
 export default router;

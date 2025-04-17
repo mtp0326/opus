@@ -10,6 +10,7 @@ import {
   getUserByEmail,
   getWorkerInfoFromDB,
   postWorkerTagsFromDB,
+  updateUserLeague
 } from '../services/user.service.ts';
 
 /**
@@ -73,4 +74,30 @@ const putWorkerTags = async (
     });
 };
 
-export { getWorkerInfo, putWorkerTags };
+const promoteUser = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction,
+) => {
+  const { userEmail } = req.params;
+  if (!userEmail) {
+    next(ApiError.missingFields(['email']));
+    return;
+  }
+
+  const user: IUser | null = await getUserByEmail(userEmail);
+  if (!user) {
+    next(ApiError.notFound(`User with email ${userEmail} does not exist`));
+    return;
+  }
+
+  return updateUserLeague(user._id, req.body.league)
+    .then((result) => {
+      res.status(StatusCode.OK).json({ message: 'League updated successfully.' });
+    })
+    .catch((e) => {
+      next(ApiError.internal(`Unable to update league: ${e.message}`));
+    });
+};
+
+export { getWorkerInfo, putWorkerTags, promoteUser };
